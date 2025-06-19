@@ -1,0 +1,28 @@
+site_name: FishFeats Documentation
+repo_url: https://github.com/gletort/FishFeats/
+
+nav:
+    - Home: home.md
+
+theme:
+    name: material
+    features:
+        - navigation.footer
+    color_mode: dark
+    palette:
+        # Palette toggle for dark mode
+        - media: "(prefers-color-scheme: dark)"
+          scheme: slate
+          primary: white
+          accent: teal
+          toggle:
+            icon: material/lightbulb
+            name: Switch to light mode
+        # Palette toggle for light mode
+        - media: "(prefers-color-scheme: light)"
+          scheme: default
+          primary: white
+          accent: dark blue
+          toggle:
+            icon: material/lightbulb-outline
+            name: Switch to dark mode
