@@ -26,7 +26,7 @@ From version 1.2 of FishFeats, for all steps, measures are saved in the same fil
 - [Classify cells](https://gitlab.pasteur.fr/gletort/fishfeats/-/wikis/Classify-cells): manually classify the segmented cells with a user defined criteria (eg "PCNA or not"). Can be automatically prefilled then manually corrected.
 - [Measure cytoplasmic staining](https://gitlab.pasteur.fr/gletort/fishfeats/-/wikis/Measure-cytoplasmic-staining) to measure the intensity of one or more channels in each segmented cell around the surface.
 
-![main](uploads/637aa10aedd44698849fbbf13af9cddc/main.png)
+![main](imgs/main.png)
 
 When you open a new image, the plugin will directly go to the first mandatory steps of fixing the image scales and channels (image scalings).
 
