@@ -1,4 +1,5 @@
 site_name: FishFeats Documentation
+site_url: https://fishfeats.github.io/fishfeats/
 repo_url: https://github.com/gletort/FishFeats/
 
 nav:
