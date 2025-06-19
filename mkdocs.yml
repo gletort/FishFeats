@@ -1,8 +1,9 @@
 site_name: FishFeats Documentation
+site_url: https://gletort.github.io/FishFeats/
 repo_url: https://github.com/gletort/FishFeats/
 
 nav:
-    - Home: home.md
+    - Home: index.md
 
 theme:
     name: material
