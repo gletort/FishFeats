@@ -17,7 +17,7 @@ From version 1.2 of FishFeats, for all steps, measures are saved in the same fil
 
 `fishfeats` proposes several analyses steps in the main interface:
 
-- [Image scalings](https://gitlab.pasteur.fr/gletort/fishfeats/-/wikis/Image-scalings): set the global parameter of the image to analyse (scalings, channels)
+- [Image scalings](./Image-scalings): set the global parameter of the image to analyse (scalings, channels)
 - [Get cells](https://gitlab.pasteur.fr/gletort/fishfeats/-/wikis/Get-cells): segment/load/correct the cell apical contours in 2D
 - [Load junctions from default file](https://gitlab.pasteur.fr/gletort/fishfeats/-/wikis/Load-junctions-from-default-file): directly load the file containing the segmented cells and create the corresponding cells.
 - [Get nuclei](https://gitlab.pasteur.fr/gletort/fishfeats/-/wikis/Get-nuclei): segment/load/correct the nuclei in 3D.
