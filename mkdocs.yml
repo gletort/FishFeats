@@ -6,6 +6,7 @@ nav:
     - Home: index.md
     - Steps:
         - Image Scalings: Image-Scalings.md
+        - Get Cells: Get-cells.md
 
 theme:
     name: material
