@@ -4,6 +4,8 @@ repo_url: https://github.com/gletort/FishFeats/
 
 nav:
     - Home: index.md
+    - Steps:
+        - Image Scalings: Image-Scalings.md
 
 theme:
     name: material
