@@ -12,7 +12,6 @@ Nb: in previous version of FishFeats, this step is called `Get junctions` in the
 **2/ 2D segmentation:** The plugin proposes several options to perform the segmentation from the 2D images of junctions:
 
 * [Epyseg](https://github.com/baigouy/EPySeg): tool for epithelial segmentation from Aigouy et al. 2020.
-* [Epyseg-Dask](#epyseg-dask): uses Dask to parallelize the segmentation with Epyseg (faster on large image).
 * [CellPose](https://www.cellpose.org/): tool for cellular segmentation from Stringer et al. 2021.
 * Load an already segmented file (should be a file of labelled cell). If you choose this option, the plugin will look for the labelled file of cell, named _imagename_`_cells2D.tif` in the results folder, but you can select another file.
 
