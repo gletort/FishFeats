@@ -1,6 +1,8 @@
-**This step let you set the image scaling informations and select the correct color channels for junction and nuclei staining.**
+!!! abstract "Set the image properties (scaling informations, color channels)" 
+	_Choose the option `Image scalings` in `fishfeats` main step choices interface to do this step._ (1) 
+    { .annotate }
 
-_Choose the option `Image scalings` in `fishfeats` main step choices interface to do this step._ This step is also loaded by default when you open the image on which to work on.
+    1. This step is loaded by default when you open the image on which to work on.
 
 ![start_scale_anoot](imgs/start_scale_anoot.png)
 
@@ -14,7 +16,9 @@ On the right panel, you have a parameter dialog called `Scale` on which you can 
 
 * `junction channel`: number of the color channel image in which junction staining is. The number is indicated in the name of each layers in the left panel: `originalChannel0`, `originalChannel1`...
 
-* `nuclei channel`: number of the color channel image in which nuclei staining is. ⚠️If the nuclei staining is in the same channel as the junction staining, put the same values for the two parameters and the program will separate the two signals later on. If not, be sure to put different numbers, otherwise it will try to separate the two staining.
+* `nuclei channel`: number of the color channel image in which nuclei staining is. 
+!!! warning "Channel separation"
+    If the nuclei staining is in the same channel as the junction staining, put the same values for the two parameters and the program will [separate the two signals](./Separate-junctions-and-nuclei) later on. If not, be sure to put different numbers, otherwise it will try to separate the two staining.
 
 The plugin reads the metadata of your image and will prefill the scaling parameters based on that. However, there can be some mistakes depending on the metadata format, so it's important to always check that the scaling is correct.
 

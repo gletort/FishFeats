@@ -38,6 +38,7 @@ theme:
             abstract: fontawesome/solid/puzzle-piece
             bug: fontawesome/solid/bug
             tip: fontawesome/solid/keyboard
+            warning: fontawesome/solid/triangle-exclamation
 
 
 ## display code options
