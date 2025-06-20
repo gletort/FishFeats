@@ -31,12 +31,33 @@ theme:
             icon: material/lightbulb-outline
             name: Switch to dark mode
 
+    icon:
+        annotation: material/plus-circle-outline
+        admonition:
+            note: fontawesome/solid/note-sticky
+            abstract: fontawesome/solid/puzzle-piece
+            bug: fontawesome/solid/bug
+            tip: fontawesome/solid/keyboard
+
+
 ## display code options
 markdown_extensions:
   - pymdownx.highlight:
       anchor_linenums: true
       line_spans: __span
       pygments_lang_class: true
+  - admonition
+  - tables
+  - pymdownx.details
   - pymdownx.inlinehilite
   - pymdownx.snippets
   - pymdownx.superfences
+  - pymdownx.tabbed:
+      alternate_style: true
+  - attr_list
+  - md_in_html
+  - pymdownx.keys
+  - pymdownx.emoji:
+      emoji_index: !!python/name:material.extensions.emoji.twemoji
+      emoji_generator: !!python/name:material.extensions.emoji.to_svg
+
