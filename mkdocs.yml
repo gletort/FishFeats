@@ -4,6 +4,7 @@ repo_url: https://github.com/gletort/FishFeats/
 
 nav:
     - Home: index.md
+    - Installation: Installation.md
     - Steps:
         - Image Scalings: Image-scalings.md
         - Get Cells: Get-cells.md
