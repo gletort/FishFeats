@@ -81,7 +81,7 @@ _See Napari Label layer [documentation](https://napari.org/0.5.0/howtos/layers/l
 		| ---------- | ------------------------------------ |
 		| <kbd>F1,F2,F3</kbd>... | Show/hide the 1st,2nd,3rd.. layer (ordered as visibile in the bottom left panel) |
 		| :fontawesome-regular-square: | _(bottom left)_ Switch between 2D/3D view | 
-		| <kbd>p</kbd> | In 3D view, (de-)activate vispy visualization mode. It allows to set the view perspective, by right-cliking and holding it. **Note that in vispy active mode, selecting a label doesn't always work (click coordinates are unprecised)** |
+		| <kbd>Ctrl-v</kbd> | In 3D view, (de-)activate vispy visualization mode. It allows to set the view perspective, by right-cliking and holding it. **Note that in vispy active mode, selecting a label doesn't always work (click coordinates are unprecised)** |
 		| `show selected` | _(top left panel)_ Show only the current label (pixels which have the value taht is currently active the label field) |
 		| :fontawesome-solid-eye: | _(bottom left panel)_ Show/hide the corresponding layer | 
 		| <kbd>v</kbd> | Show/hide the current layer |

@@ -33,14 +33,20 @@ When you open a new image, the plugin will directly go to the first mandatory st
 ### General shortcuts
 
 For each step, **FishFeats** proposes shortcuts to make its use more agreable/user-friendly, aditionnaly to the ones already proposed by Napari. The specific shortcuts are indicated in the text overlay showed at the top left side of the view. 
-You can always type <kbd>h</kbd> to show/hide these help messages.
+
+**You can always press <kbd>h</kbd> to show/hide these help messages**.
 
 A few other shortcuts are always available:
-* **Napari default shortcuts**: go to `File>Preferences>Shortcuts` to see the list of available shortcuts, associated with each kind of layers
-* Press <kbd>h</kbd>: show/hide current help message
-* Press <kbd>Control-p</kbd> to activate/desactive vispy visualisation mode in 3D. This mode allows you to control the visualisation angle, but can inactive some selection tools.
-* Press <kbd>F1</kbd> to show/hide the first layer (from the list of layers in the left bottom part of the window, starting from the bottom). By default, the first layer should be your input image first color chanel, called `originalImageChanel0` in FishFeats.
-* Press <kbd>F2</kbd> to show/hide the second layer, <kbd>F3</kbd> for the third layer...
+
+???+ tip "Shortcuts"
+	
+	|   |     |	
+	| ---------- | ------------------------------------ |
+	| **Napari default shortcuts** | go to `File>Preferences>Shortcuts` to see the list of available shortcuts, associated with each kind of layers |
+	| <kbd>h</kbd>| show/hide help message|
+	| <kbd>Ctrl-v</kbd> | Activate/desactive vispy visualisation mode in 3D. This mode allows you to control the visualisation angle, but can inactive some selection tools.|
+	| <kbd>F1</kbd> | Show/hide the first layer (from the list of layers in the left bottom part of the window, starting from the bottom). By default, the first layer should be your input image first color chanel, called `originalImageChanel0` in FishFeats.|
+	| <kbd>F2</kbd> | Show/hide the second layer, <kbd>F3</kbd> for the third layer...|
 
 
 
