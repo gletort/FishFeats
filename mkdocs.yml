@@ -8,6 +8,7 @@ nav:
     - Steps:
         - Image Scalings: Image-scalings.md
         - Get Cells: Get-cells.md
+        - Get Nuclei: Get-nuclei.md
 
 theme:
     name: material
@@ -36,6 +37,7 @@ theme:
         annotation: material/plus-circle-outline
         admonition:
             note: fontawesome/solid/note-sticky
+            example: fontawesome/solid/sliders
             abstract: fontawesome/solid/puzzle-piece
             bug: fontawesome/solid/bug
             tip: fontawesome/solid/keyboard

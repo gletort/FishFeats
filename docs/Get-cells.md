@@ -45,15 +45,15 @@ To correct eventual segmentation errors, on the left top panel, you have the nap
 	
 		|   |     |	
 		| ---------- | ------------------------------------ |
+		| <kbd>F1,F2,F3</kbd>... | Show/Hide the first, 2nd, 3th.. layer (ordered in the bottom left panel from bottom to top) |
 		| `contour` | Labels (cells) can be displayed as filled areas (put `contour` to 0) or only with the contour lines (`contour`>0). |
 		| `show selected` | Display only the current label (the pixels which ahve the value that is currently acitve in the `label` field). |
 		| ++l++ | Show/Hide all the labels value as a text overlay. _Or check/uncheck `show cellnames` in the right panel_ |
-		| <kbd>F1,F2,F3</kbd>... | Show/Hide the first, 2nd, 3th.. layer (ordered in the bottom left panel from bottom to top) |
 		| ++5++ | Switch between zoom/moving mode |
 		| ++v++ | Show/hide the current layer (the `Junctions` layer) |
 		| <kbd>Ctrl+c</kbd>/<kbd>Ctrl+d</kbd> | Increase/Decrease the labels contour width (will be filled if reaches 0) |
 
-	=== "Label editing"
+	=== "Label (cell) editing"
 
 		|   |     |	
 		| ---------- | ------------------------------------ |
