@@ -14,3 +14,8 @@ This error happened only in Windows with specific nvidia card (A6000).
 It happens when adding or deleting Shape layers, quite often in `cytoplasmic measure` option.
 It seems to be an error external to the plugin or napari. 
 We haven't found a solution yet, but please refer to [this discussion](https://forum.image.sc/t/napari-crash-problem-with-opengl-and-or-vispy-and-or-nvidia-and-or-windows/113859) on imagesc forum for more infos/updates.
+
+## Other issue
+
+You can also check on the [issues](https://github.com/gletort/FishFeats/issues) page of the repository if your problem has already been reported and has a solution. 
+Otherwise, open a new one in this page and we will do our best to answer fast.

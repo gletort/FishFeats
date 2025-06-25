@@ -55,4 +55,4 @@ We tested the plugin with python 3.9, 3.10, with Napari 0.4.19, 0.6.1
 
 There is an incompability with Napari 0.4.17 (strongly not recommended) for point edition in 3D.
 
-Please refers to [Known errors and solutions](Known-errors-and-solutions.md) if you encounter issues at the installation/usage or to the repository issues. Finally if you don't find any information on your error, open a new issue in this repository.
+Please refers to [Known errors and solutions](Known-errors-and-solutions.md) if you encounter issues at the installation/usage or to the repository issues. Finally if you don't find any information on your error, open a [new issue](https://github.com/gletort/FishFeats/issues) in this repository.
