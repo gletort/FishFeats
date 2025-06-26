@@ -20,7 +20,7 @@ theme:
     name: material
     features:
         - navigation.footer
-        - navigation.tabs
+          #- navigation.tabs
     color_mode: dark
     palette:
         # Palette toggle for dark mode
