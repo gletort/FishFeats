@@ -11,6 +11,7 @@ nav:
         - 3D cell positions: 3d-cell-positions.md
         - Get Nuclei: Get-nuclei.md
         - Associate: Associate.md
+        - Measure cytoplasmic: Measure-cytoplasmic-staining.md
     - Trouble shooting: Known-errors-and-solutions.md
 
 theme:
