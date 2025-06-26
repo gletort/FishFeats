@@ -12,12 +12,15 @@ nav:
         - Get Nuclei: Get-nuclei.md
         - Associate: Associate.md
         - Measure cytoplasmic: Measure-cytoplasmic-staining.md
+    - Additionnal options:
+        - Touching labels: Touching-labels.md
     - Trouble shooting: Known-errors-and-solutions.md
 
 theme:
     name: material
     features:
         - navigation.footer
+        - navigation.tabs
     color_mode: dark
     palette:
         # Palette toggle for dark mode
