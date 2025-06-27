@@ -46,7 +46,10 @@ in the activated environnement and goes to `Plugins>FishFeats>Start fishfeats`
 
 ## Compatibility/Dependencies
 
-`FishFeats` depends on several python modules to allow different tasks. It is not necessary to install all the dependencies to run it, only the ones listed in `setup.cfg` configuration file. When installing the plugin, these listed dependencies will be automatically installed. 
+`FishFeats` depends on several python modules to allow different tasks. It is not necessary to install all the dependencies to run it, only the ones listed in `setup.cfg` configuration file. When installing the plugin, the listed dependencies will be automatically installed. 
+
+Other dependencies can be installed individually if the corresponding option will be used (e.g. install cellpose: `pip install cellpose`).
+They can also be all installed by installing FishFeats in full mode `pip install fishfeats[full]`.
 
 ### Operating System
 The plugin has been developped on a Linux environment and is used on Windows and MacOS distributions. It should thus be compatible with all these OS provided to have the adequate python environments.
@@ -56,8 +59,10 @@ The plugin has been developped on a Linux environment and is used on Windows and
 
 
 ### Python version
-We tested the plugin with python 3.9, 3.10, with Napari 0.4.19, 0.6.1
+We tested the plugin with python 3.9, 3.10, with Napari 0.4.19, 0.6.1. 
+In [Trouble shooting](Known-errors-and-solutions.md), we listed some environnement that worked for given operating system/python version. 
+You can also create your environment directly from these `.yaml` files.
 
 There is an incompability with Napari 0.4.17 (strongly not recommended) for point edition in 3D.
 
-Please refers to [Known errors and solutions](Known-errors-and-solutions.md) if you encounter issues at the installation/usage or to the repository issues. Finally if you don't find any information on your error, open a [new issue](https://github.com/gletort/FishFeats/issues) in this repository.
+Please refers to [Trouble shooting](Known-errors-and-solutions.md) if you encounter issues at the installation/usage or to the repository issues. Finally if you don't find any information on your error, open a [new issue](https://github.com/gletort/FishFeats/issues) in this repository.
