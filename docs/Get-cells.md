@@ -71,7 +71,7 @@ To correct eventual segmentation errors, on the left top panel, you have the nap
 
 To save the manual corrections, click on `save junctions`. It will save a file called _imagename_`_cells2D.tif` in the `results` folder that contained the labelled cells.
 
-### Measures
+## Measures
 You can display a table of measurements of the cells position, area and label. Click on the button `Show measures` to perform the measurement. A new window containing the table of all the cells and their area will appear.
 
 ![get_cells_measures](imgs/measurecells.png)

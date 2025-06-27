@@ -5,22 +5,29 @@ repo_url: https://github.com/gletort/FishFeats/
 nav:
     - Home: index.md
     - Installation: Installation.md
-    - Steps:
+    - Actions:
         - Image Scalings: Image-scalings.md
         - Get Cells: Get-cells.md
         - 3D cell positions: 3d-cell-positions.md
         - Get Nuclei: Get-nuclei.md
         - Associate: Associate.md
-        - Measure cytoplasmic: Measure-cytoplasmic-staining.md
+        - Measure cytopasmic: Measure-cytoplasmic-staining.md
     - Additionnal options:
         - Touching labels: Touching-labels.md
+        - Hierarchical clustering: Hierarchical-clustering.md
     - Trouble shooting: Known-errors-and-solutions.md
 
 theme:
+    logo: imgs/snap.png
     name: material
     features:
         - navigation.footer
-          #- navigation.tabs
+        #- navigation.tabs
+        #- navigation.tabs.sticky
+        - navigation.path
+        - navigation.top
+        - navigation.expand
+        - toc.integrate
     color_mode: dark
     palette:
         # Palette toggle for dark mode
