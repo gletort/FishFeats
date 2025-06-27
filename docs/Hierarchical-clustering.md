@@ -5,7 +5,7 @@ From a data table where rows are the segmented cells and columns are measures fr
 
 ## Requirements
 
-First, this analysis uses the segmentation of the cells, in 2D, as can be saved from `fishfeats` main pipeline in the [Get junctions](https://gitlab.pasteur.fr/gletort/fishfeats/-/wikis/Get-junctions) step.
+First, this analysis uses the segmentation of the cells, in 2D, as can be saved from `fishfeats` main pipeline in the [Get cells](./Get-cells) step.
 
 Second, it requires a table file (.csv) that contains the measures to be clustered, as can be saved in the `_results.csv` file from `fishfeats` main pipeline in the [Get RNAs](./Get-RNAs) or [Measure cytoplasmic staining](./Measure-cytoplasmic-staining) steps.
 
