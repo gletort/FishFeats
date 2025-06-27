@@ -5,6 +5,11 @@ You can launch `fishfeats` in Napari by going to `Plugins>fishfeats>Start`. It w
 
 Then the image will be displayed, with the different channels shown as separated layers on the left panel.
 
+!!! warning "Installation of dependencies"
+	As the plugin relies on several different python modules and for flexibilit, we don't enforce the install of **all dependencies** on the basic installation of FishFeats (more info on the [installation page](./Installation.md)).
+	If you encounter errors of missing modules, this could be only because of a missing dependcy that you can easily install with `pip install modulename` usually. 
+	
+
 ### Outputs/Setup
 All the outputs of `fishfeats` will be saved in the folder called `results` that will be automatically created in the folder containing your image. If you run `fishfeats` again on the same image, the program will look into that folder for already saved files, so that you can load previous files and don't have to redo all the steps from scratch.
 
