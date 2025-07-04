@@ -11,7 +11,8 @@ nav:
         - 3D cell positions: 3d-cell-positions.md
         - Get Nuclei: Get-nuclei.md
         - Associate: Associate.md
-        - Measure cytopasmic: Measure-cytoplasmic-staining.md
+        - Measure cytoplasmic: Measure-cytoplasmic-staining.md
+        - Separate stainings: Separate-junctions-and-nuclei.md
     - Additionnal options:
         - Touching labels: Touching-labels.md
         - Hierarchical clustering: Hierarchical-clustering.md
