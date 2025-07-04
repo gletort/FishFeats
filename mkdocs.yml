@@ -9,9 +9,10 @@ nav:
         - Image Scalings: Image-scalings.md
         - Get Cells: Get-cells.md
         - 3D cell positions: 3d-cell-positions.md
-        - Get Nuclei: Get-nuclei.md
-        - Associate: Associate.md
         - Measure cytoplasmic: Measure-cytoplasmic-staining.md
+        - Get Nuclei: Get-nuclei.md
+        - Measure nuclear: Measure-nuclear-staining.md
+        - Associate: Associate.md
         - Separate stainings: Separate-junctions-and-nuclei.md
     - Additionnal options:
         - Touching labels: Touching-labels.md
