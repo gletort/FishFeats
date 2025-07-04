@@ -31,7 +31,7 @@ For each set-up, we list first the graphical info that we get with `napari --inf
 
 	=== "Windows"
 
-		<details><summary> Windows 10, python 3.9.21 </summary>
+		<details><summary> Windows 10, python 3.9.21, napari 0.4.18 </summary>
 
 			fishfeats: 1.1.11				
 			napari: 0.4.18
@@ -56,7 +56,7 @@ For each set-up, we list first the graphical info that we get with `napari --inf
 		yaml file with all python packages installed in the environment [here](./environnements_list/windows10_fishfeats_1.1.11_py39.yaml)
 		</details>	
 		
-		<details><summary> Windows 10, python 3.10.18 </summary>
+		<details><summary> Windows 10, python 3.10.18, napari 0.6.1 </summary>
 			
 			napari: 0.6.1
 			Platform: Windows-10-10.0.19045-SP0
@@ -101,5 +101,74 @@ For each set-up, we list first the graphical info that we get with `napari --inf
 	
 
 	=== "MacOS"
+		
+		<details><summary> MacBook pro M1, python 3.10.14, napari 0.4.19 </summary>
+
+			napari: 0.4.19
+			Platform: macOS-15.5-arm64-arm-64bit
+			System: MacOS 15.5
+			Python: 3.10.14 | packaged by conda-forge | (main, Mar 20 2024, 12:51:49) [Clang 16.0.6 ]
+			Qt: 5.15.8
+			PyQt5: 5.15.9
+			NumPy: 1.26.4
+			SciPy: 1.13.1
+			Dask: 2025.5.1
+			VisPy: 0.14.3
+			magicgui: 0.10.1
+			superqt: 0.7.5
+			in-n-out: 0.2.1
+			app-model: 0.2.8
+			npe2: 0.7.8
+
+			OpenGL:
+   				- GL version:    2.1 Metal - 89.4
+   				- MAX_TEXTURE_SIZE: 16384
+			
+			fishfeats: 1.1.11				
+		yaml file with all python packages installed in the environment [here](./environnements_list/macbook_pro_M1_fishfeats_1.1_py310.yaml)
+		</details>	
 
 	=== "Linux"
+		
+		<details><summary> Ubuntu 20.04.6, python 3.10.0, napari 0.6.1 </summary>
+
+		napari: 0.6.1
+		Platform: Linux-5.15.0-139-generic-x86_64-with-glibc2.31
+		System: Ubuntu 20.04.6 LTS
+		Python: 3.10.0 | packaged by conda-forge | (default, Nov 20 2021, 02:24:10) [GCC 9.4.0]
+		Qt: 5.15.2
+		PySide2: 5.15.2.1
+		NumPy: 1.24.2
+		SciPy: 1.15.3
+		Dask: 2025.5.1
+		VisPy: 0.15.2
+		magicgui: 0.10.0
+		superqt: 0.7.3
+		in-n-out: 0.2.1
+		app-model: 0.3.1
+		psygnal: 0.13.0
+		npe2: 0.7.8
+		pydantic: 2.11.5
+
+		OpenGL:
+			- PyOpenGL: 3.1.9
+			- GL version:  4.6.0 NVIDIA 545.29.06
+			- MAX_TEXTURE_SIZE: 32768
+			- GL_MAX_3D_TEXTURE_SIZE: 16384
+
+
+		Optional:
+		  - numba: 0.61.2
+		  - triangle not installed
+		  - napari-plugin-manager not installed
+		  - bermuda not installed
+		  - PartSegCore not installed
+
+		Experimental Settings:
+		  - Async: False
+		  - Autoswap buffers: False
+		  - Triangulation backend: Fastest available
+
+		fishfeats: 1.1.3
+		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py310.yaml)
+		</details>	
