@@ -35,7 +35,7 @@ You can choose the number of possible classes for this feature (`Nb classes` par
 
 Then you can select the method to use to prefill the classification automatically (you will be able to manually edit it afterwards). 
 
-You can either have a prefilled classification with all the cells in the same class ([`Initialize all cells at 1`](#empty-prefilling)), based on a thresholding of one chanel ([`from projection+threshold`](#from-intensity-projection)), based on the position of cells on edges or not ([`Boundary cells`](#boundary-cells). 
+You can either have a prefilled classification with all the cells in the same class ([`Initialize all cells at 1`](#empty-prefilling)), based on a thresholding of one chanel ([`from projection+threshold`](#from-intensity-projection)), based on the position of cells on edges or not ([`Boundary cells`](#boundary-classification). 
 
 
 Click on `Create new feature` to launch the classification of your new feature. It will add a new layer, called `Feat_`_featurename_`Cells`, prefilled according to the selected method. In that layer, one color corresponds to one class so if `nb classes` is 7, you can have 7 colors.
