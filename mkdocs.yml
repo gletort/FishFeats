@@ -13,6 +13,7 @@ nav:
         - Get Nuclei: Get-nuclei.md
         - Measure nuclear: Measure-nuclear-staining.md
         - Associate: Associate.md
+        - Classify cells: Classify-cells.md
         - Separate stainings: Separate-junctions-and-nuclei.md
     - Additionnal options:
         - Touching labels: Touching-labels.md
