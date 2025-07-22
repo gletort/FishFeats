@@ -14,7 +14,7 @@ Then use the Anaconda interface to create a new virtual environement with the de
 
 For example, in a terminal, once conda is installed, you can create a new environnement by typing:
 ```
-conda create -n fishfeats_env python=3.11
+conda create -n fishfeats_env python=3.10
 ```
 
 ### Install FishFeats
@@ -59,10 +59,15 @@ The plugin has been developped on a Linux environment and is used on Windows and
 
 
 ### Python version
-We tested the plugin with python 3.9, 3.10, with Napari 0.4.19, 0.6.1. 
+We tested the plugin with python 3.9, 3.10, 3.11 with Napari 0.4.19, 0.6.1. 
 In [Trouble shooting](Known-errors-and-solutions.md), we listed some environnement that worked for given operating system/python version. 
 You can also create your environment directly from these `.yaml` files.
 
 There is an incompability with Napari 0.4.17 (strongly not recommended) for point edition in 3D.
 
 Please refers to [Trouble shooting](Known-errors-and-solutions.md) if you encounter issues at the installation/usage or to the repository issues. Finally if you don't find any information on your error, open a [new issue](https://github.com/gletort/FishFeats/issues) in this repository.
+
+### Full working configuration
+
+We listed examples of fully working configuration in `Windows`, `MacOS` and `Ubuntu` operating systems in the [Trouble shooting](Known-errors-and-solutions.md#tested-and-working-configurations) page.
+You can compare the version of the dependencies to the ones in your environment in case of issue.

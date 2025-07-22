@@ -3,7 +3,12 @@
 ### Module versions
 
 * `skimage.morphology.selem` module not found error => Problem of compatibility between big-fish and scikit-image versions. Ideally, chooses a recent version of skimage (scikit-image==0.19.3) and big-fish (big-fish==0.6.2).
-* 
+* `numpy.core.multiarray failed to import` (on python 3.11, when calling stardist) => Problem of compatibility between numpy version and stardist. You can downgrade numpy to 1.26, tensorflow to 2.14 
+
+### Weird point selection
+
+We encountered a weird point selection on a version of Napari, where the selected points did not correspond at all to the drawn selection rectangle.
+This is due to Napari version 0.4.17, we strongly recommend to avoid this version.
 
 ### Acces violation reading
 
@@ -26,6 +31,10 @@ Otherwise, open a new one in this page and we will do our best to answer fast.
 Here we proposed the list of package versions that were installed on several python environment, with the corresponding operating system, that worked fine for us.
 
 For each set-up, we list first the graphical info that we get with `napari --info`, then the link to the full yaml file.
+
+Note that `Epyseg` cannot be install on python versions above 3.10. 
+Thus, to use the full pipeline with all options, we recommend python 3.10. 
+However, if you don't intend to use Epyseg or use it separatly, the pipeline and the other dependencies are compatible with more recent python versions.
 
 ???+ example "Environment lists"
 
@@ -53,7 +62,7 @@ For each set-up, we list first the graphical info that we get with `napari --inf
 				 - GL version:  4.6.0 NVIDIA 571.59
 				 - MAX_TEXTURE_SIZE: 32768 
 
-		yaml file with all python packages installed in the environment [here](./environnements_list/windows10_fishfeats_1.1.11_py39.yaml)
+		yaml file with all python packages installed in the environment [here](./environnements_list/windows10_fishfeats1.1.11_py39.yaml)
 		</details>	
 		
 		<details><summary> Windows 10, python 3.10.18, napari 0.6.1 </summary>
@@ -121,8 +130,8 @@ For each set-up, we list first the graphical info that we get with `napari --inf
 			npe2: 0.7.8
 
 			OpenGL:
-   				- GL version:    2.1 Metal - 89.4
-   				- MAX_TEXTURE_SIZE: 16384
+			GL version:    2.1 Metal - 89.4
+			MAX_TEXTURE_SIZE: 16384
 			
 			fishfeats: 1.1.11				
 		yaml file with all python packages installed in the environment [here](./environnements_list/macbook_pro_M1_fishfeats_1.1_py310.yaml)
@@ -132,43 +141,86 @@ For each set-up, we list first the graphical info that we get with `napari --inf
 		
 		<details><summary> Ubuntu 20.04.6, python 3.10.0, napari 0.6.1 </summary>
 
-		napari: 0.6.1
-		Platform: Linux-5.15.0-139-generic-x86_64-with-glibc2.31
-		System: Ubuntu 20.04.6 LTS
-		Python: 3.10.0 | packaged by conda-forge | (default, Nov 20 2021, 02:24:10) [GCC 9.4.0]
-		Qt: 5.15.2
-		PySide2: 5.15.2.1
-		NumPy: 1.24.2
-		SciPy: 1.15.3
-		Dask: 2025.5.1
-		VisPy: 0.15.2
-		magicgui: 0.10.0
-		superqt: 0.7.3
-		in-n-out: 0.2.1
-		app-model: 0.3.1
-		psygnal: 0.13.0
-		npe2: 0.7.8
-		pydantic: 2.11.5
+			napari: 0.6.1
+			Platform: Linux-5.15.0-139-generic-x86_64-with-glibc2.31
+			System: Ubuntu 20.04.6 LTS
+			Python: 3.10.0 | packaged by conda-forge | (default, Nov 20 2021, 02:24:10) [GCC 9.4.0]
+			Qt: 5.15.2
+			PySide2: 5.15.2.1
+			NumPy: 1.24.2
+			SciPy: 1.15.3
+			Dask: 2025.5.1
+			VisPy: 0.15.2
+			magicgui: 0.10.0
+			superqt: 0.7.3
+			in-n-out: 0.2.1
+			app-model: 0.3.1
+			psygnal: 0.13.0
+			npe2: 0.7.8
+			pydantic: 2.11.5
 
-		OpenGL:
-			- PyOpenGL: 3.1.9
-			- GL version:  4.6.0 NVIDIA 545.29.06
-			- MAX_TEXTURE_SIZE: 32768
-			- GL_MAX_3D_TEXTURE_SIZE: 16384
+			OpenGL:
+				- PyOpenGL: 3.1.9
+				- GL version:  4.6.0 NVIDIA 545.29.06
+				- MAX_TEXTURE_SIZE: 32768
+				- GL_MAX_3D_TEXTURE_SIZE: 16384
 
 
-		Optional:
-		  - numba: 0.61.2
-		  - triangle not installed
-		  - napari-plugin-manager not installed
-		  - bermuda not installed
-		  - PartSegCore not installed
+			Optional:
+			- numba: 0.61.2
+			- triangle not installed
+			- napari-plugin-manager not installed
+			- bermuda not installed
+			- PartSegCore not installed
 
-		Experimental Settings:
-		  - Async: False
-		  - Autoswap buffers: False
-		  - Triangulation backend: Fastest available
+			Experimental Settings:
+			- Async: False
+			- Autoswap buffers: False
+			- Triangulation backend: Fastest available
 
-		fishfeats: 1.1.3
-		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py310.yaml)
+			fishfeats: 1.1.3
+			yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py310.yaml)
+		</details>
+	
+		<details><summary> Ubuntu 20.04.6, python 3.11, napari 0.6.2 - No EPYSEG </summary>
+			
+			napari: 0.6.2
+			Platform: Linux-5.15.0-139-generic-x86_64-with-glibc2.31
+			System: Ubuntu 20.04.6 LTS
+			Python: 3.11.13 | packaged by conda-forge | (main, Jun  4 2025, 14:48:23) [GCC 13.3.0]
+			Qt: 5.15.14
+			PyQt5: 5.15.11
+			NumPy: 1.26.0
+			SciPy: 1.16.0
+			Dask: 2025.7.0
+			VisPy: 0.15.2
+			magicgui: 0.10.1
+			superqt: 0.7.5
+			in-n-out: 0.2.1
+			app-model: 0.4.0
+			psygnal: 0.14.0
+			npe2: 0.7.9
+			pydantic: 2.11.7
+
+			OpenGL:
+				- PyOpenGL: 3.1.9
+				- GL version:  4.6.0 NVIDIA 545.29.06
+				- MAX_TEXTURE_SIZE: 32768
+				- GL_MAX_3D_TEXTURE_SIZE: 16384
+
+			Optional:
+			 - numba: 0.61.2
+			 - triangle not installed
+			 - napari-plugin-manager not installed
+			 - bermuda not installed
+			 - PartSegCore not installed
+
+			Experimental Settings:
+			  - Async: False
+			  - Autoswap buffers: False
+			  - Triangulation backend: Fastest available
+
+			fishfeats: 1.1.15 
+			yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py3.11.yaml)
+
 		</details>	
