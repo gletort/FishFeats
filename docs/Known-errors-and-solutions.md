@@ -221,6 +221,6 @@ However, if you don't intend to use Epyseg or use it separatly, the pipeline and
 			  - Triangulation backend: Fastest available
 
 			fishfeats: 1.1.15 
-		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py3.11.yaml)
+		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu20.04_fishfeats1.1_py3.11.yaml)
 
 		</details>	
