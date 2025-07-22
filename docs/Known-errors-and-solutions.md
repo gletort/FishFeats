@@ -179,7 +179,7 @@ However, if you don't intend to use Epyseg or use it separatly, the pipeline and
 			- Triangulation backend: Fastest available
 
 			fishfeats: 1.1.3
-			yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py310.yaml)
+		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py310.yaml)
 		</details>
 	
 		<details><summary> Ubuntu 20.04.6, python 3.11, napari 0.6.2 - No EPYSEG </summary>
@@ -221,6 +221,6 @@ However, if you don't intend to use Epyseg or use it separatly, the pipeline and
 			  - Triangulation backend: Fastest available
 
 			fishfeats: 1.1.15 
-			yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py3.11.yaml)
+		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu_20.04_fishfeats_1.1_py3.11.yaml)
 
 		</details>	
