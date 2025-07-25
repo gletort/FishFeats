@@ -5,10 +5,12 @@
 
 [Napari](https://napari.org/stable/) plugin to quantify 3D cells in a tissue and their smRNA-Fish or other RNA contents.
 
-[main.webm](https://github.com/user-attachments/assets/b0d6888d-04d9-4846-9965-2550aa0fe891)
+[main.webm](https://github.com/user-attachments/assets/7eda5fa8-3241-4af8-b392-bc3e64aa31b9)
+
 
 FishFeats offers several flexible options to analyse 3D cells and RNA counts, from segmentation of apical cells and nuclei to hierarchical clustering of cells based on their RNA contents. 
 Installation/Usage... are all described in the [documentation](https://gletort.github.io/FishFeats/).
+
 ![main interface](./docs/imgs/Main_snapshot.png)
 
 # Installation
