@@ -23,12 +23,37 @@
 
 ### 2D projection 
 
-The junction staining will be segmented in 2D. If you have already calculated the projection previously or with another pipeline, you can load here the image of the projection and directly use it. Else, the pipeline will calculate the projection by looking at local maximum intensities. Click on `do projection` to launch the calculation or load the selected file.
+The junction staining will be segmented in 2D. 
 
-![projecting](imgs/projecting.png)
+If you have already calculated the projection previously or with another pipeline, you can load here the image of the projection and directly use it. Else, the pipeline will calculate the projection by looking at local maximum intensities.
 
+![projecting](imgs/projection.png)
+
+The projection will be displayed in a new layer, shown in white, and called `2DJunctions`.
 The pipeline will by default save the calculated projection in the `results` folder, except if you don't check the `save projection` option. When this step is done, you can now performs the segmentation of this projected image.
 
+#### Loading projection
+
+Click on `Load default` if you have already saved the projection with the default name (`yourimagename_junction_projection.tif`).
+
+If you have calculated the projection in an other software (e.g with [LocalZProjector](https://gitlab.pasteur.fr/iah-public/localzprojector) in Fiji), you can choose the file of the projected junction channel and load it directly. 
+If the option `save projection` is selected, the loaded file will be copied and saved in the main `results` folder, with the pipeline's default name for the projection.
+
+#### Calculating the projection
+
+The junction staining will be projected in 2D, by looking at the local maxima positions in Z in the neighboring of each pixels.
+The intensity around this local maxima position will then be projected in 2D for each pixel.
+
+You can directly try to click on `Project now` to calculate the projection with the default parameters.
+If the result is not satisfying, then several parameters can be tuned by checking the `Advanced` option:
+* Local size: size of the local window around each pixel to look for local maxima
+* Smoothing size: amount of smoothing of the projected pixels
+* Do local enhancement: performs local contrast enhancement with CLAHE method. This is useful if the illumination is quite variable in the image to uniformize it before segmentation
+* CLAHE grid size: if performing local enhancement, size of the grid use to locally improve contrast
+
+Click on `Project now` to recalultes with the new parameters.
+
+If this algorithm don't succeed even with tuning the parameters, you can use dedicated software to local projection as [LocalZProjector](https://gitlab.pasteur.fr/iah-public/localzprojector) and then load the results in `fishfeats`.
 
 
 ## Manual correction
