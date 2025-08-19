@@ -30,6 +30,7 @@ dependencies = [
     "lxml",
     "packaging",
 ]
+dynamic = ["version"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/gletort/FishFeats/issues"
@@ -45,7 +46,6 @@ full = [
     "stardist",
 ]
 
-#dynamic = ["version"]
 
 [tool.setuptools]
 package-dir = {"" = "src"}
@@ -58,6 +58,12 @@ packages = [
 
 [tool.setuptools_scm]
 write_to = "src/fish_feats/_version.py"
+write_to_template = "__version__ = \"{version}\""
+version_scheme = "release-branch-semver"
+local_scheme = "no-local-version"
+
+# Add this to prevent dev versions
+tag_regex = "^(?:[\\w-]+-)?(?P<version>[vV]?\\d+(?:\\.\\d+){0,2}[^\\+]*)(?:\\+.*)?$"
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
