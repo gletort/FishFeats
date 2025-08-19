@@ -59,10 +59,10 @@ packages = [
 [tool.setuptools_scm]
 write_to = "src/fish_feats/_version.py"
 write_to_template = "__version__ = \"{version}\""
-version_scheme = "release-branch-semver"
+version_scheme = "python-simplified-semver"
 local_scheme = "no-local-version"
 
-# Add this to prevent dev versions
+# Explicit version pattern
 tag_regex = "^(?:[\\w-]+-)?(?P<version>[vV]?\\d+(?:\\.\\d+){0,2}[^\\+]*)(?:\\+.*)?$"
 
 [tool.setuptools.package-data]
