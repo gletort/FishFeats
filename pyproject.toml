@@ -30,7 +30,6 @@ dependencies = [
     "lxml",
     "packaging",
 ]
-dynamic = ["version"]  # Important: declare version as dynamic
 
 [project.urls]
 "Bug Tracker" = "https://github.com/gletort/FishFeats/issues"
@@ -46,6 +45,8 @@ full = [
     "stardist",
 ]
 
+#dynamic = ["version"]
+
 [tool.setuptools]
 package-dir = {"" = "src"}
 include-package-data = true
@@ -56,14 +57,7 @@ packages = [
 ]
 
 [tool.setuptools_scm]
-# This will automatically update _version.py during build
-write_to = "src/fish_feats/_version.py"
-write_to_template = "__version__ = \"{version}\""
-version_scheme = "python-simplified-semver"
-local_scheme = "no-local-version"
-
-# Explicit version pattern
-tag_regex = "^(\\d+\\.\\d+\\.\\d+)$"  # Matches only X.Y.Z numbers
+write_to = "src/epicure/_version.py"
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
