@@ -60,7 +60,7 @@ packages = [
 write_to = "src/fish_feats/_version.py"
 write_to_template = "__version__ = \"{version}\""
 version_scheme = "no-guess-dev"
-local_scheme = "git-describe"
+local_scheme = "closest-tag"
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
