@@ -17,10 +17,12 @@ develop-eggs/
 dist/
 downloads/
 eggs/
+tmp/
 .eggs/
 lib/
 lib64/
 parts/
+src/_tests/files/
 sdist/
 var/
 *.egg-info/
