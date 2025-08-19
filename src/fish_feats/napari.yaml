@@ -1,0 +1,52 @@
+name: fishfeats
+contributions:
+    commands:
+        - id: fishfeats.start
+          title: Start
+          python_name: fish_feats.Naparing:startZen
+        - id: fishfeats.classifycells
+          title: ClassifyCells
+          python_name: fish_feats.ClassifyCells:get_image
+        - id: fishfeats.hierarchicalclustering
+          title: HierarchicalClustering
+          python_name: fish_feats.Analysis:do_hierarchy
+        - id: fishfeats.process
+          title: Segment
+          python_name: fish_feats.ProcessFolder:start
+        - id: fishfeats.start_multiscale
+          title: StartMultiscale
+          python_name: fish_feats.Naparing:startMultiscale
+          #- id: fishfeats.shortcut
+          #title: Shortcuts
+          #python_name: fish_feats.Naparing:shortcuts_window
+        - id: fishfeats.doc
+          title: Documentation
+          python_name: fish_feats.Naparing:show_documentation
+        - id: fishfeats.convert
+          title: ConvertPrevious
+          python_name: fish_feats.Naparing:convert_previous_results
+    widgets:
+        - command: fishfeats.start
+          display_name: Start
+          autogenerate: false
+        - command: fishfeats.classifycells
+          display_name: Classify segmented cells
+          autogenerate: false
+        - command: fishfeats.hierarchicalclustering
+          display_name: Hierarchical clustering
+          autogenerate: false
+        - command: fishfeats.process
+          display_name: Segment junctions folder
+          autogenerate: false
+        - command: fishfeats.start_multiscale
+          display_name: Start multiscale
+          autogenerate: false
+          #- command: fishfeats.shortcut
+          #display_name: Show fishfeats shortcuts
+          #autogenerate: false
+        - command: fishfeats.doc
+          display_name: Open fishfeats documentation
+          autogenerate: false
+        - command: fishfeats.convert
+          display_name: Convert previous results 
+          autogenerate: false

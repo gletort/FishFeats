@@ -1,0 +1,72 @@
+[build-system]
+requires = ["setuptools>=61.0", "setuptools_scm>=7.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "fishfeats"
+description = "Napari plugin for RNA-Fish+cells analysis pipeline"
+readme = "README.md"
+requires-python = ">=3.7"
+license = "BSD-3-Clause"
+authors = [
+    {name = "Gaëlle Letort"},
+]
+classifiers = [
+    "Framework :: napari",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Topic :: Scientific/Engineering :: Image Processing",
+]
+dependencies = [
+    "napari < 0.6.3",
+    "numpy",
+    "imaris_ims_file_reader",
+    "czifile",
+    "tifffile",
+    "munkres",
+    "matplotlib",
+    "scikit-image",
+    "opencv_python_headless",
+    "lxml",
+    "packaging",
+]
+dynamic = ["version"]  # Important: declare version as dynamic
+
+[project.urls]
+"Bug Tracker" = "https://github.com/gletort/FishFeats/issues"
+"Documentation" = "https://gletort.github.io/FishFeats/"
+"Source Code" = "https://github.com/gletort/FishFeats"
+"User Support" = "https://github.com/gletort/FishFeats/issues"
+
+[project.optional-dependencies]
+full = [
+    "big-fish>=0.6.2",
+    "epyseg",
+    "cellpose[distributed]",
+    "stardist",
+]
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+include-package-data = true
+
+# Explicitly list packages to include
+packages = [
+    "fish_feats",
+]
+
+[tool.setuptools_scm]
+# This will automatically update _version.py during build
+write_to = "src/fish_feats/_version.py"
+write_to_template = "__version__ = \"{version}\""
+version_scheme = "python-simplified-semver"
+local_scheme = "no-local-version"
+
+# Explicit version pattern
+tag_regex = "^(\\d+\\.\\d+\\.\\d+)$"  # Matches only X.Y.Z numbers
+
+[tool.setuptools.package-data]
+"*" = ["*.yaml"]
+
+[project.entry-points."napari.manifest"]
+fishfeats = "fish_feats:napari.yaml"

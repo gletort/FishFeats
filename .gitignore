@@ -8,8 +8,6 @@ target/
 o# OS
 .DS_Store
 
-# written by setuptools_scm
-**/_version.py
 
 __pycache__/
 
