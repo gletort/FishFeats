@@ -59,6 +59,9 @@ packages = [
 [tool.setuptools_scm]
 write_to = "src/fish_feats/_version.py"
 write_to_template = "__version__ = \"{version}\""
+version_scheme = "post-release"
+local_scheme = "no-local-version"
+tag_regex = "^(?:[\\w-]+-)?(?P<version>[vV]?\\d+\\.\\d+\\.\\d+)$"
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
