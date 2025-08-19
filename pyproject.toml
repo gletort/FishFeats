@@ -61,7 +61,6 @@ write_to = "src/fish_feats/_version.py"
 write_to_template = "__version__ = \"{version}\""
 version_scheme = "no-guess-dev"
 local_scheme = "no-local-version"
-tag_regex = "^v?(\d+\.\d+\.\d+)$" 
 
 [tool.setuptools.package-data]
 "*" = ["*.yaml"]
