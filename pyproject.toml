@@ -4,6 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fishfeats"
+version = "1.1.20"
 description = "Napari plugin for RNA-Fish+cells analysis pipeline"
 readme = "README.md"
 requires-python = ">=3.7"
@@ -30,7 +31,7 @@ dependencies = [
     "lxml",
     "packaging",
 ]
-dynamic = ["version"]
+#dynamic = ["version"]
 
 [project.urls]
 "Bug Tracker" = "https://github.com/gletort/FishFeats/issues"
@@ -59,8 +60,8 @@ packages = [
 [tool.setuptools_scm]
 write_to = "src/fish_feats/_version.py"
 write_to_template = "__version__ = \"{version}\""
-version_scheme = "no-guess-dev"
-local_scheme = "no-local-version"
+#version_scheme = "no-guess-dev"
+#local_scheme = "no-local-version"
 
 
 [tool.setuptools.package-data]
