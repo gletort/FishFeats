@@ -4,11 +4,10 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fishfeats"
-version = "1.1.21"
+version = "1.1.22"
 description = "Napari plugin for RNA-Fish+cells analysis pipeline"
 readme = "README.md"
 requires-python = ">=3.7"
-license = "BSD-3-Clause"
 authors = [
     {name = "Gaëlle Letort"},
 ]
