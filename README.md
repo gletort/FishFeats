@@ -1,7 +1,8 @@
 # Fish&Feats ![snap](./docs/imgs/snap.png)
 
-[![License BSD-3](https://img.shields.io/pypi/l/FishFeats.svg?color=green)](https://github.com/gletort/FishFeats/blob/main/LICENSE)
-[![Python Version](https://img.shields.io/pypi/pyversions/FishFeats.svg?color=green)](https://python.org)
+[![License BSD-3](https://img.shields.io/pypi/l/fishfeats.svg?color=green)](https://github.com/gletort/FishFeats/blob/main/LICENSE)
+[![PyPI](https://img.shields.io/pypi/v/fishfeats.svg?color=green)](https://pypi.org/project/epicure)
+[![Python Version](https://img.shields.io/pypi/pyversions/fishfeats.svg?color=green)](https://python.org)
 
 [Napari](https://napari.org/stable/) plugin to quantify 3D cells in a tissue and their smRNA-Fish or other RNA contents.
 
