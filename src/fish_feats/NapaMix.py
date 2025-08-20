@@ -79,7 +79,7 @@ class CropImage( QWidget ):
             self.mig.save_image( crop_nuc, imagename=crop_nuc_name, hasZ=True, imtype="uint16" )
 
         ## crop other image files if they exist
-        files = ["_junction_projection.tif", "_junctionsStaning.tif", "_nucleiStaining.tif" ]
+        files = ["_junction_projection.tif", "_junctionsStaining.tif", "_nucleiStaining.tif" ]
         for i in range(self.mig.nbchannels):
             files = files + ["_RNA"+str(i)+".tif"]
         for cfile in files:

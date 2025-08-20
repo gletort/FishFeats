@@ -994,6 +994,11 @@ class MainImage:
 
     def calculate_zmap(self, projimg, step_size, window_size):
         """ Calculate the zmap of the cells position based on the projection """
+        if self.junstain is None:
+            self.check_separation()
+            if self.junstain is None:
+                ut.show_warning("Load junction staining (separated if necessary) before")
+                return
         zmap = np.zeros(projimg.shape, "uint8")
         #pool = Pool()
         #zmap_list = pool.map(partial(process_x, step=step_size, projimg=projimg, img=self.junstain, winsize=window_size), range(0,projimg.shape[0],step_size))
