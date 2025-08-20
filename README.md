@@ -10,7 +10,7 @@
 
 
 FishFeats offers several flexible options to analyse 3D cells and RNA counts, from segmentation of apical cells and nuclei to hierarchical clustering of cells based on their RNA contents. 
-Installation/Usage... are all described in the [documentation](https://gletort.github.io/FishFeats/).
+Installation/Usage are all described in the [documentation](https://gletort.github.io/FishFeats/).
 
 ![main interface](./docs/imgs/Main_snapshot.png)
 
