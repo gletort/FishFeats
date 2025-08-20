@@ -1229,26 +1229,20 @@ def showCellsWidget(layerName, shapeName='CellNames', dim=3):
     def show_names():
         if shapeName in viewer.layers:
             viewer.layers.remove(shapeName)
-        if addnamelayer.show_cellnames.value==True:
-            get_bblayer(layer, shapeName, dim)
+        #if addnamelayer.show_cellnames.value==True:
+        #    get_bblayer(layer, shapeName, dim)
 
     #@layer.bind_key('h', overwrite=True)
     #def show_help(layer):
     #    ut.showHideOverlayText(viewer)
 
-    @magicgui(call_button="Relabel",)
-    def addnamelayer(show_cellnames: bool, ):
-        relabel_layer()
-        return
+    #@magicgui(call_button="Relabel",)
+    #def addnamelayer(show_cellnames: bool, ):
+    #    relabel_layer()
+    #    return
 
-    addnamelayer.show_cellnames.changed.connect(show_names)
-    help_text = ""
-    #help_text = help_text + " <Ctrl-p> to switch Vispy perspective mode on/off \n"
-    help_text = help_text +" <m> to set current label to max+1 value \n"
-    help_text = help_text + " <l> to show/hide labels \n"
-    help_text = help_text +" <Control+left click> from one label to another to merge them (the label kept will be the last one) \n"
-    help_text = help_text +" <Control+right click> on a label/nucleus to erase it \n" 
-    help_text += "  <Ctrl-c>/<Ctrl-d> increase/decrease label contour size (0=full)\n"
+    #addnamelayer.show_cellnames.changed.connect(show_names)
+    help_text = ut.labels_shortcuts( level = 0 )
     header = ut.helpHeader(viewer, layerName)
     ut.showOverlayText(viewer, header+help_text)
     
@@ -1256,12 +1250,12 @@ def showCellsWidget(layerName, shapeName='CellNames', dim=3):
 
     if "Junctions" in viewer.layers:
         viewer.layers["Junctions"].preserve_labels = True
-    viewer.window.add_dock_widget(addnamelayer, add_vertical_stretch=True, name="Edit labels")
+    #viewer.window.add_dock_widget(addnamelayer, add_vertical_stretch=True, name="Edit labels")
 
 def textCellsWidget():
     text = "  <Control+left click> from one label to another to merge them (the label kept will be the last one) \n"
     text += "'show_cellnames' (<l>) add a new layer showing the label (number) around each object position. \n"
-    text += "'relabel update' the cell labels to have consecutives numbers from 2 to number_of_cells.\n"
+    #text += "'relabel update' the cell labels to have consecutives numbers from 2 to number_of_cells.\n"
     text += "\n For 3D: \n"
     text += "In 3D, most label actions wont work if Vispy perspective is ON. Switch it off with 'Ctrl-v' before.\n"
     text += "If n_edit_dim is set on 3 (top left panel), edition will affect all or several z (slices) \n"

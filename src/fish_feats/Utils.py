@@ -119,12 +119,12 @@ def quantiles(img):
     return tuple(np.quantile(img, [0.01, 0.9999]))
 
 def main_shortcuts(viewer):
-    """ Open a new text window witht eh main shortcuts and help """
+    """ Open a new text window with the main shortcuts and help """
     blabla = TextEdit()
     blabla.name = "Fish&Feats shortcuts"
     text = "-------------------------- Fish&Feats -------------------------- \n"
     text += view_shortcuts()
-    text += labels_shortcuts()
+    text += labels_shortcuts( level = 1 )
     text += association_shortcuts()
     text += rnas_shortcuts()
     text += pos3d_shortcuts()
@@ -165,8 +165,8 @@ def view_shortcuts():
     text += "  <Ctrl-v> in 3D, switch vispy mode ON/OFF \n"
     text += "  <v> show/hide current selected layer \n"
     text += "  <Ctrl+R> reset view \n"
-    text += "  <left arrow> got to previous frame \n"
-    text += "  <right arrow> got to next frame \n"
+    text += "  <left arrow> go to previous frame \n"
+    text += "  <right arrow> go to next frame \n"
     text += "  <Ctrl+G> switch Grid/Overlay view mode \n"
     text += "  <g> show/hide fish grid \n"
     text += help_shortcut("view")
@@ -187,25 +187,33 @@ def pos3d_shortcuts():
     text += "\n"
     return text
 
-def labels_shortcuts():
-    text = " ---------- labels options (for cells and nuclei) \n"
-    text += "  <2> painting brush mode \n"
-    text += "  <3> fill mode \n"
-    text += "  <4> select label mode \n"
-    text += "  <5> Swith to zoom/moving mode \n"
-    text += "  <[> or <]> increase/decrease the paint brush size \n"
+def labels_shortcuts( level=1 ):
+    text = ""
+    if level >= 1:
+        text += " ---------- labels options (for cells and nuclei) \n"
+        text += "  <2> painting brush mode \n"
+        text += "  <3> fill mode \n"
+        text += "  <4> select label mode \n"
+        text += "  <5> Swith to zoom/moving mode \n"
+        text += "  <[> or <]> increase/decrease the paint brush size \n"
     text += "  <p> activate/deactivate preserve labels option \n"
-    text += "  <Ctrl-c>/<Ctrl-d> increase/decrease label contour size (0=full)\n"
     text += "  <m> to set current label to max+1 value \n"
-    text += "  <l> to show/hide cell/nuclei labels. It creates a new layer with the object label (number) around each object position. \n"
+    text += "  <l> to show/hide cell/nuclei labels. "
+    if level >= 1:
+        text += "It creates a new layer with the object label (number) around each object position. \n"
+    else:
+        text += "\n"
+    text += "  <Ctrl-c>/<Ctrl-d> increase/decrease label contour size (0=full)\n"
     text += "  <Control+left click> from one label to another to merge them (the label kept will be the last one) \n"
-    text += "  <Left double-click> on a label to erase it \n" 
-    text += "\n"
-    text += "For 3D: \n"
-    text += "In 3D, most label actions wont work if Vispy perspective is ON. Switch it off with 'Ctrl-v' before.\n"
-    text += "If n_edit_dim is set on 3 (top left panel), edition will affect all or several z (slices) \n"
-    text += "If n_edit_dim is set on 2, edition will only affect the active slice \n"
-    text += "\n"
+    text += "  <Control+right-click> on a label to erase it \n" 
+    if level >= 1:
+        text += " Double <Left-click> to zoom in \n"
+        text += "\n"
+        text += "For 3D: \n"
+        text += "In 3D, most label actions wont work if Vispy perspective is ON. Switch it off with 'Ctrl-v' before.\n"
+        text += "If n_edit_dim is set on 3 (top left panel), edition will affect all or several z (slices) \n"
+        text += "If n_edit_dim is set on 2, edition will only affect the active slice \n"
+        text += "\n"
     return text
 
 def association_shortcuts():
