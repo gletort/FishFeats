@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fishfeats"
-version = "1.1.22"
+version = "1.1.23"
 description = "Napari plugin for RNA-Fish+cells analysis pipeline"
 readme = "README.md"
 requires-python = ">=3.7"
