@@ -1114,6 +1114,9 @@ class MainRNA(QWidget):
     
     def add_cell_contours( self ):
         """ Add cell contours and cells layer if not already present """
+        if self.mig.pop is None:
+            print("No cells found, will not be able to assign.")
+            return
         if "CellContours" not in self.viewer.layers:
             celllab = self.viewer.add_labels(self.mig.getJunctionsImage3D(full=False, thick=2), name="CellContours", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY))
             celllab.opacity = 0.6
