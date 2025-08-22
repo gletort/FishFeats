@@ -112,7 +112,7 @@ Click on `Reset point display` to display again all the spots with the same size
 
 ![display options](imgs/rna_display.png)
 
-## Save and load RNAs
+## Save/load RNAs
 
 When you click on `save and quit RNA*`, it will save the current point layer in a `.csv` file saved in the `results` folder called _imagename_`_RNA*.csv` (here * is the number of the corresponding channel). 
 The file contains the position of each spot and its assignement.
@@ -157,7 +157,7 @@ The spots will then be displayed with a color relative to their measured intensi
 
 ![rna measure](./imgs/rna_measure.png)
 
-When you save the RNA spots position (with the button [`save RNAs`](#save-and-load-rnas)), a column with the measured intensity called `Int_layername` will be added in the resulting `.csv` file.
+When you save the RNA spots position (with the button [`save RNAs`](#saveload-rnas)), a column with the measured intensity called `Int_layername` will be added in the resulting `.csv` file.
 
 ## Finish RNAs analysis
 
