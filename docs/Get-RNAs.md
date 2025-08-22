@@ -4,6 +4,7 @@
 This step will first propose you to [segment](#rna-segmentation) the RNA from one of the channels then to [assign](#rna-assignement) it to its corresponding cell. 
 The cells **must have been created before** to do this assignment step, either with the [Get cells](Get-cells.md) step, or loaded from previous file (by default the cells should be reloaded).
 
+Since version 1.1.23, there is also an option to [measure the intensity](#measure-intensity) of a given layer/channel in the segmented spots (e.g. to measure if the segmented spots are inside nuclei, or correlates with some immuno-staining).
 
 ## RNA segmentation
 
@@ -111,7 +112,7 @@ Click on `Reset point display` to display again all the spots with the same size
 
 ![display options](imgs/rna_display.png)
 
-## Save/load RNAs
+## Save and load RNAs
 
 When you click on `save and quit RNA*`, it will save the current point layer in a `.csv` file saved in the `results` folder called _imagename_`_RNA*.csv` (here * is the number of the corresponding channel). 
 The file contains the position of each spot and its assignement.
@@ -140,6 +141,23 @@ You can also save this image as a 2D file by clicking `Save drawn RNA* counts`.
 This counts can also be found in the _results_ file, in the corresponding `nbRNA_C*_MethodName` column.
 MethodName will be the name of the method used for the initial assigment.
 The results file can thus contains the counts from several assignement methods, but note that when you reload it, it will load only the last used method.
+
+## Measure intensity
+
+_Select the onglet `MeasureIntensity*` to start this option_
+
+This options allows to measure the intensity inside each segmented spot (RNA) in a chosen image channel or opened layer.
+
+At this step, usually only the _`originalChannel*`_ channels are available, but you can open other layers (e.g. nuclei segmentation) if you want to measure it and click on `update layers` to have it added to the possible layers to measure.
+
+Choose the layer/image to measure in `From layer:` parameter in the interface.
+
+When you click, the intensity inside each spot (average of the pixels within a radius of 4 pixels of the spot position in XY) in the selected image will be measured.
+The spots will then be displayed with a color relative to their measured intensity.
+
+![rna measure](./imgs/rna_measure.png)
+
+When you save the RNA spots position (with the button [`save RNAs`](#save-and-load-rnas)), a column with the measured intensity called `Int_layername` will be added in the resulting `.csv` file.
 
 ## Finish RNAs analysis
 

@@ -26,7 +26,7 @@ class RNASpots:
         self.scores = []       ## score = estimated confidence of the assignement
         self.overlap = []
         self.countName = ""  #" method used for the assignement
-        self.measure_radius = 5  ## measure intensity in a radius of 5 pixels around/inside the spot
+        self.measure_radius = 4  ## measure intensity in a radius of 4 pixels around/inside the spot
         self.measures = {}    ## measures done
 
     def reset_spots(self):
