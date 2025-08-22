@@ -27,14 +27,14 @@ class RNASpots:
         self.overlap = []
         self.countName = ""  #" method used for the assignement
         self.measure_radius = 5  ## measure intensity in a radius of 5 pixels around/inside the spot
-        self.measure_channel = None
-        self.measure_intensity = []
+        self.measures = {}    ## measures done
 
     def reset_spots(self):
         self.spots = None
         self.labels = []
         self.scores = []
         self.overlap = []
+        self.measures = {}    ## measures done
 
     def set_points(self, spots):
         """ Set the spots collection from the spots list """
@@ -42,7 +42,7 @@ class RNASpots:
         self.spots = spots
         self.labels = list(np.repeat(1, len(self.spots)))
         self.scores = [0]*len(self.labels)
-        print("Set points, what score?")
+        #print("Set points, what score?")
 
     def nspots(self):
         """ Number of RNA spots in the collection """         
@@ -149,10 +149,9 @@ class RNASpots:
         """ return coordinates and labels of all the spots """
         return self.spots, self.labels, self.scores
 
-    def measure_spots_intensity(self, intensity_image, intensity_channel):
+    def measure_spots_intensity(self, intensity_image, name):
         """ Measure the mean intensity of all points in the image """
-        self.measure_intensity = []
-        self.measure_channel = intensity_channel
+        self.measures[name] = []
         for spot in self.spots:
             if len(spot)>2:
                 ## take few pixels around spot center
@@ -170,7 +169,7 @@ class RNASpots:
                     minr[i] = max(spot[i]-self.measure_radius, 0)
                     maxr[i] = min(spot[i]+self.measure_radius, intensity_image.shape[i])
                 mint = np.mean( intensity_image[minr[0]:maxr[0], minr[1]:maxr[1]] )
-            self.measure_intensity.append(mint)
+            self.measures[name].append(mint)
 
     def distance(self, spa, spb, scaleXY, scaleZ):
         """ distance between two spots """

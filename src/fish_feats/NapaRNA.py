@@ -93,6 +93,7 @@ class GetRNA(QWidget):
         #self.index_assign = None
         self.index_edit = None
         self.edition = None
+        self.measure_intensity = None
         ## define interface
         layout = QVBoxLayout()
         
@@ -302,6 +303,7 @@ class GetRNA(QWidget):
         ut.view_3D( self.viewer )
     
         self.main.go_edition( self.rnachannel )
+        self.main.go_measure_intensity( self.rnachannel )
     
 
     def finish_assign(self):
@@ -311,6 +313,7 @@ class GetRNA(QWidget):
         #if self.index_assign is not None:
         #    self.tabs.removeTab(self.index_assign)
         self.edition = None
+        self.measure_intensity = None
 
 
 class PointEditing(QWidget):
@@ -572,6 +575,7 @@ class PointEditing(QWidget):
     def measure_point_intensity(self):
         """ Measure the intensity in the points in the current channel """
         nchan = self.nchan.value()
+        self.mig.set_spots(self.channel, self.layerrna.data)
         intens = self.mig.measure_spots( self.channel, nchan )
         ## normalize the intensity by its max
         intens = intens/np.max(intens)
@@ -1062,6 +1066,7 @@ class MainRNA(QWidget):
         self.cfg = cfg
         self.results = None
         self.edition = {}
+        self.measure_intensity = {}
         self.spot_disp_size = parameters["RNA_spot_disp_size"] 
 
         ## GUI parameters
@@ -1112,9 +1117,14 @@ class MainRNA(QWidget):
         self.tabs.addTab(self.edition[chanel], "EditRNA"+str(chanel))
         self.tabs.setCurrentWidget( self.edition[chanel] )
     
+    def go_measure_intensity( self, chanel ):
+        """ Launch measure intensity interface of given chanel """
+        self.measure_intensity[chanel] = PointMeasuring( chanel, self.viewer, self.mig, self.cfg, self )
+        self.tabs.addTab(self.measure_intensity[chanel], "MeasureIntensity"+str(chanel))
+
     def add_cell_contours( self ):
         """ Add cell contours and cells layer if not already present """
-        if self.mig.pop is None:
+        if (self.mig.pop is None) or (self.mig.pop.imgcell is None):
             print("No cells found, will not be able to assign.")
             return
         if "CellContours" not in self.viewer.layers:
@@ -1137,6 +1147,9 @@ class MainRNA(QWidget):
         if chanel in self.edition:
             tabindex = self.tabs.indexOf( self.edition[chanel] )
             self.tabs.removeTab( tabindex )
+        if chanel in self.measure_intensity:
+            tabindex = self.tabs.indexOf( self.measure_intensity[chanel] )
+            self.tabs.removeTab( tabindex )
         del self.edition[chanel]
 
     
@@ -1146,11 +1159,12 @@ class MainRNA(QWidget):
             if ("assignedRNA"+str(rnac)) in self.viewer.layers:
                 player = self.viewer.layers["assignedRNA"+str(rnac)]
                 rnalabpoints = player.data
+                rnaprops = player.properties
                 rnalablabels = player.properties['label']
                 rnalabscores = player.properties['score']
                 self.mig.update_spotsAndCountFromPoints( rnalabpoints, rnalablabels, rnalabscores, rnac )
                 filename = self.mig.rna_filename( chan=rnac, ifexist=False )
-                self.mig.save_spots( rnalabpoints, rnalablabels, rnalabscores, rnac, filename )
+                self.mig.save_spots( rnalabpoints, rnaprops, rnac, filename )
         self.mig.measure_counts()
         self.mig.save_results()
 
@@ -1223,3 +1237,72 @@ class MainRNA(QWidget):
         for rna in rnachoices:
             self.rna_todraw.addItem("RNA"+str(rna))
 
+class PointMeasuring(QWidget):
+    """ Handle measuring intensity of RNA segmentation """
+
+    def __init__(self, chan, viewer, mig, cfg, main):
+        super().__init__()
+        self.viewer = viewer
+        self.channel = chan
+        self.mig = mig
+        self.cfg = cfg
+        self.main = main
+        self.layerrna = self.viewer.layers["assignedRNA"+str(self.channel)]
+
+        layout = QVBoxLayout()
+        lab = fwid.add_label("Measure intensity of RNA channel "+str(chan))
+        # choose layer to measure intensity
+        line, self.layer_choice = fwid.list_line( "From layer:", descr="Choose opened layer to measure", func=None )
+        self.update_layers_list()
+        layout.addWidget(lab)
+        layout.addLayout(line)
+        measure_button = fwid.add_button( "Measure intensity", self.measure_intensity, descr="Measure intensity of selected layer", color=ut.get_color("go") )
+        layout.addWidget(measure_button)
+        ## reset display button
+        reset_button = fwid.add_button( "Reset display", self.reset_display, descr="Reset the display of RNA spots" )
+        ## update button
+        update_list = fwid.add_button( "Update layers list", self.update_layers_list, descr="Update the list of opened layers" )
+        res_line = fwid.double_button( reset_button, update_list )
+        layout.addLayout(res_line)
+        ## run the measure button
+        self.setLayout(layout)
+
+    def reset_display( self ):
+        """ Reset point colors to cell label """ 
+        self.layerrna.face_color = 'label'
+        self.layerrna.refresh()
+
+    def update_layers_list( self ):
+        """ Update list of opened layers """
+        self.layer_choice.clear()
+        layers = self.viewer.layers
+        for lay in layers:
+            if not lay.name.startswith("assignedRNA"):
+                self.layer_choice.addItem(lay.name)
+
+    def measure_intensity( self ):
+        """ Measure intensity of selected layer """
+        layer_name = self.layer_choice.currentText()
+        if layer_name not in self.viewer.layers:
+            ut.show_warning("Layer "+layer_name+" not found")
+            return
+        ## update spots list
+        self.mig.set_spots(self.channel, self.layerrna.data)
+        ## measure spots
+        self.mig.measure_spots( self.channel, measureimg = self.viewer.layers[layer_name].data, name="Int_"+layer_name )
+        minint = np.min(self.viewer.layers[layer_name].data)
+        maxint = np.max(self.viewer.layers[layer_name].data)
+        self.display_by_intensity( "Int_"+layer_name, minint, maxint )
+
+    def display_by_intensity( self, intensity_name, minint, maxint ):
+        """ Color points by intensity measure """
+        self.layerrna.selected_data = {}
+        intensities = self.mig.get_spots_measure( self.channel, intensity_name )
+        self.layerrna.features[intensity_name] = intensities
+        self.layerrna.features['intensity'] = intensities
+        self.layerrna.refresh()
+        self.layerrna.face_color = 'intensity'
+        minint = min( np.min(intensities), minint*1.25 )
+        maxint = max( np.max(intensities), maxint*0.75 )
+        self.layerrna.contrast_limits = (minint, maxint)
+        self.layerrna.refresh_colors()

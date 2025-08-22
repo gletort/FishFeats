@@ -746,13 +746,13 @@ class MainImage:
         self.rnas[chan].update_spotsFromPoints(spots, labels, None)
         return self.rnas[chan].draw_spots3D(self.imshape, size=2)
 
-    def save_spots(self, spots, labels, scores, chan, rnafile=None):
+    def save_spots(self, spots, props, chan, rnafile=None):
         """ Save the spots information to csv file """
         if rnafile is None:
             rnafile = self.rna_filename(chan=chan, how=".csv")
         ext = os.path.splitext(rnafile)[1]
         if ext == ".tif":
-            imgspots = self.draw_spots( spots, labels, chan )
+            imgspots = self.draw_spots( spots, props["label"], chan )
             self.save_image(imgspots, rnafile, hasZ=True )
             del imgspots
         if ext == ".csv":
@@ -760,8 +760,10 @@ class MainImage:
             resdict["X"] = spots[:,1]
             resdict["Y"] = spots[:,2]
             resdict["Z"] = spots[:,0]
-            resdict["Label"] = labels
-            resdict["Score"] = scores
+            resdict["Label"] = props["label"]
+            for propname, propval in props.items():
+                if propname != "label":
+                    resdict[propname] = propval
             ut.write_dict(rnafile, resdict)
         ut.show_info("RNA spots saved in file "+str(rnafile))
 
@@ -770,11 +772,28 @@ class MainImage:
         rnaspot = self.rnas[rnachan]
         return rnaspot.draw_nonoverlap_spots3D(imgoverlap, self.imshape, size=size)
 
-    def measure_spots(self, rnachan, measurechan):
+    def measure_spots(self, rnachan, measurechan=-1, measureimg=None, name=""):
         """ Measure intensity in the spots in the given channel """
-        if (self.rnas[rnachan].measure_channel != measurechan) or (len(self.rnas[rnachan].measure_intensity) <= 0):
-            self.rnas[rnachan].measure_spots_intensity( intensity_image = self.image[measurechan], intensity_channel = measurechan )
-        return self.rnas[rnachan].measure_intensity
+        if measurechan >= 0:
+            measureimg = self.image[measurechan]
+            name = "C"+str(measurechan)
+        if measureimg is None:
+            ut.show_warning("No image or channel provided for measuring intensity")
+            return None
+        if name == "":
+            name = str("Layer"+str(measurechan))
+        self.rnas[rnachan].measure_spots_intensity( intensity_image = measureimg, name=name )
+        return self.rnas[rnachan].measures[name]
+
+    def get_spots_measure( self, rnachan, measure_name ):
+        """ Returns the measure if it exists """
+        if self.rnas.get(rnachan) is None:
+            print("RNA "+str(rnachan)+" not found")
+            return None
+        if self.rnas[rnachan].measures.get(measure_name) is None:
+            print("Measure "+str(measure_name)+" not found for RNA "+str(rnachan))
+            return None
+        return self.rnas[rnachan].measures[measure_name]
 
     def get_spots(self, rnachan):
         return self.rnas[rnachan].get_pointswithprops()
