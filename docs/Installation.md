@@ -34,7 +34,7 @@ to install FishFeats.
 !!! warning "Installation of dependencies"
 	As the plugin relies on several different python modules and for flexibilit, we don't enforce the install of **all dependencies** on the basic installation of FishFeats.
 	It is up to the user to install the extra dependencies that will be usefull for her/his project.
-	However, it is possible to install directly most of the main dependencies by installing `fishfeats` with the `full` option: ```pip install fishfeats[full]```
+	However, it is possible to install directly most of the main dependencies by installing `fishfeats` with the `full` option: ```pip install `fishfeats[full]` ```
 
 ### Start FishFeats
 
@@ -49,7 +49,7 @@ in the activated environnement and goes to `Plugins>FishFeats>Start fishfeats`
 `FishFeats` depends on several python modules to allow different tasks. It is not necessary to install all the dependencies to run it, only the ones listed in `setup.cfg` configuration file. When installing the plugin, the listed dependencies will be automatically installed. 
 
 Other dependencies can be installed individually if the corresponding option will be used (e.g. install cellpose: `pip install cellpose`).
-They can also be all installed by installing FishFeats in full mode `pip install fishfeats[full]`.
+They can also be all installed by installing FishFeats in full mode `pip install `fishfeats[full]` `.
 
 ### Operating System
 The plugin has been developped on a Linux environment and is used on Windows and MacOS distributions. It should thus be compatible with all these OS provided to have the adequate python environments.

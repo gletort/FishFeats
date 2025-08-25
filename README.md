@@ -27,7 +27,7 @@ pip install fishfeats
 Some options of `Fishfeats` rely on dependencies that are not required by default, so to not force a lot of dependencies installation.
 If you want to do directly the installation with **all dependencies**, type:
 ``` 
-pip install fishfeats[full]
+pip install `fishfeats[full]`
 ```
 
 ## Usage
