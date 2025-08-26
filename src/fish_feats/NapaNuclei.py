@@ -50,7 +50,7 @@ class MeasureNuclei( QWidget ):
             lay.visible = False 
         chan = self.channel_spin.value()
         if "originalChannel"+str(chan) in self.viewer.layers:
-            self.viewer.layesr["originalChannel"+str(chan)].visible = True
+            self.viewer.layers["originalChannel"+str(chan)].visible = True
 
     def go_measure( self ):
         """ Do the intensity measurement """
