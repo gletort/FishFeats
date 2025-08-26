@@ -7,7 +7,7 @@
 
 ## Segmentation process
 
-**1/ 3D->2D:** The segmentation of the cellular junctions is performed in **2D**. First the junction staining will be [projected in a 2D](#2d-projection) plane by taking a local average of the slices around the maximum intensity signal. If the nuclei staining is in the same channel, the signals will be separated first. In that case, when you click on `Get junctions` the interface to [separate junctions and nuclei](./Separate-junctions-and-nuclei) will appear and you must execute it before to be able to do the segmentation. A layer called `2DJunctions` will appears when the projection will be finished/loaded.
+**1/ 3D->2D:** The segmentation of the cellular junctions is performed in **2D**. First the junction staining will be [projected in a 2D](#2d-projection) plane by taking a local average of the slices around the maximum intensity signal. If the nuclei staining is in the same channel, the signals will be separated first. In that case, when you click on `Get junctions` the interface to [separate junctions and nuclei](Separate-junctions-and-nuclei.md) will appear and you must execute it before to be able to do the segmentation. A layer called `2DJunctions` will appears when the projection will be finished/loaded.
 
 **2/ 2D segmentation:** The plugin proposes several options to perform the segmentation from the 2D images of junctions:
 
@@ -17,7 +17,7 @@
 
 **3/ Manual correction:** When the computation of the segmentation is finished, `fishfeats` will show you the results in a `label` layer called `Junctions`. You can then perform manual correction if needed before to save the results.
 
-**4/ 2D->3D:** At the end of the process, when you click on `Junctions done`, the pipeline creates the cells from the segmentation. The shape will be the label shape and the [cell position in Z](./3d-cell-positions) will be back-projected into the junction staining. Thus this step can take a few minutes to calculate the back-projection. 
+**4/ 2D->3D:** At the end of the process, when you click on `Junctions done`, the pipeline creates the cells from the segmentation. The shape will be the label shape and the [cell position in Z](3d-cell-positions.md) will be back-projected into the junction staining. Thus this step can take a few minutes to calculate the back-projection. 
 
 ![get_juncs](imgs/get_juncs.png)
 
