@@ -288,6 +288,10 @@ def view_3D( viewer ):
     """ Put the viewer in 3D mode """
     viewer.dims.ndisplay = 3
 
+def remove_all_layers( viewer ):
+    """ Remove all open layers """
+    viewer.layers.clear()
+
 def remove_layer(viewer, layname):
     if layname in viewer.layers:
         viewer.layers.remove(layname)

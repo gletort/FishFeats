@@ -2,10 +2,7 @@ import numpy as np
 import os, time
 from math import floor
 import csv
-import zarr
 from skimage.exposure import adjust_gamma
-from multiprocessing import Pool
-from functools import partial
 import skimage.metrics as imetrics
 import fish_feats.Utils as ut
 from fish_feats.CellObjects import Population
@@ -75,15 +72,41 @@ class MainImage:
         self.model = None
         self.rnas = {}
         self.imshape = (0,0,0)
+        self.imagename = None
+        self.imagedir = None
 
     def set_imagename(self, imagename):
         """ Set the name and path of the image """
         self.imagename, self.imagedir, self.resdir = ut.extract_names( imagename )
         self.pop = Population( imageshape=(0,0,0) )
 
+    def set_scales( self, scaleZ, scaleXY ):
+        """ Set the scales for the image """
+        self.scaleXY = scaleXY
+        self.scaleZ = scaleZ
+
+    def get_image_path( self ):
+        """ Returns the full image name and directory """
+        if self.imagename is None:
+            return ""
+        if self.imagedir is None:
+            return ""
+        return os.path.join(self.imagedir, self.imagename)
+
+    def set_image_path(self, imgpath=None):
+        """ Set the image name and result directory """
+        self.imagename, self.imagedir, self.resdir = ut.extract_names( imgpath )
+
     def crop_name( self ):
         """ build default crop name """
         return os.path.join( self.imagedir, self.imagename+"_crop.tif" )
+
+    def set_image( self, images ):
+        """ Set the main image (all the channels) from list of images (already opened) """
+        self.image = images
+        self.nbchannels = len(images)
+        self.imshape = images[0].shape
+        self.pop = Population(imageshape=self.imshape)
 
     def open_image(self, filename):
         self.image, self.scaleXY, self.scaleZ, names = ut.open_image(filename, verbose=self.verbose)
@@ -1019,8 +1042,6 @@ class MainImage:
                 ut.show_warning("Load junction staining (separated if necessary) before")
                 return
         zmap = np.zeros(projimg.shape, "uint8")
-        #pool = Pool()
-        #zmap_list = pool.map(partial(process_x, step=step_size, projimg=projimg, img=self.junstain, winsize=window_size), range(0,projimg.shape[0],step_size))
         for i, x in enumerate(range(0, projimg.shape[0], step_size)):
             zmap_cur = process_x( x, step=step_size, projimg=projimg, img=self.junstain, winsize=window_size )
             zmap[x:(x+step_size),:] = zmap_cur

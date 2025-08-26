@@ -13,6 +13,9 @@ contributions:
         - id: fishfeats.process
           title: Segment
           python_name: fish_feats.ProcessFolder:start
+        - id: fishfeats.start_from_layers
+          title: StartFromLayers
+          python_name: fish_feats.Naparing:startFromLayers
         - id: fishfeats.start_multiscale
           title: StartMultiscale
           python_name: fish_feats.Naparing:startMultiscale
@@ -38,6 +41,9 @@ contributions:
         #- command: fishfeats.process
         #  display_name: Segment junctions folder
         #  autogenerate: false
+        - command: fishfeats.start_from_layers
+          display_name: Start from open layer(s)
+          autogenerate: false
         - command: fishfeats.start_multiscale
           display_name: Start multiscale
           autogenerate: false

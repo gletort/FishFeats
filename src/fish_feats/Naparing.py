@@ -31,7 +31,8 @@ import fish_feats.FishWidgets as fwid
 ## start without viewer for tests
 def initZen():
     """ Initialize the plugin with the current viewer """
-    global viewer
+    global viewer, cfg
+    cfg = None
     viewer = napari.current_viewer()
     viewer.title = "Fish&Feats"
     init_viewer( viewer )
@@ -118,18 +119,10 @@ def startZen():
     ut.showOverlayText(viewer,  "Opening image...")
     mig.open_image( filename=filename )
     ut.update_history(mig.imagedir)
-    global cfg
     cfg = cf.Configuration(mig.save_filename(), show=False)
     
-    ## disaply the different channels
-    cmaps = ut.colormaps()
-    ncmaps = len(cmaps)
-    for channel in range(mig.nbchannels):
-        cmap = cmaps[(channel%ncmaps)]
-        img = mig.get_channel(channel)
-        viewer.add_image( img, name="originalChannel"+str(channel), blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap=cmap, contrast_limits=ut.quantiles(img), gamma=0.9 )
-    
-    viewer.axes.visible = True
+    ## display the different channels
+    display_channels()
     return endInit()
 
 def convert_previous_results():
@@ -187,6 +180,57 @@ def convert_previous_results():
     mig.save_results()
     return QWidget() 
 
+def display_channels():
+    """ Display the different channels of the image """
+    global viewer, mig
+    if viewer is None or mig is None:
+        return
+    cmaps = ut.colormaps()
+    ncmaps = len(cmaps)
+    for channel in range(mig.nbchannels):
+        cmap = cmaps[(channel%ncmaps)]
+        img = mig.get_channel(channel)
+        viewer.add_image( img, name="originalChannel"+str(channel), blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap=cmap, contrast_limits=ut.quantiles(img), gamma=0.9 )
+    viewer.axes.visible = True
+
+def startFromLayers():
+    """ Starts the plugin on already opened image """
+    global viewer, mig
+    initZen()
+    if viewer is None:
+        ut.show_error("No viewer found")
+        return
+    ut.show_info("Loading all opened layers as channels of one image in FishFeats...")
+    mig = mi.MainImage(talkative=True)
+    if len(viewer.layers) == 0:
+        ut.show_error("No layer(s) found")
+        return None
+    scale = viewer.layers[0].scale
+    imshape = viewer.layers[0].data.shape
+    mig.set_scales(scale[0], scale[1])
+
+    ## single layer with all the channels
+    if len(viewer.layers[0].data.shape) == 4:
+        img = viewer.layers[0].data
+        img = ut.arrange_dims( img, verbose=True )
+        mig.set_image( img )
+        ut.remove_all_layers( viewer )
+        display_channels()
+        return getImagePath()
+        
+    ## Or load all opened layer in the image and rename them in FishFeats style
+    img = [] 
+    for lay in viewer.layers:
+        if len(lay.data.shape) == 3:
+            if lay.data.shape != imshape:
+                ut.show_error("All layers should have the same shape")
+                return
+            img.append( lay.data )
+    mig.set_image(img)
+    ut.remove_all_layers( viewer )
+    display_channels()
+    return getImagePath()
+
 def startMultiscale():
     """ Open the main image as multiscale for performance """
     initZen()
@@ -198,9 +242,8 @@ def startMultiscale():
     ut.showOverlayText(viewer,  "Opening image...")
     mig.open_image( filename=filename )
     ut.update_history(mig.imagedir)
+    cfg = cf.Configuration(mig.save_filename(), show=False)
     
-    global cfg
-    cfg = cf.Configuration(mig.save_filename())
     for channel in range(mig.nbchannels):
         cmap = ut.colormapname(channel)
         img = mig.get_channel(channel)
@@ -225,9 +268,7 @@ def byebye():
     if cfg.blabla.shown():
         cfg.blabla.close()
     cfg.write_parameterfile()
-    layers = viewer.layers.copy()
-    for lay in layers:
-        ut.remove_layer( viewer, lay )
+    ut.remove_all_layers( viewer )
     print("Bye bye")
     #del mig
 
@@ -239,9 +280,27 @@ def shortcuts_window():
 def show_documentation():
     ut.show_documentation_page("")
     return
-    
+
+def getImagePath():
+    """ Get the image path when it was open from layers """
+
+    @magicgui(call_button="Set path",)
+    def get_image_path( image_path=pathlib.Path(mig.get_image_path())):
+        """ Get the image path when it was open from layers """
+        global cfg 
+        mig.set_image_path(image_path)
+        ut.update_history(mig.imagedir)
+        if cfg is None:
+            cfg = cf.Configuration(mig.save_filename(), show=False)
+        ut.remove_widget( viewer, "ImagePath" )
+        endInit()
+
+    wid = viewer.window.add_dock_widget( get_image_path, name="ImagePath" )
+    return wid
+
 def checkScale():
     """ Interface to choose the image scales and channels """
+    global cfg
     ## load saved parameters
     if cfg.has_config():
         cfg.read_scale(mig)

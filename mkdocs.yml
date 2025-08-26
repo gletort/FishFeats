@@ -6,6 +6,7 @@ nav:
     - Home: index.md
     - Installation: Installation.md
     - Actions:
+        - Open image: Open-image.md
         - Image Scalings: Image-scalings.md
         - Get Cells: Get-cells.md
         - 3D cell positions: 3d-cell-positions.md
