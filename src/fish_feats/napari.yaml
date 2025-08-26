@@ -35,9 +35,9 @@ contributions:
         - command: fishfeats.hierarchicalclustering
           display_name: Hierarchical clustering
           autogenerate: false
-        - command: fishfeats.process
-          display_name: Segment junctions folder
-          autogenerate: false
+        #- command: fishfeats.process
+        #  display_name: Segment junctions folder
+        #  autogenerate: false
         - command: fishfeats.start_multiscale
           display_name: Start multiscale
           autogenerate: false
