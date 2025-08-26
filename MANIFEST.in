@@ -4,7 +4,9 @@ include README.md
 recursive-exclude * __pycache__
 recursive-exclude * *.py[co]
 recursive-exclude docs *
+recursive-exclude site *
 recursive-exclude models *
+recursive-exclude tmp *
 recursive-exclude src _tests*
 recursive-exclude src *.egg-info
 recursive-exclude src *.pyc *.pyo __pycache__

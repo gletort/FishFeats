@@ -8,7 +8,7 @@
 ### Weird point selection
 
 We encountered a weird point selection on a version of Napari, where the selected points did not correspond at all to the drawn selection rectangle.
-This is due to Napari version 0.4.17, we strongly recommend to avoid this version.
+This is due to Napari version 0.4.19, we strongly recommend to avoid this version.
 
 ### Acces violation reading
 
@@ -28,7 +28,7 @@ Otherwise, open a new one in this page and we will do our best to answer fast.
 
 ## Tested and working configurations
 
-Here we proposed the list of package versions that were installed on several python environment, with the corresponding operating system, that worked fine for us.
+Here we proposed the list of versions that worked fine for us. For some versions, we provide the full list of package versions that were installed on several python environment, with the corresponding operating system, that worked fine for us.
 
 For each set-up, we list first the graphical info that we get with `napari --info`, then the link to the full yaml file.
 
@@ -135,6 +135,12 @@ However, if you don't intend to use Epyseg or use it separatly, the pipeline and
 			
 			fishfeats: 1.1.11				
 		yaml file with all python packages installed in the environment [here](./environnements_list/macbook_pro_M1_fishfeats_1.1_py310.yaml)
+		</details>	
+		
+		<details><summary> MacBook pro M1, python 3.10.14, napari 0.5.5 </summary>
+		</details>	
+		
+		<details><summary> MacBook pro M1, python 3.10.14, napari 0.6.2 </summary>
 		</details>	
 
 	=== "Linux"
