@@ -5,7 +5,7 @@
 FishFeats can directly load raw images with format `.tif, .ims or .czi` and read their metadata.
 
 If your raw images have one of this format, start FishFeats "normally" by going to `Plugins>fishfeats>Start` and select your image.
-Then you can proceed with the main pipeline, by first [checking and updating the image metadata information](./Image-scalings) (scale, channels)
+Then you can proceed with the main pipeline, by first [checking and updating the image metadata information](Image-scalings.md) (scale, channels)
 
 
 ## Load other format images
@@ -23,6 +23,6 @@ This is necessary to set correctly the image name and path to save the results/c
 
 ![image path](imgs/open_layers_path.png)
 
-Click on `Set path` when you have selected the correct image and the plugin will then goes to the main pipeline step of [checking/setting](./Image-scalings) the image metadata.
+Click on `Set path` when you have selected the correct image and the plugin will then goes to the main pipeline step of [checking/setting](Image-scalings.md) the image metadata.
 
 

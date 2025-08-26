@@ -1,7 +1,7 @@
 # Fish&Feats ![snap](imgs/snap.png)
 
 ## Usage
-You can launch `fishfeats` in Napari by going to `Plugins>fishfeats>Start`. It will open a file dialog box asking you to select the image that you want to analyze. Possible input formats are currently `.tif, .czi, .ims`. For other formats, you can first open the image within Napari and then start FishFeats by selecting `Plugins>fishfeats>Start from layer(s)`. See [here](./Open-Image) for more information.
+You can launch `fishfeats` in Napari by going to `Plugins>fishfeats>Start`. It will open a file dialog box asking you to select the image that you want to analyze. Possible input formats are currently `.tif, .czi, .ims`. For other formats, you can first open the image within Napari and then start FishFeats by selecting `Plugins>fishfeats>Start from layer(s)`. See [here](Open-Image.md) for more information.
 
 Then the image will be displayed, with the different channels shown as separated layers on the left panel.
 
@@ -22,13 +22,13 @@ From version 1.2 of FishFeats, for all steps, measures are saved in the same fil
 
 `fishfeats` proposes several analyses steps in the main interface:
 
-- [Image scalings](./Image-scalings): set the global parameter of the image to analyse (scalings, channels)
-- [Get cells](./Get-cells): segment/load/correct the cell apical contours in 2D
-- [Get nuclei](./Get-nuclei): segment/load/correct the nuclei in 3D.
-- [Separate junctions and nuclei](./Separate-junctions-and-nuclei): if the junctions staining and nuclei staining are in the same channel, to segment them it is necessary to separate them before with this step.
+- [Image scalings](Image-scalings.md): set the global parameter of the image to analyse (scalings, channels)
+- [Get cells](Get-cells.md): segment/load/correct the cell apical contours in 2D
+- [Get nuclei](Get-nuclei.md): segment/load/correct the nuclei in 3D.
+- [Separate junctions and nuclei](Separate-junctions-and-nuclei.md): if the junctions staining and nuclei staining are in the same channel, to segment them it is necessary to separate them before with this step.
 - [Get RNAs](Get-RNAs.md): segment/assign/correct/measure the RNAs in one or more RNA channel.
-- [Classify cells](./Classify-cells): manually classify the segmented cells with a user defined criteria (eg "PCNA or not"). Can be automatically prefilled then manually corrected.
-- [Measure cytoplasmic staining](./Measure-cytoplasmic-staining) to measure the intensity of one or more channels in each segmented cell around the surface.
+- [Classify cells](Classify-cells.md): manually classify the segmented cells with a user defined criteria (eg "PCNA or not"). Can be automatically prefilled then manually corrected.
+- [Measure cytoplasmic staining](Measure-cytoplasmic-staining.md) to measure the intensity of one or more channels in each segmented cell around the surface.
 
 ![main](imgs/main.png)
 
