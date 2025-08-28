@@ -1,9 +1,142 @@
 import fish_feats.Utils as ut
 import fish_feats.FishWidgets as fwid
+import fish_feats.Configuration as cf
 import numpy as np
 import os
 from qtpy.QtWidgets import QVBoxLayout, QWidget 
 
+class CheckScale( QWidget):
+    """
+        Handle the update of metadata parameters, choice of channel
+    """
+
+    def __init__( self, viewer, mig, cfg, load_all_previous, separation, next_step ):
+        """
+            Initialize the interface to set metadata
+        """
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+        self.load_all_previous_files = load_all_previous
+        self.divorceJunctionsNuclei = separation
+        self.getChoices = next_step
+
+        super().__init__()
+        layout = QVBoxLayout()
+
+        if self.cfg is None:
+            self.cfg = cf.Configuration(mig.save_filename(), show=False)
+
+        ## load saved parameters
+        if self.cfg.has_config():
+            self.cfg.read_scale(mig)
+        zdir = "top high z"
+        if self.mig.zdirection == 1:
+            zdir = "top low z"
+        
+        ## get the scaling in XY
+        line_scalexy, self.scaleXY = fwid.value_line( "XY scale (um/pixel):", self.mig.scaleXY, descr="Set the scale in XY (um/pixel)" )
+        layout.addLayout( line_scalexy )
+        
+        ## get the scaling in Z
+        line_scalez, self.scaleZ = fwid.value_line( "Z scale (um/pixel):", self.mig.scaleZ, descr="Set the scale in Z (um/pixel)" )
+        layout.addLayout( line_scalez )
+
+        ## get the direction of Z
+        line_zdir, self.zdirection = fwid.list_line( "Z direction:", descr="Choose the direction of Z" )
+        layout.addLayout( line_zdir )
+        self.zdirection.addItems( ["top high z", "top low z"] )
+        self.zdirection.setCurrentText( zdir )
+
+        ## get the channel number of junction if any
+        line_junchan, self.junchan = fwid.list_line( "Junction channel:", descr="Choose the channel number of the junction staining, or None if no junction staining" )
+        layout.addLayout( line_junchan )
+        self.junchan.addItem( "None" )
+        for chan in range(self.mig.nbchannels):
+            self.junchan.addItem( str(chan) )
+        self.junchan.setCurrentText( str(self.mig.junchan) )
+
+        ## get the channel number of nuclei if any
+        line_nucchan, self.nucchan = fwid.list_line( "Nuclei channel:", descr="Choose the channel number of the nuclei staining, or None if no nuclei staining" )
+        layout.addLayout( line_nucchan )
+        self.nucchan.addItem( "None" )
+        for chan in range(self.mig.nbchannels):
+            self.nucchan.addItem( str(chan) )
+        self.nucchan.setCurrentText( str(self.mig.nucchan) )
+
+        ## load previous results
+        self.load_previous = fwid.add_check( "Load previous", True, None, descr="Load previously saved files (in results folder) for the current image" )
+        layout.addWidget( self.load_previous )
+
+        ## button to open help
+        help_btn = fwid.add_button( "Help", self.open_help, descr="Open the help documentation", color=ut.get_color("help") )
+        ## button to update the metadata and channel and go to next step
+        update_btn = fwid.add_button( "Update", self.update_metadata, descr="Update the metadata and channel choice", color=ut.get_color("go") )
+        btn_line = fwid.double_button( update_btn, help_btn )
+
+        layout.addLayout( btn_line )
+        self.setLayout( layout )
+        self.show_helptext()
+
+    def update_metadata( self ):
+        """ Update the metadata based on selected parameters """
+
+        ## read the parameters
+        self.mig.scaleXY = float( self.scaleXY.text() )
+        self.mig.scaleZ = float( self.scaleZ.text() )
+        if self.zdirection.currentText() == "top high z":
+            self.mig.zdirection = 1
+        else:
+            self.mig.zdirection = 1
+        self.mig.junchan = self.junchan.currentText()
+        if self.mig.junchan == "None":
+            self.mig.junchan = None
+        else:
+            self.mig.junchan = int(self.mig.junchan)
+        self.mig.nucchan = self.nucchan.currentText()
+        if self.mig.nucchan == "None":
+            self.mig.nucchan = None
+        else:
+            self.mig.nucchan = int(self.mig.nucchan)
+
+        ## udpate the view scale        
+        for chan in range( self.mig.nbchannels ):
+            self.viewer.layers['originalChannel'+str(chan)].scale = [self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY]
+
+        ## clean the view
+        ut.remove_all_widget( self.viewer )
+        ut.removeOverlayText( self.viewer )
+
+        ## update the config
+        self.cfg.addGroupParameter("ImageScalings")
+        self.cfg.addParameter("ImageScalings", "scalexy", self.mig.scaleXY)
+        self.cfg.addParameter("ImageScalings", "scalez", self.mig.scaleZ)
+        self.cfg.addParameter("ImageScalings", "direction", self.mig.zdirection)
+        self.cfg.addParameter("ImageScalings", "junction_channel", self.mig.junchan)
+        self.cfg.addParameter("ImageScalings", "nuclei_channel", self.mig.nucchan)
+        self.viewer.grid.enabled = False
+        self.cfg.write_parameterfile()
+
+        if self.load_previous.isChecked():
+            self.load_all_previous_files()
+            return None
+        
+        if self.mig.should_separate():
+            ut.show_info("Junctions and nuclei staining in the same color channel, need to separate them")
+            self.divorceJunctionsNuclei()
+
+        if "Main" not in self.viewer.window._dock_widgets:
+            self.getChoices()
+
+    def show_helptext( self ):
+        """ Show scalings choice help text """
+        help_text = ut.help_shortcut( "view" )
+        help_text += ut.scale_shortcuts()
+        ut.showOverlayText( self.viewer, help_text )
+
+    def open_help( self ):
+        """ Open doc webpage for Image scalings """
+        ut.show_documentation_page( "Image-scalings" )
 
 class CropImage( QWidget ):
     """ Crop the image and the associated files """

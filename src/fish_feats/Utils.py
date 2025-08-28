@@ -157,6 +157,12 @@ def help_shortcut( step ):
         text += "Load a file of the 2D projection or calculate it now \n"
         return text
 
+def scale_shortcuts():
+    """ Help message for metadata interface """
+    help_text = "Check and correct the scaling information \n"
+    help_text += "Choose the color channels in which the junction and nuclei staining are (the channel numbers should be the same as the layer names originalChannel*) \n"
+    help_text += "\'load previous\' option will load all saved files (in results folder) for the current images \n"
+    return help_text
 
 def view_shortcuts():
     """ Viewing shortcuts list """
@@ -295,6 +301,10 @@ def remove_all_layers( viewer ):
 def remove_layer(viewer, layname):
     if layname in viewer.layers:
         viewer.layers.remove(layname)
+
+def remove_all_widget( viewer ):
+    """ Remove all widgets """
+    viewer.window.remove_dock_widget("all")
 
 def remove_widget(viewer, widname):
     """ Remove a widget from the viewer """

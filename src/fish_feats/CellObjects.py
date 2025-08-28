@@ -599,6 +599,10 @@ class Population:
         self.imgnuc = None
         self.hullinited = 0
 
+    def has_nuclei( self ):
+        """ Returns if has segmented nuclei information """
+        return ( (self.nuclei is not None) and (self.nuclei != {}) and ( len(self.nuclei) > 0 ) )
+
     def setCellImage(self, imgjun):
         self.imgcell = imgjun
 

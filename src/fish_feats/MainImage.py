@@ -364,6 +364,9 @@ class MainImage:
 
     def should_separate( self ):
         if self.junchan==self.nucchan:
+            ## both channels are absent
+            if self.junchan is None:
+                return False
             # separation has not been done yet
             if self.junstain is None:
                 return True
@@ -612,7 +615,15 @@ class MainImage:
         self.nucmask[self.nucmask>0] = self.nucmask[self.nucmask>0] + 1
         if self.pop is not None:
             self.pop.setNucleiImage(self.nucmask)
-    
+
+    def get_segmented_nuclei(self):
+        """ Mark points that are inside segmented nuclei """
+        if self.pop is None:
+            return None
+        if self.pop.imgnuc is None:
+            return None 
+        return self.pop.imgnuc
+
     def hasNuclei(self):
         if self.pop is None:
             return False
@@ -807,6 +818,18 @@ class MainImage:
             name = str("Layer"+str(measurechan))
         self.rnas[rnachan].measure_spots_intensity( intensity_image = measureimg, name=name )
         return self.rnas[rnachan].measures[name]
+    
+    def threshold_spots_measure( self, rnachan, measure_name, threshold=0.5 ):
+        """ Returns the measure if it exists """
+        if self.rnas.get(rnachan) is None:
+            print("RNA "+str(rnachan)+" not found")
+            return None
+        if self.rnas[rnachan].measures.get(measure_name) is None:
+            print("Measure "+str(measure_name)+" not found for RNA "+str(rnachan))
+            return None
+        measures = self.rnas[rnachan].measures[measure_name]
+        self.rnas[rnachan].measures[measure_name] = np.greater_equal(measures, threshold).astype(float).tolist()
+
 
     def get_spots_measure( self, rnachan, measure_name ):
         """ Returns the measure if it exists """

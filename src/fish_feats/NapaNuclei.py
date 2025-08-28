@@ -341,7 +341,7 @@ class NucleiWidget(QWidget):
     def correction_nuclei( self ):
         """ Allows manual correction of the segmentation """
         ut.show_info("Correct nuclei segmentation if necessary")
-        self.viewer.add_image( self.mig.nucstain, name="nucleiStaining", scale=( self.mig.scaleZ,self.mig.scaleXY,self.mig.scaleXY), blending="additive" )
+        #self.viewer.add_image( self.mig.nucstain, name="nucleiStaining", scale=( self.mig.scaleZ,self.mig.scaleXY,self.mig.scaleXY), blending="additive" )
         maskview = self.viewer.add_labels( self.mig.nucmask, blending='additive', scale=( self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY ), name="segmentedNuclei" )
         maskview.n_edit_dimensions = 3
         maskview.contour = 0

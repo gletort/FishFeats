@@ -47,10 +47,16 @@ class Configuration:
                     mig.zdirection = -1
             var = "junction_channel"
             if var in paras:
-                mig.junchan = int(paras[var])
+                if paras[var] == "None":
+                    mig.junchan = None
+                else:
+                    mig.junchan = int(paras[var])
             var = "nuclei_channel"
             if var in paras:
-                mig.nucchan = int(paras[var])
+                if paras[var] == "None":
+                    mig.nucchan = None
+                else:
+                    mig.nucchan = int(paras[var])
 
     def read_junctions(self):
         """ returns the parameters for junction segmentation """
@@ -89,7 +95,10 @@ class Configuration:
 
     def addParameter(self, paratype, paraname, paravalue):
         """ Add one parameter to the set of parameters """
-        (self.parameters[paratype])[paraname] = str(paravalue)
+        if paravalue is None:
+            (self.parameters[paratype])[paraname] = "None"
+        else:
+            (self.parameters[paratype])[paraname] = str(paravalue)
 
     def addTextParameter(self, cat, paraname, paravalue):
         self.blabla.value += "\n%"+cat+"->"+paraname+" = "+str(paravalue)

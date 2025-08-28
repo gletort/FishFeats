@@ -333,17 +333,18 @@ class PointEditing(QWidget):
         disp_settings["auto"] = ut.get_color("group1")
         disp_settings["group2"] = ut.get_color("group2")
         disp_settings["group3"] = ut.get_color("group3")
-        auto_line, auto_cbox, self.group_assign = fwid.checkgroup_help( "Automatic assignement", True, "Show/hide automatic assignement options", "Get-rnas", display_settings=disp_settings, groupnb="auto" )
+        ## Assignement options
+        auto_line, auto_cbox, self.group_assign = fwid.checkgroup_help( "Automatic assignement", False, "Show/hide automatic assignement options", "Get-rnas", display_settings=disp_settings, groupnb="auto" )
         self.point_editing(paras)
         layout.addLayout( auto_line )
         layout.addWidget( self.group_assign )
         ## Correction options
-        corr_line, group_cbox, self.group_correction = fwid.checkgroup_help( "Point correction", True, "Show/hide RNA correction options", "Get-rnas", display_settings=disp_settings, groupnb="group2" )
+        corr_line, group_cbox, self.group_correction = fwid.checkgroup_help( "Point correction", False, "Show/hide RNA correction options", "Get-rnas", display_settings=disp_settings, groupnb="group2" )
         self.interface_corrections()
         layout.addLayout( corr_line )
         layout.addWidget( self.group_correction )
         ## Display options
-        disp_line, group_cbox_disp, self.group_display = fwid.checkgroup_help( "Point display", True, "Show.hide options to change points display", "Get-rnas", display_settings=disp_settings, groupnb="group3" )
+        disp_line, group_cbox_disp, self.group_display = fwid.checkgroup_help( "Point display", False, "Show.hide options to change points display", "Get-rnas", display_settings=disp_settings, groupnb="group3" )
         self.interface_display()
         layout.addLayout( disp_line )
         layout.addWidget( self.group_display )
@@ -1250,14 +1251,30 @@ class PointMeasuring(QWidget):
         self.layerrna = self.viewer.layers["assignedRNA"+str(self.channel)]
 
         layout = QVBoxLayout()
-        lab = fwid.add_label("Measure intensity of RNA channel "+str(chan))
+        inside_line, inside_check, self.inside_gr = fwid.checkgroup_help( "Inside segmented nuclei", True, descr="Measure if points are inside segmented nuclei or not", help_link="Get-RNAS#measure-intensity" )
+        inside_layout = QVBoxLayout()
+        ## title to explain
+        inside_lab = fwid.add_label("Which points are inside segmented nuclei")
+        inside_layout.addWidget(inside_lab)
+        ## measure inside button
+        go_inside = fwid.add_button( "Measure points inside nuclei", self.mark_points_inside_nuclei, descr="Measure if points are inside segmented nuclei or not", color=ut.get_color("go") )
+        inside_layout.addWidget(go_inside)
+        self.inside_gr.setLayout(inside_layout)
+        layout.addLayout(inside_line)
+        layout.addWidget( self.inside_gr )
+
+        intensity_line, intensity_check, self.intensity_gr = fwid.checkgroup_help( "Measure raw intensity", True, descr="Measure raw intensity of selected channel into the spots", help_link="Get-RNAS#measure-intensity" )
+        intensity_layout = QVBoxLayout()
         # choose layer to measure intensity
         line, self.layer_choice = fwid.list_line( "From layer:", descr="Choose opened layer to measure", func=None )
         self.update_layers_list()
-        layout.addWidget(lab)
-        layout.addLayout(line)
+        intensity_layout.addLayout(line)
         measure_button = fwid.add_button( "Measure intensity", self.measure_intensity, descr="Measure intensity of selected layer", color=ut.get_color("go") )
-        layout.addWidget(measure_button)
+        intensity_layout.addWidget(measure_button)
+        self.intensity_gr.setLayout(intensity_layout)
+        layout.addLayout(intensity_line)
+        layout.addWidget( self.intensity_gr )
+
         ## reset display button
         reset_button = fwid.add_button( "Reset display", self.reset_display, descr="Reset the display of RNA spots" )
         ## update button
@@ -1266,6 +1283,25 @@ class PointMeasuring(QWidget):
         layout.addLayout(res_line)
         ## run the measure button
         self.setLayout(layout)
+
+    def mark_points_inside_nuclei( self ):
+        """ Mark if points are inside segmented nuclei or not """
+        if "segmentedNuclei" in self.viewer.layers:
+            nuc = self.viewer.layers["segmentedNuclei"].data
+        else:
+            nuc = self.mig.get_segmented_nuclei()
+        if nuc is None:
+            ut.show_warning("No segmented nuclei found. Do Get nuclei before to segment them")
+            return
+        
+        nuc = 1*(nuc > 0) ## dont keep the labels
+        ## update spots list
+        self.mig.set_spots(self.channel, self.layerrna.data)
+        
+        ## measure spots
+        self.mig.measure_spots( self.channel, measureimg = nuc, name="InsideSegmentedNuclei" )
+        self.mig.threshold_spots_measure( self.channel, "InsideSegmentedNuclei", threshold=0.5 )
+        self.display_by_intensity( "InsideSegmentedNuclei", 0, 2 )
 
     def reset_display( self ):
         """ Reset point colors to cell label """ 
@@ -1304,5 +1340,7 @@ class PointMeasuring(QWidget):
         self.layerrna.face_color = 'intensity'
         minint = min( np.min(intensities), minint*1.25 )
         maxint = max( np.max(intensities), maxint*0.75 )
+        print(minint)
+        print(maxint)
         self.layerrna.contrast_limits = (minint, maxint)
         self.layerrna.refresh_colors()

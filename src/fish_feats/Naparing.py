@@ -13,7 +13,7 @@ from fish_feats.NapaRNA import NapaRNA
 from fish_feats.NapaCells import GetCells, Projection
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget 
 from fish_feats.FishGrid import FishGrid
-from fish_feats.NapaMix import CropImage
+from fish_feats.NapaMix import CheckScale, CropImage
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
 
@@ -108,7 +108,7 @@ def init_viewer( viewer ):
 
 def startZen():
     """ Start the pipeline: open the image, get the scaling infos """
-
+    global cfg
     initZen()
     
     ## get and open the image
@@ -119,7 +119,7 @@ def startZen():
     ut.showOverlayText(viewer,  "Opening image...")
     mig.open_image( filename=filename )
     ut.update_history(mig.imagedir)
-    cfg = cf.Configuration(mig.save_filename(), show=False)
+    cfg = cf.Configuration( mig.save_filename(), show=False )
     
     ## display the different channels
     display_channels()
@@ -233,6 +233,7 @@ def startFromLayers():
 
 def startMultiscale():
     """ Open the main image as multiscale for performance """
+    global cfg
     initZen()
 
     filename = ut.dialog_filename()
@@ -301,72 +302,12 @@ def getImagePath():
 def checkScale():
     """ Interface to choose the image scales and channels """
     global cfg
-    ## load saved parameters
-    if cfg.has_config():
-        cfg.read_scale(mig)
-    zdir = "top high z"
-    if mig.zdirection == 1:
-        zdir = "top low z"
-    if mig.junchan is None:
-        mig.junchan = 0
-    if mig.nucchan is None:
-        mig.nucchan = 0
 
-    @magicgui(call_button="Update", 
-            scaleXY={"widget_type": "LiteralEvalLineEdit"},
-            scaleZ={"widget_type": "LiteralEvalLineEdit"},
-            direction={"choices":["top high z","top low z"]},
-            junction_channel={"widget_type": "Slider", "min":0, "max": mig.nbchannels-1}, 
-            nuclei_channel={"widget_type": "Slider", "min":0, "max": mig.nbchannels-1}, 
-            Help={"widget_type": "PushButton"},
-            )
-    def get_scale( scaleXY= mig.scaleXY, scaleZ= mig.scaleZ, direction=zdir, junction_channel=mig.junchan, nuclei_channel=mig.nucchan, load_previous=True, Help=False ):
-        mig.scaleXY = scaleXY
-        mig.scaleZ = scaleZ
-        if direction == "top high z":
-            mig.zdirection = -1
-        else:
-            mig.zdirection = 1
-        mig.junchan = junction_channel
-        mig.nucchan = nuclei_channel
-        for chan in range(mig.nbchannels):
-            viewer.layers['originalChannel'+str(chan)].scale = [mig.scaleZ, mig.scaleXY, mig.scaleXY]
-        viewer.window.remove_dock_widget("all")
-        ut.removeOverlayText(viewer)
-    
-        cfg.addGroupParameter("ImageScalings")
-        cfg.addParameter("ImageScalings", "scalexy", mig.scaleXY)
-        cfg.addParameter("ImageScalings", "scalez", mig.scaleZ)
-        cfg.addParameter("ImageScalings", "direction", direction)
-        cfg.addParameter("ImageScalings", "junction_channel", mig.junchan)
-        cfg.addParameter("ImageScalings", "nuclei_channel", mig.nucchan)
-        viewer.grid.enabled = False
-        cfg.write_parameterfile()
-
-        if load_previous:
-            load_all_previous_files()
-            return None
-
-        if mig.should_separate():
-            ut.show_info("Junctions and nuclei staining in the same color channel, need to separate them")
-            divorceJunctionsNuclei()
-
-        if "Main" not in viewer.window._dock_widgets:
-            getChoices()
-    
-    ## display help text and add widget
-    help_text = ut.help_shortcut( "view" )
-    help_text += "Check and correct the scaling information \n"
-    help_text += "Choose the color channels in which the junction and nuclei staining are (the channel numbers should be the same as the layer names originalChannel*) \n"
-    help_text += "\'load previous\' option will load all saved files (in results folder) for the current images \n"
-    ut.showOverlayText(viewer, help_text)
-    get_scale.Help.clicked.connect( documentation_scales )
-    wid = viewer.window.add_dock_widget(get_scale, name="Scale")
+    cs = CheckScale( viewer, mig, cfg, load_all_previous_files, divorceJunctionsNuclei, getChoices )
+    wid = viewer.window.add_dock_widget(cs, name="Scale")
+    cfg = cs.cfg
     return wid
 
-def documentation_scales():
-    """ Open doc webpage for Image scalings """
-    ut.show_documentation_page( "Image-scalings" )
 
 #### Action choice
 def getChoices(default_action='Get cells'):
@@ -430,7 +371,6 @@ def crop_image():
     viewer.window.add_dock_widget( crop, name="CropImage" )
 
 
-
 def load_all_previous_files():
     """ Load all the previous files with default name that it can find and init the objects accordingly """
     ## try to load separated staining
@@ -474,6 +414,9 @@ def loadJunctionsFile():
 
 def goJunctions():
     """ Choose between loading projection and cells files or recalculating """
+    if mig.junchan is None:
+        ut.show_warning( "No junction channel selected in the configuration. Go back to Image Scalings to select one." )
+        return
     methods = ["Do projection and segmentation"]
     ind = 0
     projname = mig.build_filename( "_junction_projection.tif")
