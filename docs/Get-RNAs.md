@@ -147,6 +147,20 @@ The results file can thus contains the counts from several assignement methods, 
 _Select the onglet `MeasureIntensity*` to start this option_
 
 This options allows to measure the intensity inside each segmented spot (RNA) in a chosen image channel or opened layer.
+It can also indicate for each spot if it is inside a segmented nucleus or not (you must have performed the nuclei segmentation before for that, see [Get nuclei](./Get-nuclei.md) step).
+
+### Inside segmented nuclei
+
+You must have done the [nuclei segmentation](./Get-nuclei.md) before to be able to use this option.
+
+When clicking on `Measure points inside nuclei`, the plugin will evaluate for each segmented RNA spot if its center is inside a segmented nucleus or not.
+The spots will then be displayed with a color indicating if they are inside a nucleus (yellow) or not (purple).
+
+![rna_measure_inside](./imgs/rna_measure_inside.png)
+
+This value will also be added to the _`imagename RNA*.csv`_ file in which the RNA results are saved, in a column called `InsideSegmentedNuclei` when you click on `Save RNAs`. 
+
+### Measure raw intensity
 
 At this step, usually only the _`originalChannel*`_ channels are available, but you can open other layers (e.g. nuclei segmentation) if you want to measure it and click on `update layers` to have it added to the possible layers to measure.
 
