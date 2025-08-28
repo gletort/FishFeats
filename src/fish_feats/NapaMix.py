@@ -125,7 +125,7 @@ class CheckScale( QWidget):
             ut.show_info("Junctions and nuclei staining in the same color channel, need to separate them")
             self.divorceJunctionsNuclei()
 
-        if "Main" not in self.viewer.window._dock_widgets:
+        if not ut.has_widget( self.viewer, "Main" ):
             self.getChoices()
 
     def show_helptext( self ):

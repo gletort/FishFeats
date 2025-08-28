@@ -1134,7 +1134,7 @@ def getOverlapRNA():
 
 def getRNA():
     """ Segment the RNA dots in selected channels """
-    if "RNAs" not in viewer.window._dock_widgets:
+    if not ut.has_widget( viewer, "RNAs"):
         rnaGUI = NapaRNA(viewer, mig, cfg)
             #drawing_spot_size = paras["RNA"+str(rnachannel)+"_drawing_spot_size"] ):
 

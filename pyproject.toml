@@ -23,7 +23,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 dependencies = [
-    "napari < 0.6.3",
+    "napari < 0.6.5",
     "numpy",
     "imaris_ims_file_reader",
     "czifile",

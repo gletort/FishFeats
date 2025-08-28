@@ -1340,7 +1340,5 @@ class PointMeasuring(QWidget):
         self.layerrna.face_color = 'intensity'
         minint = min( np.min(intensities), minint*1.25 )
         maxint = max( np.max(intensities), maxint*0.75 )
-        print(minint)
-        print(maxint)
         self.layerrna.contrast_limits = (minint, maxint)
         self.layerrna.refresh_colors()

@@ -96,7 +96,7 @@ def getScales(mig, viewer):
         mig.scaleZ = scaleZ
         for chan in range(mig.nbchannels):
             viewer.layers['originalChannel'+str(chan)].scale = [mig.scaleZ, mig.scaleXY, mig.scaleXY]
-        viewer.window.remove_dock_widget("all")
+        ut.remove_all_widgets(viewer)
         mig.load_segmentation( segmented_cells )
         done = mig.popFromJunctions()
         if done < 0:
@@ -131,7 +131,7 @@ def classify_cells(mig, viewer):
             ut.remove_layer(viewer, "ProjC"+feat)
             ut.remove_layer(viewer, feat+"Cells")
         wids = []
-        for wid in viewer.window._dock_widgets:
+        for wid in ut.list_widgets(viewer):
             if wid.startswith("Feat_"):
                 wids.append(wid)
             if wid.startswith("Edit Feat_"):
@@ -145,7 +145,7 @@ def classify_cells(mig, viewer):
     labimg = viewer.add_labels( mig.pop.imgcell, name="Cells", scale=(mig.scaleXY, mig.scaleXY), opacity=0.4, blending="additive" )
     labimg.contour = 1
 
-    if "Classify cells" not in viewer.window._dock_widgets:
+    if not ut.has_widget( viewer, "Classify cells"):
         main_widget = QWidget()
         layout = QVBoxLayout()
         main_widget.setLayout(layout)
@@ -458,7 +458,7 @@ class EditFeature( QWidget ):
         ut.remove_layer(self.viewer, self.featname+"Cells")
         if self.channel is not None:
             ut.remove_layer(self.viewer, "ProjC"+str(self.channel))
-        if "Feature table" in self.viewer.window._dock_widgets:
+        if ut.has_widget(self.viewer, "Feature table"):
             self.table.set_table()
 
     

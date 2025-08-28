@@ -306,6 +306,18 @@ def remove_all_widget( viewer ):
     """ Remove all widgets """
     viewer.window.remove_dock_widget("all")
 
+def list_widgets( viewer ):
+    """ List all open widgets """
+    if not version_napari_above("0.6.1"):
+        return list(viewer.window._dock_widgets.keys())
+    return list(viewer.window.dock_widgets.keys())
+
+def has_widget( viewer, widname ):
+    """ Check if given widget is open """
+    if not version_napari_above("0.6.1"):
+        return widname in viewer.window._dock_widgets
+    return widname in viewer.window.dock_widgets
+
 def remove_widget(viewer, widname):
     """ Remove a widget from the viewer """
     if not version_napari_above("0.6.1"):
@@ -322,16 +334,18 @@ def remove_widget(viewer, widname):
             wid.destroyOnClose()
     else:
         if widname in viewer.window.dock_widgets:
-            wid = viewer.window._dock_widgets[widname]
-            wid.setDisabled(True)
-            try:
-                wid.disconnect()
-            except:
-                #print("Widget "+widname+" deleted but not disconnected (pyside2)")
-                pass
-            del viewer.window._dock_widgets[widname]
-            wid.destroyOnClose()
-            #viewer.window.remove_dock_widget( wid )
+            if not version_napari_above("0.6.2"):
+                wid = viewer.window.dock_widgets[widname]
+                wid.setDisabled(True)
+                try:
+                    wid.disconnect()
+                except:
+                    #print("Widget "+widname+" deleted but not disconnected (pyside2)")
+                    pass
+                del viewer.window._dock_widgets[widname]
+                wid.destroyOnClose()
+            else:
+                viewer.window.remove_dock_widget( viewer.window.dock_widgets[widname] )
 
 def hide_color_layers(viewer, mig):
     """ Hide all the originalChannel layers """

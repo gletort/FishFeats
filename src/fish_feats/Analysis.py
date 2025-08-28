@@ -66,7 +66,7 @@ def getScales(mig, viewer):
         mig.scaleZ = scaleZ
         for chan in range(mig.nbchannels):
             viewer.layers['originalChannel'+str(chan)].scale = [mig.scaleZ, mig.scaleXY, mig.scaleXY]
-        viewer.window.remove_dock_widget("all")
+        ut.remove_all_widgets(viewer)
         mig.load_segmentation( segmented_cells )
         mig.popFromJunctions()
         
@@ -213,7 +213,7 @@ class HierAnalysis:
         if self.wid is None:
             self.wid = self.create_plotwidget()
         self.update_plotwidget(clustered)
-        if "Dendrogram" not in self.viewer.window._dock_widgets:
+        if not ut.has_widget( self.viewer, "Dendrogram" ):
             self.viewer.window.add_dock_widget( self.wid, name="Dendrogram" )
 
     def create_plotwidget(self):
