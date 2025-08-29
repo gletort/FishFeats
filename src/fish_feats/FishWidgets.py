@@ -1,6 +1,6 @@
 import fish_feats.Utils as ut
 import os
-from qtpy.QtWidgets import QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QComboBox, QSpinBox, QSlider, QGroupBox, QFileDialog # type: ignore from qtpy.QtCore import Qt # type: ignore
+from qtpy.QtWidgets import QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QComboBox, QSpinBox, QSlider, QGroupBox, QFileDialog, QListWidget, QAbstractItemView # type: ignore from qtpy.QtCore import Qt # type: ignore
 from qtpy.QtCore import Qt # type: ignore
 
 def help_button( link, description="", display_settings=None ):
@@ -63,6 +63,17 @@ def group_layout( name, descr="", color=None ):
         group.setStyleSheet( 'QGroupBox {background-color: '+color+'}' )
     layout = QVBoxLayout()
     return group, layout
+
+def add_multiple_list( label, descr="" ):
+    """ List interface, with possibility of multiple selection """
+    list_widget = QListWidget()
+    list_widget.setSelectionMode(QAbstractItemView.MultiSelection)
+    layout = QVBoxLayout()
+    layout.addWidget(QLabel(label))
+    layout.addWidget(list_widget)
+    if descr != "":
+        list_widget.setToolTip( descr )
+    return layout, list_widget
 
 def add_button( btn, btn_func, descr="", color=None ):
     """ Add a button connected to an action when pushed """

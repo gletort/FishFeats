@@ -8,7 +8,7 @@ from qtpy.QtWidgets import QApplication, QWidget, QVBoxLayout
 import fish_feats.MainImage as mi
 import fish_feats.Configuration as cf
 import fish_feats.Utils as ut
-from fish_feats.NapaRNA import NapaRNA
+from fish_feats.NapaRNA import NapaRNA, OverlapRNA
 from fish_feats.NapaCells import MainCells, Position3D 
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget, PreprocessNuclei 
 from fish_feats.FishGrid import FishGrid
@@ -476,70 +476,8 @@ def doCellAssociation():
 
 def getOverlapRNA():
     """ Find RNAs overlapping in several channels (non specific signal) """
-    chanlist = mig.potential_rnas()
-
-    def find_over_rnas():
-        """ Detect RNAs present in all the selected channels """
-        channels = over_rnas.in_channels.value
-        mixed = mig.mixchannels(channels)
-        for lay in viewer.layers:
-            lay.visible = False
-        for chan in channels:
-            lay = ut.get_layer(viewer, "originalChannel"+str(chan))
-            if lay is not None:
-                lay.visible = True
-        if over_rnas.show_mixed_image.value:
-            viewer.add_image(mixed, name="Mixchannels"+str(channels), scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), blending="additive")
-    
-        spots = mig.find_blobs_in_image( mixed, channels, over_rnas.spot_sigma.value, over_rnas.threshold.value )
-        points = np.array(spots)
-        fcolor = "white"
-        ut.remove_layer(viewer, "OverlapRNA"+str(channels))
-        ut.add_point_layer( viewer=viewer, pts=points, colors=fcolor, layer_name="OverlapRNA"+str(channels), mig=mig, size=7 )
-
-
-        
-    @magicgui(call_button="Overlapping RNAs done", 
-              in_channels = dict(widget_type="Select", choices=chanlist),
-              spot_sigma = {"widget_type": "LiteralEvalLineEdit"},
-              threshold = {"widget_type": "LiteralEvalLineEdit"},
-              find_overlapping_rnas={"widget_type":"PushButton", "value": False},
-              )
-    def over_rnas(
-            in_channels = [],
-            show_advanced = False,
-            spot_sigma = 1.5,
-            threshold = 0.25,
-            show_mixed_image = False,
-            save_overlapping_rnas = True,
-            find_overlapping_rnas = False,
-            ):
-        channels = in_channels
-        layerrna = ut.get_layer(viewer, "OverlapRNA"+str(channels))
-        spots = layerrna.data
-        labels = [1]*len(spots)
-        scores = [0]*len(spots)
-        mig.set_spots(str(channels), spots)
-        if save_overlapping_rnas:
-            outname = mig.get_filename( "_RNA_over_"+str(channels)+".csv" )
-            mig.save_spots(spots.astype(int), np.array(labels).astype(int), np.array(scores).astype(int), str(channels), outname)
-        ut.remove_layer(viewer, "OverlapRNA"+str(channels))
-        ut.remove_widget(viewer, "Overlapping RNAs")
-        ut.remove_widget(viewer, "Main")
-        getChoices(default_action="Get RNA")
-    
-    def show_advanced_changed():
-        booly = over_rnas.show_advanced.value
-        over_rnas.threshold.visible = booly
-        over_rnas.spot_sigma.visible = booly
-        over_rnas.show_mixed_image.visible = booly
-        over_rnas.save_overlapping_rnas.visible = booly
-
-    show_advanced_changed()
-    over_rnas.find_overlapping_rnas.clicked.connect(find_over_rnas)
-    over_rnas.show_advanced.changed.connect(show_advanced_changed)
-    viewer.window.add_dock_widget( over_rnas, name="Overlapping RNAs" )
-
+    over = OverlapRNA(viewer, mig, cfg)
+    viewer.window.add_dock_widget( over, name="Overlapping RNAs" )
 
 
 def getRNA():

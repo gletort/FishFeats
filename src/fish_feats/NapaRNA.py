@@ -1342,3 +1342,86 @@ class PointMeasuring(QWidget):
         maxint = max( np.max(intensities), maxint*0.75 )
         self.layerrna.contrast_limits = (minint, maxint)
         self.layerrna.refresh_colors()
+
+
+class OverlapRNA( QWidget ):
+    """ Handle overlap of RNAs between several channels """
+
+    def __init__( self, viewer, mig, cfg ):
+        """ GUI to get overlapping RNAs """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+
+        ## initalize the GUI
+        layout = QVBoxLayout()
+        ## choose the channels
+        chan_line, self.selected_channels = fwid.add_multiple_list("Select channels", "Choose channels to look for overlapping RNAs")
+        layout.addLayout(chan_line)
+        for chan in range(self.mig.nbchannels):
+            self.selected_channels.addItem(str(chan))
+
+        ## size of the spot
+        spot_line, self.spot_sigma = fwid.value_line( "Spot sigma", 1.5, descr="blur the spots with given gaussian size" )
+        layout.addLayout(spot_line)
+        ## threshold to detect spot positive
+        threshold_line, self.threshold = fwid.value_line( "Threshold", 0.25, descr="Threshold of overlap to consider it positif")
+        layout.addLayout(threshold_line)
+
+        ## show results image
+        self.show_mixed_image = fwid.add_check( "Show mixed image", False, descr="Show the mixed image of the selected channels" )
+        layout.addWidget(self.show_mixed_image)
+
+        ## button save, go and done
+        go_btn = fwid.add_button( "Find overlapping RNAs", self.find_over_rnas, descr="Find RNAs present in all the selected channels", color=ut.get_color("go") )
+        layout.addWidget(go_btn)
+
+        save_btn = fwid.add_button( "Save overlapping RNAs", self.save_overlapping_rnas, descr="Save the found overlapping RNAs list", color=ut.get_color("save") )
+        done_btn = fwid.add_button( "Done", self.done, descr="Close the overlapping RNAs interface", color=ut.get_color("done") )
+        btn_line = fwid.double_button( save_btn, done_btn )
+        layout.addLayout(btn_line)
+
+        self.setLayout(layout)
+
+    def save_overlapping_rnas(self):
+        """ Save the found overlapping RNAs """
+        channels = self.selected_channels.selectedItems()
+        channels = [int(c.text()) for c in channels]
+        outname = self.mig.get_filename( "_RNA_over_"+str(channels)+".csv" )
+        layerrna = ut.get_layer( self.viewer, "OverlapRNA"+str(channels))
+        spots = layerrna.data
+        labels = [1]*len(spots)
+        scores = [0]*len(spots)
+        props = { "label": np.array(labels), "score": np.array(scores) }
+        self.mig.save_spots(spots.astype(int), props, str(channels), outname)
+
+    def done(self):
+        """ Step is done"""
+        channels = self.selected_channels.selectedItems() 
+        channels = [int(c.text()) for c in channels]
+        layerrna = ut.get_layer( self.viewer, "OverlapRNA"+str(channels))
+        spots = layerrna.data
+        self.mig.set_spots(str(channels), spots)
+        ut.remove_layer(self.viewer, "OverlapRNA"+str(channels))
+        ut.remove_widget(self.viewer, "Overlapping RNAs")
+
+    def find_over_rnas(self):
+        """ Detect RNAs present in all the selected channels """
+        channels = self.selected_channels.selectedItems() 
+        channels = [int(c.text()) for c in channels]
+        mixed = self.mig.mixchannels(channels)
+        for lay in self.viewer.layers:
+            lay.visible = False
+        for chan in channels:
+            lay = ut.get_layer(self.viewer, "originalChannel"+str(chan))
+            if lay is not None:
+                lay.visible = True
+        if self.show_mixed_image.isChecked():
+            self.viewer.add_image(mixed, name="Mixchannels"+str(channels), scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), blending="additive")
+
+        spots = self.mig.find_blobs_in_image( mixed, channels, float(self.spot_sigma.text()), float(self.threshold.text()) )
+        points = np.array(spots)
+        fcolor = "white"
+        ut.remove_layer(self.viewer, "OverlapRNA"+str(channels))
+        ut.add_point_layer( viewer=self.viewer, pts=points, colors=fcolor, layer_name="OverlapRNA"+str(channels), mig=self.mig, size=7 )
