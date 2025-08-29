@@ -1,4 +1,5 @@
 import fish_feats.Utils as ut
+import os
 from qtpy.QtWidgets import QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QComboBox, QSpinBox, QSlider, QGroupBox, QFileDialog # type: ignore from qtpy.QtCore import Qt # type: ignore
 from qtpy.QtCore import Qt # type: ignore
 
@@ -141,6 +142,28 @@ def add_value( default_value, descr="" ):
         value.setToolTip( descr )
     return value
 
+def double_value_line( labela, default_valuea, labelb, default_valueb, descr="" ):
+    """ Layout with two values to edit """
+    line = QHBoxLayout()
+    ## first
+    laba = QLabel()
+    laba.setText( labela )
+    line.addWidget( laba )
+    valuea = QLineEdit()
+    valuea.setText( str(default_valuea) )
+    line.addWidget( valuea )
+    ## second
+    labb = QLabel()
+    labb.setText( labelb )
+    line.addWidget( labb )
+    valueb = QLineEdit()
+    valueb.setText( str(default_valueb) )
+    line.addWidget( valueb )
+    if descr != "":
+        laba.setToolTip( descr )
+        labb.setToolTip( descr )
+    return line, valuea, valueb
+
 def value_line( label, default_value, descr="" ):
     """ Create a layout line with a value to edit (non editable name + value part ) """
     line = QHBoxLayout()
@@ -242,7 +265,7 @@ def file_dialog( title, filetypes, directory=None ):
     if directory is None:
         directory = ''
     else:
-        directory = str(directory)
+        directory = str( os.path.dirname(directory) )
     file_dialog = QFileDialog()
     file_dialog.setFileMode(QFileDialog.ExistingFile)
     file_dialog.setNameFilter(filetypes)

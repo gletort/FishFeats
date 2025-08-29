@@ -15,6 +15,7 @@ from packaging.version import Version
 import napari
 from skimage.segmentation import find_boundaries
 from skimage.morphology import binary_closing, binary_dilation, disk
+from skimage.measure import regionprops_table
 import gc
 
 """
@@ -902,3 +903,102 @@ def get_border_cells( img, margin=2 ):
     while 0 in labels:
         labels.remove(0)
     return labels
+
+## make bbox and show names
+def make_bbox3D(bbox_extents, mig):
+    """Get the coordinates of the corners of a
+    bounding box from the extents
+
+    Parameters
+    ----------
+    bbox_extents : list (4xN)
+        List of the extents of the bounding boxes for each of the N regions.
+        Should be ordered: [min_row, min_column, max_row, max_column]
+
+    Returns
+    -------
+    bbox_rect : np.ndarray
+        The corners of the bounding box. Can be input directly into a
+        napari Shapes layer.
+    """
+    minr = bbox_extents[0]*mig.scaleZ
+    minc = bbox_extents[1]*mig.scaleXY
+    mint = bbox_extents[2]*mig.scaleXY
+    maxr = bbox_extents[3]*mig.scaleZ
+    maxc = bbox_extents[4]*mig.scaleXY
+    maxt = bbox_extents[5]*mig.scaleXY
+    limr = (minr+maxr)/2
+    
+    
+    bbox_rect = np.array(
+        [[limr, minc, mint], [limr, minc, maxt], [limr, maxc, maxt], [limr, maxc,mint]]
+    )
+    bbox_rect = np.moveaxis(bbox_rect, 2, 0)
+
+    return bbox_rect
+
+def make_bbox2D(bbox_extents, mig):
+    """Get the coordinates of the corners of a
+    bounding box from the extents
+
+    Parameters
+    ----------
+    bbox_extents : list (4xN)
+        List of the extents of the bounding boxes for each of the N regions.
+        Should be ordered: [min_row, min_column, max_row, max_column]
+
+    Returns
+    -------
+    bbox_rect : np.ndarray
+        The corners of the bounding box. Can be input directly into a
+        napari Shapes layer.
+    """
+    minc = bbox_extents[0]*mig.scaleXY
+    mint = bbox_extents[1]*mig.scaleXY
+    maxc = bbox_extents[2]*mig.scaleXY
+    maxt = bbox_extents[3]*mig.scaleXY
+    
+    bbox_rect = np.array(
+        [[minc, mint], [minc, maxt], [maxc, maxt], [maxc,mint]]
+    )
+    bbox_rect = np.moveaxis(bbox_rect, 2, 0)
+    return bbox_rect
+
+
+def get_bblayer(lablayer, name, dim, viewer, mig):
+    """ Show the cell names """
+    # create the properties dictionary
+    properties = regionprops_table(
+        lablayer.data, properties=('label', 'bbox')
+    )
+
+    # create the bounding box rectangles
+    if dim == 2:
+        bbox_rects = make_bbox2D([properties[f'bbox-{i}'] for i in range(4)], mig)
+    if dim == 3:
+        bbox_rects = make_bbox3D([properties[f'bbox-{i}'] for i in range(6)], mig)
+    if viewer.dims.ndisplay == 2:
+        transl = [0,0]
+    else:
+        transl = [0,0,0]
+
+    # specify the display parameters for the text
+    text_parameters = {
+        'text': '{label}',
+        'size': 18,
+        'color': 'white',
+        'anchor': 'center',
+        #'translation': transl,
+    }
+
+    namelayer = viewer.add_shapes(
+    bbox_rects,
+    face_color='transparent',
+    edge_color='gray',
+    edge_width = 0,
+    properties=properties,
+    text=text_parameters,
+    name=name,
+    )
+    viewer.layers.select_previous()
+    return namelayer

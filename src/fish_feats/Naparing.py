@@ -5,7 +5,6 @@ import time
 from magicgui import magicgui
 from napari.qt import create_worker, thread_worker
 from qtpy.QtWidgets import QApplication, QWidget, QVBoxLayout
-from skimage.measure import regionprops_table
 import fish_feats.MainImage as mi
 import fish_feats.Configuration as cf
 import fish_feats.Utils as ut
@@ -789,48 +788,6 @@ def doCellAssociation():
 
     do_association = Association( viewer, mig, cfg )
     viewer.window.add_dock_widget(do_association, name="Associating")
-    
-
-def end_association():
-    """ Automatic association finished, go to manual correction step """
-    ut.show_info("Correct association if necessary")
-    ut.removeOverlayText(viewer)
-    ut.remove_layer(viewer, "CellContours")
-    ut.remove_layer(viewer, "CellNuclei")
-    viewer.add_labels( mig.getJunctionsImage3D(), name="CellContours", blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY) )
-    viewer.layers["CellContours"].editable = False
-    viewer.add_labels( mig.nucmask, name="CellNuclei", blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY) )
-    viewer.layers["CellNuclei"].n_edit_dimensions = 3
-    showAssociationWidget( viewer.layers["CellContours"], viewer.layers["CellNuclei"], shapeName="JunctionNames", dim=3 )
-    associateCNWidget( viewer.layers["CellContours"], viewer.layers["CellNuclei"] )
-    saveAssociation()
-
-
-def saveAssociation():
-    """ Finish and save cells-nuclei association """
-    @magicgui(call_button="Assocation done",
-              save_association={"widget_type":"PushButton", "value": False}, )
-    def end_association( 
-            juncfilename=pathlib.Path(mig.junction_filename(dim=2, ifexist=False)),
-            nucfilename=pathlib.Path(mig.nuclei_filename(ifexist=False)),
-            save_association=False,):
-        junc3D = viewer.layers["CellContours"].data
-        mig.junmask = np.max(junc3D, axis=0)
-        ut.remove_layer(viewer,"CellContours")
-        ut.remove_layer(viewer,"CellNuclei")
-        ut.remove_layer(viewer,"JunctionNames")
-        ut.remove_widget(viewer, "End association")
-        ut.remove_widget(viewer, "Edit association")
-        ut.remove_widget(viewer, "CellNuc association")
-        ut.removeOverlayText(viewer)
-
-    def save_asso():
-        mig.save_image( mig.nucmask, end_association.nucfilename.value, hasZ=True )
-        mig.popNucleiFromMask( associate=True )
-        mig.save_results()
-
-    end_association.save_association.clicked.connect(save_asso)
-    viewer.window.add_dock_widget( end_association, name="End association" )
 
 
 #######################################################################
@@ -983,7 +940,7 @@ def showCellsWidget(layerName, shapeName='CellNames', dim=3):
         if shapeName in viewer.layers:
             viewer.layers.remove(shapeName)
         else:
-            get_bblayer(layer, shapeName, dim)
+            ut.get_bblayer(layer, shapeName, dim, viewer, mig)
         return
     
     def relabel_layer():
@@ -1037,216 +994,7 @@ def textCellsWidget():
     return text
 
 
-def associateCNWidget(layerJun, layerNuc):
 
-    @magicgui(call_button="Associate now", nucleus={"widget_type":"LineEdit"}, associate={"widget_type":"Label"}, cell={"widget_type":"LineEdit"})
-    def associateCN(nucleus=0, associate="with", cell=0):
-        print("Associate nucleus "+str(nucleus)+" with cell "+str(cell))
-        mig.associateCN(int(nucleus), int(cell))
-        viewer.layers["CellNuclei"].refresh()
-    
-    @layerNuc.bind_key('c', overwrite=True)
-    def associateBis(layer):
-        nucleus = int(associateCN.nucleus.value)
-        cell = int(associateCN.cell.value)
-        if nucleus == 0 or cell == 0:
-            print("One value is zero, ignore association")
-            return
-        print("Associate nucleus "+str(nucleus)+" with cell "+str(cell))
-        mig.associateCN(nucleus, cell)
-        viewer.layers["CellNuclei"].refresh()
-     
-
-
-    # Handle click or drag events separately
-    @layerNuc.mouse_drag_callbacks.append
-    def click(layer, event):
-        if event.type == "mouse_press":
-            if event.button == 2:
-                # right click
-                value = layerJun.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
-                associateCN.cell.value = value
-            if (event.button == 1) and ("Control" in event.modifiers): 
-                ## associate nucleus with cell
-                value = layerNuc.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
-                associateCN.nucleus.value = value 
-                layerNuc.selected_label = value
-            
-    viewer.window.add_dock_widget(associateCN, name="CellNuc association")
-
-def showAssociationWidget(layerJun, layerNuc, shapeName='CellNames', dim=3):
-    @magicgui(call_button="Update")
-    def addnamelayer(show_cellnames=False, sync_cellsNuclei=False):
-        if sync_cellsNuclei:
-            synchronizeLayers(viewer) 
-        else:
-            unsynchronizeLayers(viewer)
-        
-        if show_cellnames:
-            if not shapeName in viewer.layers:
-                showCellNames(viewer)
-        else:
-            ut.remove_layer(viewer, shapeName)
-        return
-
-    @layerNuc.bind_key('l', overwrite=True)
-    @layerJun.bind_key('l', overwrite=True)
-    def showCellNames(layer):
-        if shapeName in viewer.layers:
-            ut.remove_layer(viewer, shapeName)
-        else:
-            get_bblayer(layerJun, shapeName, dim)
-
-    @layerNuc.bind_key('s', overwrite=True)
-    @layerJun.bind_key('s', overwrite=True)
-    def synchronizeLayers(layer):
-        viewer.layers.link_layers((layerJun, layerNuc), ('selected_label', 'n_edit_dimensions', 'visible', 'refresh', 'mode', 'contiguous'))
-        layerJun.show_selected_label = True
-        layerNuc.show_selected_label = True
-    
-    @layerNuc.bind_key('Control-c', overwrite=True)
-    @layerJun.bind_key('Control-c', overwrite=True)
-    def contour_increase(layer):
-        if layerNuc is not None:
-            layerNuc.contour = layerNuc.contour + 1
-    
-    @layerNuc.bind_key('Alt-c', overwrite=True)
-    @layerJun.bind_key('Alt-c', overwrite=True)
-    def contour_increase(layer):
-        if layerJun is not None:
-            layerJun.contour = layerJun.contour + 1
-    
-    @layerNuc.bind_key('Alt-d', overwrite=True)
-    @layerJun.bind_key('Alt-d', overwrite=True)
-    def contour_decrease(layer):
-        if layerJun is not None:
-            if layerJun.contour > 0:
-                layerJun.contour = layerJun.contour - 1
-        
-    @layerNuc.bind_key('Control-d', overwrite=True)
-    @layerJun.bind_key('Control-d', overwrite=True)
-    def contour_decrease(layer):
-        if layerNuc is not None:
-            if layerNuc.contour > 0:
-                layerNuc.contour = layerNuc.contour - 1
-    
-    @layerNuc.bind_key('u', overwrite=True)
-    @layerJun.bind_key('u', overwrite=True)
-    def unsynchronizeLayers(layer):
-        viewer.layers.unlink_layers()
-        layerJun.show_selected_label = False
-        layerNuc.show_selected_label = False
-
-    help_text = "<Control+Left-click> to select a nucleus value \n"
-    help_text = help_text + "<Right-click> to choose the cell to associate with \n"
-    help_text = help_text + "<c> to apply current association \n"
-    help_text = help_text + "<l> to show/hide cell labels \n"
-    help_text = help_text + "<s> to synchronize junctions and nuclei view \n"
-    help_text = help_text + "<u> to unsynchronize junctions and nuclei view \n"
-    help_text += "  <Ctrl-c>/<Ctrl-d> increase/decrease NUCLEI label contour \n"
-    help_text += "  <Alt-c>/<Alt-d> increase/decrease JUNCTIONS label contour \n"
-    header = ut.helpHeader(viewer, "CellNuclei")
-    ut.showOverlayText(viewer, header+help_text)
-    print("\n ---- Association editing ---- ")
-    viewer.window.add_dock_widget(addnamelayer, name="Edit association")
-
-
-def make_bbox2D(bbox_extents):
-    """Get the coordinates of the corners of a
-    bounding box from the extents
-
-    Parameters
-    ----------
-    bbox_extents : list (4xN)
-        List of the extents of the bounding boxes for each of the N regions.
-        Should be ordered: [min_row, min_column, max_row, max_column]
-
-    Returns
-    -------
-    bbox_rect : np.ndarray
-        The corners of the bounding box. Can be input directly into a
-        napari Shapes layer.
-    """
-    minc = bbox_extents[0]*mig.scaleXY
-    mint = bbox_extents[1]*mig.scaleXY
-    maxc = bbox_extents[2]*mig.scaleXY
-    maxt = bbox_extents[3]*mig.scaleXY
-    
-    bbox_rect = np.array(
-        [[minc, mint], [minc, maxt], [maxc, maxt], [maxc,mint]]
-    )
-    bbox_rect = np.moveaxis(bbox_rect, 2, 0)
-    return bbox_rect
-
-def make_bbox3D(bbox_extents):
-    """Get the coordinates of the corners of a
-    bounding box from the extents
-
-    Parameters
-    ----------
-    bbox_extents : list (4xN)
-        List of the extents of the bounding boxes for each of the N regions.
-        Should be ordered: [min_row, min_column, max_row, max_column]
-
-    Returns
-    -------
-    bbox_rect : np.ndarray
-        The corners of the bounding box. Can be input directly into a
-        napari Shapes layer.
-    """
-    minr = bbox_extents[0]*mig.scaleZ
-    minc = bbox_extents[1]*mig.scaleXY
-    mint = bbox_extents[2]*mig.scaleXY
-    maxr = bbox_extents[3]*mig.scaleZ
-    maxc = bbox_extents[4]*mig.scaleXY
-    maxt = bbox_extents[5]*mig.scaleXY
-    limr = (minr+maxr)/2
-    
-    
-    bbox_rect = np.array(
-        [[limr, minc, mint], [limr, minc, maxt], [limr, maxc, maxt], [limr, maxc,mint]]
-    )
-    bbox_rect = np.moveaxis(bbox_rect, 2, 0)
-
-    return bbox_rect
-
-def get_bblayer(lablayer, name, dim):
-    """ Show the cell names """
-    # create the properties dictionary
-    properties = regionprops_table(
-        lablayer.data, properties=('label', 'bbox')
-    )
-
-    # create the bounding box rectangles
-    if dim == 2:
-        bbox_rects = make_bbox2D([properties[f'bbox-{i}'] for i in range(4)])
-    if dim == 3:
-        bbox_rects = make_bbox3D([properties[f'bbox-{i}'] for i in range(6)])
-    if viewer.dims.ndisplay == 2:
-        transl = [0,0]
-    else:
-        transl = [0,0,0]
-
-    # specify the display parameters for the text
-    text_parameters = {
-        'text': '{label}',
-        'size': 18,
-        'color': 'white',
-        'anchor': 'center',
-        #'translation': transl,
-    }
-
-    namelayer = viewer.add_shapes(
-    bbox_rects,
-    face_color='transparent',
-    edge_color='gray',
-    edge_width = 0,
-    properties=properties,
-    text=text_parameters,
-    name=name,
-    )
-    viewer.layers.select_previous()
-    return namelayer
 
 def measureNuclearIntensity():
     """ Measure intensity inside segmented nuclei """

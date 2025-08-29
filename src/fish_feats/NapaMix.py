@@ -322,15 +322,25 @@ class Association( QWidget ):
         layout.addLayout( line_method )
         self.method.currentTextChanged.connect( self.update_visibility )
         self.method.setCurrentText(defmethod)
+
+        ## Loading parameters
+        self.load_group, load_layout = fwid.group_layout( "Loading parameters", descr="Parameters to choose files to load" )
         ## choice of cells file
         cell_line, self.cell_file = fwid.file_line( "Associated cell file:", assojuncfile, "Choose cell file", descr="Choose the file containing the associated cells" )
-        layout.addLayout( cell_line )
+        load_layout.addLayout( cell_line )
         ## choice of nuclei file
         nuclei_line, self.nuclei_file = fwid.file_line( "Associated nuclei file:", assonucfile, "Choose nuclei file", descr="Choose the file containing the associated nuclei" )
-        layout.addLayout( nuclei_line )
+        load_layout.addLayout( nuclei_line )
+        self.load_group.setLayout( load_layout )
+        layout.addWidget( self.load_group 
+                         )
+        ## Calculation parameters
+        self.calc_group, calc_layout = fwid.group_layout( "Calculate association parameters", descr="Parameters for the association calculation" )
         ## max distance for association
         dist_line, self.max_distance = fwid.value_line( "Max association distance (um):", distasso, descr="Set the maximum distance between nucleus and cell for association" )
-        layout.addLayout( dist_line )
+        calc_layout.addLayout( dist_line )
+        self.calc_group.setLayout( calc_layout )
+        layout.addWidget( self.calc_group )
 
         ## btn go assocation
         btn_go = fwid.add_button( "Go association", self.go_association, descr="Associate the cells and nuclei based on the selected method", color=ut.get_color("go") )
@@ -341,13 +351,13 @@ class Association( QWidget ):
 
         layout.addLayout( btn_line )
         self.setLayout( layout )
+        self.update_visibility()
 
     def update_visibility( self ):
         """ Update the visibility of parameters based on method """
         booly = self.method.currentText() == "Load association"
-        self.cell_file.setVisible( booly )
-        self.nuclei_file.setVisible( booly )
-        self.max_distance.setVisible( not booly )
+        self.load_group.setVisible( booly )
+        self.calc_group.setVisible( not booly )
     
     def open_help(self):
         """ Open the Wiki documentation page """
@@ -387,7 +397,7 @@ class Association( QWidget ):
             ut.showOverlayText(self.viewer, "Doing junction-nuclei association...")
             ut.show_info("Associate "+str(self.mig.nbCells())+" junctions with nuclei...")
             pbar = ut.start_progress( self.viewer, total=2, descr="Calculating association..." )
-            self.go_association(distance=float(self.max_distance.text()), pbar=pbar)
+            self.calc_association(distance=float(self.max_distance.text()), pbar=pbar)
             ut.close_progress( self.viewer, pbar )
             ut.show_duration( start_time, "Association calculated in ")
     
@@ -395,7 +405,220 @@ class Association( QWidget ):
             ut.show_info("Load association from files")
             self.load_association()
 
-    def go_association( self, distance, pbar=None ):
+    def calc_association( self, distance, pbar=None ):
         self.mig.go_association(distance=distance, pbar=pbar)
         ut.remove_widget(self.viewer, "Associating")
         self.end_association()
+
+    def end_association(self):
+        """ Automatic association finished, go to manual correction step """
+    
+        ut.show_info("Correct association if necessary")
+        ut.removeOverlayText( self.viewer )
+        ut.remove_layer(self.viewer, "CellContours")
+        ut.remove_layer(self.viewer, "CellNuclei")
+        self.viewer.add_labels( self.mig.getJunctionsImage3D(), name="CellContours", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY) )
+        self.viewer.layers["CellContours"].editable = False
+        self.viewer.add_labels( self.mig.nucmask, name="CellNuclei", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY) )
+        self.viewer.layers["CellNuclei"].n_edit_dimensions = 3
+        
+        corr = AssociateCN( self.viewer, self.mig, self.cfg, self.viewer.layers["CellContours"], self.viewer.layers["CellNuclei"] )
+        self.viewer.window.add_dock_widget( corr, name="Edit association" )
+
+class AssociateCN( QWidget ):
+    """ Interface to correct the cell-nucleus association """
+
+    def __init__( self, viewer, mig, cfg, layerJunc, layerNuc, shapeName="JunctionNames", dim=3 ):
+        """ Interface to correct the cell-nucleus association """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+        self.layerJun = layerJunc
+        self.layerNuc = layerNuc
+        self.shapeName = shapeName
+        self.dim = dim
+
+        layout = QVBoxLayout()
+        ## choice of nucleus
+        nc_line, self.nucleus, self.cell = fwid.double_value_line( "Associate nucleus: ", 0, "with cell: ", 0, descr="Choose the nucleus label and cell label to associate together" )
+        layout.addLayout(nc_line)
+        ## button go
+        btn_go = fwid.add_button( "Associate now", self.associate, descr="Associate the current nucleus and cell together" )
+        ## help button
+        btn_help = fwid.add_button( "Help", self.show_help, descr="Show help for cell-nucleus association", color=ut.get_color("help") )
+        line = fwid.double_button( btn_go, btn_help )
+        layout.addLayout(line)
+
+        ## show cell names
+        self.show_cellnames = fwid.add_check( "Show cell names", False, self.show_names, descr="Show/Hide the cell names on the junction layer" )
+        ## synchronize the layers
+        self.resync_layers = fwid.add_check( "Synchronize layers", False, self.update_synchronize_layers, descr="Synchronize the two Cell and Nuclei layer displays" )
+        check_line = fwid.double_widget( self.show_cellnames, self.resync_layers )
+        layout.addLayout(check_line)
+
+        ## Save and done buttons
+        self.save = fwid.add_button( "Save association", self.save_association, descr="Save the current association results to files", color=ut.get_color("save") )
+        self.done = fwid.add_button( "Association done", self.association_done, descr="Finish the association step and remove the associated layers", color=ut.get_color("done") )
+        btn_line = fwid.double_button( self.save, self.done )
+        layout.addLayout( btn_line )
+        self.setLayout(layout)
+
+        self.show_message()
+        self.activate_bindings()
+
+    def save_association( self ):
+        """ Save the current results to files """
+        nuc_filename = self.mig.nuclei_filename( ifexist=False)
+        self.mig.save_image( self.mig.nucmask, nuc_filename, hasZ=True )
+        self.mig.popNucleiFromMask( associate=True )
+        self.mig.save_results()
+
+    def association_done( self ):
+        """ Finish this step """
+        junc3D = self.viewer.layers["CellContours"].data
+        self.mig.junmask = np.max(junc3D, axis=0)
+        ut.remove_layer( self.viewer,"CellContours" )
+        ut.remove_layer( self.viewer,"CellNuclei")
+        ut.remove_layer( self.viewer,"JunctionNames")
+        ut.remove_widget( self.viewer, "Edit association")
+        ut.removeOverlayText( self.viewer)
+
+
+    def show_message( self ):
+        """ show update messages """
+        help_text = "<Control+Left-click> to select a nucleus value \n"
+        help_text = help_text + "<Right-click> to choose the cell to associate with \n"
+        help_text = help_text + "<c> to apply current association \n"
+        help_text = help_text + "<l> to show/hide cell labels \n"
+        help_text = help_text + "<s> to synchronize junctions and nuclei view \n"
+        help_text = help_text + "<u> to unsynchronize junctions and nuclei view \n"
+        help_text += "  <Ctrl-c>/<Ctrl-d> increase/decrease NUCLEI label contour \n"
+        help_text += "  <Shift-c>/<Shift-d> increase/decrease JUNCTIONS label contour \n"
+        header = ut.helpHeader( self.viewer, "CellNuclei" )
+        ut.showOverlayText(self.viewer, header+help_text)
+        print("\n ---- Association editing ---- ")
+
+    def associate( self ):
+        """ Associate current nucleus and cell together """
+        nucleus = int(self.nucleus.text())
+        cell = int(self.cell.text())
+        print("Associate nucleus "+str(nucleus)+" with cell "+str(cell))
+        self.mig.associateCN(int(nucleus), int(cell))
+        self.viewer.layers["CellNuclei"].refresh()
+
+    def show_help( self ):
+        """ Open help for manual correction step """
+        ut.show_documentation_page("Associate#Manual-correction")
+
+    def activate_bindings( self ):
+        """ Activate specific shortcuts for this step """
+    
+        @self.layerNuc.bind_key('c', overwrite=True)
+        def associateBis(layer):
+            nucleus = int(self.nucleus.text())
+            cell = int(self.cell.text())
+            if nucleus == 0 or cell == 0:
+                print("One value is zero, ignore association")
+                return
+            print("Associate nucleus "+str(nucleus)+" with cell "+str(cell))
+            self.mig.associateCN(nucleus, cell)
+            self.viewer.layers["CellNuclei"].refresh()
+    
+        @self.layerNuc.bind_key('l', overwrite=True)
+        @self.layerJun.bind_key('l', overwrite=True)
+        def showCellNames(layer):
+            self.show_cell_names()
+    
+        @self.layerNuc.bind_key('s', overwrite=True)
+        @self.layerJun.bind_key('s', overwrite=True)
+        def synchronizeLayers(layer):
+            self.synchronize_layers()
+    
+        @self.layerNuc.bind_key('u', overwrite=True)
+        @self.layerJun.bind_key('u', overwrite=True)
+        def unsynchronizeLayers(layer):
+            self.unsynchronize_layers()
+
+        @self.layerNuc.bind_key('Control-c', overwrite=True)
+        @self.layerJun.bind_key('Control-c', overwrite=True)
+        def contour_increase(layer):
+            if self.layerNuc is not None:
+                self.layerNuc.contour = self.layerNuc.contour + 1
+
+        @self.layerNuc.bind_key('Shift-c', overwrite=True)
+        @self.layerJun.bind_key('Shift-c', overwrite=True)
+        def contour_decrease(layer):
+            if self.layerJun is not None:
+                if self.layerJun.contour > 0:
+                    self.layerJun.contour = self.layerJun.contour - 1
+
+        @self.layerNuc.bind_key('Shift-d', overwrite=True)
+        @self.layerJun.bind_key('Shift-d', overwrite=True)
+        def contour_decrease(layer):
+            if self.layerJun is not None:
+                if self.layerJun.contour > 0:
+                    self.layerJun.contour = self.layerJun.contour - 1
+
+        @self.layerNuc.bind_key('Control-d', overwrite=True)
+        @self.layerJun.bind_key('Control-d', overwrite=True)
+        def contour_decrease(layer):
+            if self.layerNuc is not None:
+                if self.layerNuc.contour > 0:
+                    self.layerNuc.contour = self.layerNuc.contour - 1
+
+        # Handle click or drag events separately
+        @self.layerNuc.mouse_drag_callbacks.append
+        def click(layer, event):
+            if event.type == "mouse_press":
+                if event.button == 2:
+                    # right click
+                    value = self.layerJun.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
+                    self.cell.setText( str(value) )
+                if (event.button == 1) and ("Control" in event.modifiers): 
+                    ## associate nucleus with cell
+                    value = self.layerNuc.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
+                    self.nucleus.setText( str(value) )
+                    self.layerNuc.selected_label = value
+
+    def show_names( self ):
+        """ Show/Hide cell names """
+        if self.show_cellnames.isChecked():
+            if not self.shapeName in self.viewer.layers:
+                self.show_cell_names()
+        else:
+            ut.remove_layer( self.viewer, self.shapeName )
+
+    def update_synchronize_layers( self ):
+        """ synchronize on/off of the two layers """
+        if self.resync_layers.isChecked():
+            self.synchronize_layers() 
+        else:
+            self.unsynchronize_layers()
+
+    def show_cell_names( self ):
+        """ Show cell names inside each cell """
+        if self.shapeName in self.viewer.layers:
+            ut.remove_layer(self.viewer, self.shapeName)
+            self.show_cellnames.setChecked( False )
+        else:
+            ut.get_bblayer(self.layerJun, self.shapeName, self.dim, self.viewer, self.mig)
+            self.show_cellnames.setChecked( True )
+
+    def synchronize_layers( self ):
+        """ Synchronize the two layers """
+        self.viewer.layers.link_layers((self.layerJun, self.layerNuc), ('selected_label', 'n_edit_dimensions', 'visible', 'refresh', 'contiguous'))
+        self.layerJun.show_selected_label = True
+        self.layerNuc.show_selected_label = True
+        self.resync_layers.setChecked( True )
+
+    def unsynchronize_layers(self):
+        """ Unsynchronize the two layers """
+        self.viewer.layers.unlink_layers()
+        self.layerJun.show_selected_label = False
+        self.layerNuc.show_selected_label = False
+        self.resync_layers.setChecked( False )
+
+    
+    
+
