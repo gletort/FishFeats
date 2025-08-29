@@ -1,8 +1,71 @@
 
+import os
 import fish_feats.Utils as ut
 import fish_feats.FishWidgets as fwid
 import numpy as np
 from qtpy.QtWidgets import QVBoxLayout, QWidget 
+
+class MainCells( QWidget ):
+    """ Main interface for cell (junctions) segmentation """
+
+    def __init__( self, viewer, mig, cfg, divorceJunctionsNuclei, showCellsWidget, getChoices ):
+        """ Interface to choose loading or proj and seg """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+        self.divorceJunctionsNuclei = divorceJunctionsNuclei
+        self.showCellsWidget = showCellsWidget
+        self.getChoices = getChoices
+        self.proj = None
+    
+        methods = ["", "Do projection and segmentation"]
+        ind = 0
+        self.projname = self.mig.build_filename( "_junction_projection.tif")
+        self.cellsname = self.mig.build_filename( "_cells2D.tif")
+        msg = ""
+        if os.path.exists( self.projname ):
+            msg = "Found projection file"
+        if os.path.exists( self.cellsname ):
+            methods.append( "Load previous files" )
+            ind = 1
+            msg += "\nFound cell file"
+        msg += "\nChoose load to use those file(s)"
+
+        if len(methods) == 2:
+            ## there is nothing to load, go directly to projection and segmentation
+            self.proj = Projection( self.viewer, self.mig, self.cfg, self.divorceJunctionsNuclei, self.showCellsWidget, self.getChoices )
+            return
+
+        layout = QVBoxLayout()
+        ## Add message of found files
+        info_msg = fwid.add_label( ""+msg, descr="Show info if found default files that can be loaded or not" )
+        layout.addWidget( info_msg )
+        ## Add choice of action
+        do_line, self.methodChoice = fwid.list_line( "", descr="Choose to do projection and segmentation or load previous files", func=self.go_segmentation )
+        self.methodChoice.addItems( methods )
+        layout.addLayout( do_line )
+        self.setLayout( layout )
+
+
+    def go_segmentation( self ):
+        """ Start the process according to selected method """
+        method = self.methodChoice.currentText()
+        if method == "Do projection and segmentation":
+            ## go to projection plugin
+            proj = Projection( self.viewer, self.mig, self.cfg, self.divorceJunctionsNuclei, self.showCellsWidget, self.getChoices )
+            self.viewer.window.add_dock_widget( proj, name="JunctionProjection2D" )
+        elif method == "Load previous files":
+            ## load and show the projection
+            if os.path.exists( self.projname ):
+                ut.remove_layer( self.viewer, "2DJunctions" )
+                roijunc = self.mig.load_image( self.projname )
+                self.viewer.add_image( roijunc, name="2DJunctions", scale=(self.mig.scaleXY, self.mig.scaleXY), blending="additive" )
+            ## load the cells and edit them
+            self.mig.load_segmentation( self.cellsname )
+            ut.remove_widget( self.viewer, "Get cells" )
+            get_cells = GetCells( self.viewer, self.mig, self.cfg, self.showCellsWidget, self.getChoices )
+            get_cells.end_segmentation()
 
 class Projection( QWidget ):
     """ Get the 2D projection (local) of the junctions image """
@@ -66,7 +129,6 @@ class Projection( QWidget ):
         ## Finish the step
         done_btn = fwid.add_button( "Projection done", self.finish_projection, descr="Finish the projection step and go to segmentation", color=ut.get_color("done") )
         layout.addWidget( done_btn )
-
         self.setLayout(layout)
 
     def do_projection( self ):
@@ -100,6 +162,7 @@ class Projection( QWidget ):
         ut.removeOverlayText(self.viewer)
         ut.remove_layer( self.viewer, "junctionsStaining" )
         ut.remove_layer( self.viewer, "nucleiStaining" )
+        ut.remove_widget( self.viewer, "Get cells" )
         ut.remove_widget( self.viewer, "JunctionProjection2D" )
         self.go_segmentation()
     
@@ -309,3 +372,133 @@ class EndCells( QWidget ):
         ut.remove_layer( self.viewer, "JunctionsName" )
         self.cfg.removeTmpText()
         self.getChoices( default_action = "Get nuclei" )
+
+
+class Position3D( QWidget ):
+    """ Interface to set/correct the cell 3D position """
+
+    def __init__( self, viewer, mig, cfg ):
+        """ GUI to handle cell 3D position """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+    
+        print("******** Cells Z position viewing/editing ******")
+        header = ut.helpHeader(viewer, "CellContours")
+        help_text = ut.help_shortcut("pos3d")
+        ut.showOverlayText( self.viewer, header+help_text)
+        paras = self.cfg.read_parameter_set("ZCells")
+        zmapres = 200
+        zmaplocsize = 300
+        if paras is not None:
+            if "zmap_resolution" in paras:
+                zmapres = int(paras["zmap_resolution"])
+            if "zmap_localsize" in paras:
+                zmaplocsize = int(paras["zmap_localsize"])
+
+        layout = QVBoxLayout()
+        ## calculate map
+        map_lab = fwid.add_label( "Map of cell Z position", descr="Paramters to calculate the local height map of cell positions")
+        layout.addWidget( map_lab )
+        ## choose resolution
+        res_line, self.resolution = fwid.value_line(" Zmap resolution:", zmapres, descr="Resolution of the resulting Zmap after calculation (local neighborhood of same Z size)" )
+        layout.addLayout( res_line )
+        ## choose localsize 
+        loc_line, self.localsize = fwid.value_line(" Zmap local size:", zmaplocsize, descr="Size of the local neighborhood to calculate the Z position" )
+        layout.addLayout( loc_line )
+        ## save option
+        self.save_map = fwid.add_check( "Save Zmap", True, None, descr="Save the Zmap after calculation" )
+        layout.addWidget( self.save_map )
+        ##btn go calculate
+        calc_btn = fwid.add_button( "(Re)calculate Zmap", self.calculate_zmap, descr="Calculate the Zmap with the selected parameters", color=ut.get_color("go") )
+        layout.addWidget( calc_btn )
+
+        ## add a blank space
+        space = fwid.add_label( " ", descr="" )
+        layout.addWidget( space )
+
+        ### Edit map part
+        ## Name of the part
+        edit_lab = fwid.add_label( "Edit cell Z position", descr="Edit the Z position of a cell parameters" )
+        layout.addWidget( edit_lab )
+        ## cell label choice
+        celllab_line, self.cell_label = fwid.value_line( "Cell label:", 0, descr="Label of the cell to edit" )
+        layout.addLayout( celllab_line )
+        ## new position
+        position_line, self.new_position = fwid.value_line( "New Z position:", 0, descr="New Z position to place the cell" )
+        layout.addLayout( position_line )
+        ## btn go for the cell
+        poscell_btn = fwid.add_button( "Update selected cell position", self.update_cell_zpos, descr="Update the cell to the new Z position", color=ut.get_color("go") )
+        layout.addWidget( poscell_btn )
+
+        ## Space
+        space2 = fwid.add_label( " ", descr="" )
+        layout.addWidget( space2 )
+
+        ## Save all button
+        saveall_btn = fwid.add_button( "Save updated cells", self.save_all, descr="Save the current cell Z positions", color=ut.get_color("save") )
+        layout.addWidget( saveall_btn )
+        self.setLayout( layout )
+
+        self.drawCells3D()
+    
+    def calculate_zmap( self ):
+        """ recalculate the zmap and update cells positions """
+        step_size = int( float(self.resolution.text() ) )
+        window_size = int( float(self.localsize.text() ) )
+        self.mig.updateCellsZPos( step_size=step_size, window_size=window_size, save=self.save_map.isChecked() )
+        self.drawCells3D()
+        ut.show_info("Cell Z positions updated")
+
+    def drawCells3D(self):
+        """ Draw the cells in 3D """
+        ready = self.mig.cellsHaveZPos()
+        if not ready:
+            ## more than half the cells don't have Z position, so recompute it
+            ut.show_info("Many cells don't have Z position yet, computing it")
+            self.save_map.setChecked( False )
+            self.calculate_zmap()
+        cells3D = self.mig.getJunctionsImage3D()
+        ut.remove_layer(self.viewer, "CellContours")
+        layer = self.viewer.add_labels( cells3D, name="CellContours", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY) )
+
+        @layer.mouse_drag_callbacks.append
+        def clicks_label(layer, event):
+            if event.type == "mouse_press":
+                if len(event.modifiers) == 0:
+                    if event.button == 2:
+                        # right-click, select the label value
+                        label = layer.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
+                        if label > 0:
+                            self.cell_label.setText( str(label) )
+                    return
+                if "Control" in event.modifiers:
+                    if event.button == 1:
+                        ## Control left-click, set the z position
+                        zpos = self.viewer.dims.current_step[0]
+                        self.new_position.setText( str(zpos) )
+                        self.update_cell_zpos()
+                        return
+
+    def update_cell_zpos(self):
+        """ Update current cell to current z position """
+        cell = int( self.cell_label.text() )
+        zpos = int( self.new_position.text() )
+        if (zpos >= 0) and (zpos < self.mig.get_image_shape(in2d=False)[0]):
+            img = self.viewer.layers["CellContours"].data
+            self.mig.updateCellZPos(cell, zpos, img)
+            #self.viewer.layers["CellContours"].data = img
+            self.viewer.layers["CellContours"].refresh()
+            self.cell_label.setText( "0" )
+
+    def save_all( self ):
+        """ Save all updated cell positions """
+        self.mig.save_results()
+        ut.remove_widget( self.viewer, "Cells in 3D" )
+        ut.remove_layer( self.viewer, "CellContours" )
+        self.cfg.addGroupParameter( "ZCells" )
+        self.cfg.addParameter( "ZCells", "zmap_resolution", int( float(self.resolution.text()) ) )
+        self.cfg.addParameter( "ZCells", "zmap_window_size", int( float(self.localsize.text()) ) )
+        self.cfg.write_parameterfile()
+        ut.removeOverlayText( self.viewer )

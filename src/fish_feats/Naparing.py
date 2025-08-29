@@ -10,7 +10,7 @@ import fish_feats.MainImage as mi
 import fish_feats.Configuration as cf
 import fish_feats.Utils as ut
 from fish_feats.NapaRNA import NapaRNA
-from fish_feats.NapaCells import GetCells, Projection
+from fish_feats.NapaCells import MainCells, Position3D 
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget 
 from fish_feats.FishGrid import FishGrid
 from fish_feats.NapaMix import CheckScale, CropImage
@@ -311,59 +311,54 @@ def checkScale():
 
 #### Action choice
 def getChoices(default_action='Get cells'):
-    """ Main widget with all the action choices """
-    @magicgui(call_button="GO",
-        action={"choices": ['Get cells', 'Get nuclei', 'Associate junctions and nuclei', 'Get RNA', 'Get overlapping RNAs', 'Measure cytoplasmic staining', 'Measure nuclear intensity', 'Image scalings', 'Separate junctions and nuclei', 'Preprocess nuclei', '3D cell positions', 'Quit plugin', 'Classify cells', 'Touching labels', 'Add grid', 'Crop image']},
-            )
-    def get_choices(action=default_action):
-        launch_action()
-
-    def launch_action():
-        action = get_choices.action.value
-        cfg.addSectionText(action)
-        if action == "Get cells":
-                goJunctions()
-        elif action == "Load cells from default file":
-                loadJunctionsFile()
-        elif action == "Get nuclei":
-                getNuclei()
-        elif action == "Get RNA":
-                getRNA()
-        elif action == "Get overlapping RNAs":
-                getOverlapRNA()
-        elif action == "Associate junctions and nuclei":
-                doCellAssociation()
-        elif action == "Quit plugin":
-                byebye()
-        elif action == "Image scalings":
-                checkScale()
-        elif action == "Separate junctions and nuclei":
-                divorceJunctionsNuclei()
-        elif action == "Preprocess nuclei":
-                preprocNuclei()
-        elif action == "Measure nuclear intensity":
-                measureNuclearIntensity()
-        elif action == "Measure cytoplasmic staining":
-                cytoplasmicStaining()
-        elif action == "Crop image":
-            crop_image()
-        elif action == "test":
-                test()
-        elif action == "Classify cells":
-                if not mig.hasCells():
-                    ut.show_info("No cells - segment/load it before")
-                else:
-                    cc.classify_cells(mig, viewer)
-        elif action == "Touching labels":
-            touching_labels()
-        elif action == "3D cell positions":
-            show3DCells()
-        elif action == "Add grid":
-            addGrid()
-
+    """ Launch the interface of Main step """
+    choice = GetChoices( default_action, action_launcher )
     ut.remove_widget( viewer, "Main" )
-    viewer.window.add_dock_widget(get_choices, name="Main")
-    get_choices.action.changed.connect(launch_action)
+    viewer.window.add_dock_widget(choice, name="Main")
+    return choice
+
+def action_launcher( action ):
+    """ Launch the specified action """
+    cfg.addSectionText(action)
+    if action == "Get cells":
+            goJunctions()
+    elif action == "Load cells from default file":
+            loadJunctionsFile()
+    elif action == "Get nuclei":
+            getNuclei()
+    elif action == "Get RNA":
+            getRNA()
+    elif action == "Get overlapping RNAs":
+            getOverlapRNA()
+    elif action == "Associate junctions and nuclei":
+            doCellAssociation()
+    elif action == "Quit plugin":
+            byebye()
+    elif action == "Image scalings":
+            checkScale()
+    elif action == "Separate junctions and nuclei":
+            divorceJunctionsNuclei()
+    elif action == "Preprocess nuclei":
+            preprocNuclei()
+    elif action == "Measure nuclear intensity":
+            measureNuclearIntensity()
+    elif action == "Measure cytoplasmic staining":
+            cytoplasmicStaining()
+    elif action == "Crop image":
+        crop_image()
+    elif action == "test":
+            test()
+    elif action == "Classify cells":
+        if not mig.hasCells():
+            ut.show_info("No cells - segment/load it before")
+        else:
+            cc.classify_cells(mig, viewer)
+    elif action == "Touching labels":
+        touching_labels()
+    elif action == "3D cell positions":
+        show3DCells()
+    elif action == "Add grid":
+        addGrid()
 
 def crop_image():
     """ Interface to crop the image and associated segmentations/results """
@@ -417,154 +412,19 @@ def goJunctions():
     if mig.junchan is None:
         ut.show_warning( "No junction channel selected in the configuration. Go back to Image Scalings to select one." )
         return
-    methods = ["Do projection and segmentation"]
-    ind = 0
-    projname = mig.build_filename( "_junction_projection.tif")
-    cellsname = mig.build_filename( "_cells2D.tif")
-    msg = ""
-    if os.path.exists( projname ):
-        msg = "Found projection file"
-    if os.path.exists( cellsname ):
-        methods.append( "Load previous files" )
-        ind = 1
-        msg += "\nFound cell file"
-        msg += "\nChoose load to use those file(s)"
-    
-    @magicgui( call_button="Get cells",
-        _ = {"widget_type": "Label"},
-        action={"choices": methods},
-        )
-    def get_cells( 
-        _ = msg,
-        action = methods[ind] 
-        ):
-        """ choose method to use to get/load cells """
-        if action == "Load previous files":
-            ## load and show the projection
-            if os.path.exists( projname ):
-                ut.remove_layer(viewer, "2DJunctions")
-                roijunc = mig.load_image( projname )
-                viewer.add_image( roijunc, name="2DJunctions", scale=(mig.scaleXY, mig.scaleXY), blending="additive" )
-            ## load the cells and edit them
-            mig.load_segmentation( cellsname )
-            ut.remove_widget( viewer, "Get cells" )
-            get_cells = GetCells( viewer, mig, cfg, showCellsWidget, getChoices )
-            get_cells.end_segmentation()
 
-        if action == "Do projection and segmentation":
-            ut.remove_widget( viewer, "Get cells" )
-            proj = Projection( viewer, mig, cfg, divorceJunctionsNuclei, showCellsWidget, getChoices )
-            viewer.window.add_dock_widget( proj, name="JunctionProjection2D" )
-    
-    viewer.window.add_dock_widget(get_cells, name="Get cells")
+    main_cells = MainCells( viewer, mig, cfg, divorceJunctionsNuclei, showCellsWidget, getChoices ) 
+    if main_cells.proj is not None:
+        viewer.window.add_dock_widget( main_cells.proj, name="JunctionProjection2D" )
+    else:
+        viewer.window.add_dock_widget( main_cells, name="Get cells" )
 
 
 #######################################################################
 ###### Show cell in 3D and possibility to edit the Z position of cells
 def show3DCells():
     """ Cells in 3D and update Z position of cells """
-    print("******** Cells Z position viewing/editing ******")
-    header = ut.helpHeader(viewer, "CellContours")
-    help_text = ut.help_shortcut("pos3d")
-    ut.showOverlayText(viewer, header+help_text)
-    paras = cfg.read_parameter_set("ZCells")
-    zmapres = 200
-    zmaplocsize = 300
-
-    if paras is not None:
-        if "zmap_resolution" in paras:
-            zmapres = int(paras["zmap_resolution"])
-        if "zmap_localsize" in paras:
-            zmaplocsize = int(paras["zmap_localsize"])
-    
-    def drawCells3D():
-        """ Draw the cells in 3D """
-        ready = mig.cellsHaveZPos()
-        if not ready:
-            ## more than half the cells don't have Z position, so recompute it
-            ut.show_info("Many cells don't have Z position yet, computing it")
-            mig.updateCellsZPos( step_size=zmapres, window_size=zmaplocsize, save=False )
-        cells3D = mig.getJunctionsImage3D()
-        ut.remove_layer(viewer, "CellContours")
-        layer = viewer.add_labels( cells3D, name="CellContours", blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY) )
-        
-        @layer.mouse_drag_callbacks.append
-        def clicks_label(layer, event):
-            if event.type == "mouse_press":
-                if len(event.modifiers) == 0:
-                    if event.button == 2:
-                        # right-click, select the label value
-                        label = layer.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
-                        if label > 0:
-                            cells_3D.cell_label.value = label
-                    return
-                if "Control" in event.modifiers:
-                    if event.button == 1:
-                        ## Control left-click, set the z position
-                        zpos = viewer.dims.current_step[0]
-                        cells_3D.place_at_z.value = zpos
-                        update_cell_zpos()
-                        return
-
-    def update_cell_zpos():
-        """ Update current cell to current z position """
-        cell = int(cells_3D.cell_label.value)
-        zpos = int(cells_3D.place_at_z.value)
-        if (zpos >= 0) and (zpos < mig.get_image_shape(in2d=False)[0]):
-            img = viewer.layers["CellContours"].data
-            mig.updateCellZPos(cell, zpos, img)
-            #viewer.layers["CellContours"].data = img
-            viewer.layers["CellContours"].refresh()
-            cells_3D.cell_label.value = 0
-
-    def calculate_zmap():
-        """ recalculate the zmap and update cells positions """
-        step_size = int(cells_3D.zmap_resolution.value)
-        window_size = int(cells_3D.zmap_localsize.value)
-        mig.updateCellsZPos( step_size=step_size, window_size=window_size, save=cells_3D.save_zmap.value )
-        drawCells3D()
-        ut.show_info("Cell Z positions updated")
-
-
-    @magicgui(call_button="Save updated cells", 
-            _ = {"widget_type": "Label"},
-            zmap_resolution = {"widget_type": "LiteralEvalLineEdit"},
-            zmap_localsize = {"widget_type": "LiteralEvalLineEdit"},
-            save_zmap = { "widget_type":"CheckBox", "value": False, "name": "save_zmap"}, 
-            recalculate_zmap = {"widget_type":"PushButton", "value": False, "name": "recalculate_zmap"}, 
-            __={"widget_type":"EmptyWidget", "value": False},
-            ___ = {"widget_type": "Label"},
-            cell_label = {"widget_type": "LiteralEvalLineEdit"},
-            place_at_z = {"widget_type": "LiteralEvalLineEdit"},
-            update_cell = {"widget_type":"PushButton", "value": False, "name": "update_cell"}, 
-            ____={"widget_type":"EmptyWidget", "value": False},
-            )
-    def cells_3D( _ = "Map of cell Z positions",
-                  zmap_resolution = zmapres,
-                  zmap_localsize = zmaplocsize,
-                  save_zmap = False,
-                  recalculate_zmap = False,
-                  __=False,
-                  ___ = "Edit cell Z position",
-                  cell_label = 0,
-                  place_at_z = 0,
-                  update_cell = False,
-                  ____ = False,
-                ):
-        #filename = mig.zcell_filename(ifexist=False)
-        #mig.save_zcells(filename)
-        mig.save_results()
-        ut.remove_widget(viewer, "Cells in 3D")
-        ut.remove_layer(viewer, "CellContours")
-        cfg.addGroupParameter("ZCells")
-        cfg.addParameter("ZCells", "zmap_resolution", zmap_resolution)
-        cfg.addParameter("ZCells", "zmap_localsize", zmap_localsize)
-        cfg.write_parameterfile()
-        ut.removeOverlayText(viewer)
-
-    drawCells3D()
-    cells_3D.recalculate_zmap.clicked.connect(calculate_zmap)
-    cells_3D.update_cell.clicked.connect(update_cell_zpos)
+    cells_3D = Position3D( viewer, mig, cfg )
     viewer.window.add_dock_widget(cells_3D, name="Cells in 3D")
 
 
@@ -1707,3 +1567,33 @@ class TouchingLabels( QWidget):
 def test():
     img = mig.tryDiffusion( nchan=2 )
     viewer.add_image(img, name="test", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap=my_cmap, blending="additive")
+
+
+class GetChoices( QWidget ):
+    """ Main widget with all the action choices """
+
+    def __init__( self, default_action, action_fnc ):
+        """ Initialiaze the Main interface with the choice of action to perform """
+        super().__init__()
+        self.default_action = default_action
+        self.action_fnc = action_fnc
+
+        layout = QVBoxLayout()
+        ## Choice list
+        action_line, self.action = fwid.list_line( "Action: ", descr="Choose which action (step) to perform now", func=None )
+        choices = ['Get cells', 'Get nuclei', 'Associate junctions and nuclei', 'Get RNA', 'Get overlapping RNAs', 'Measure cytoplasmic staining', 'Measure nuclear intensity', 'Image scalings', 'Separate junctions and nuclei', 'Preprocess nuclei', '3D cell positions', 'Quit plugin', 'Classify cells', 'Touching labels', 'Add grid', 'Crop image']
+        for choice in choices:
+            self.action.addItem(choice)
+        self.action.setCurrentText( self.default_action )
+        layout.addLayout( action_line )
+        ## button go
+        go_btn = fwid.add_button( "GO", self.launch_action, descr="Launch the selected action", color=ut.get_color("go") )
+        layout.addWidget(go_btn)
+        self.setLayout(layout)
+        self.action.currentTextChanged.connect( self.launch_action )
+
+    def launch_action(self):
+        """ Launch next step with selected action """
+        action = self.action.currentText()
+        self.action_fnc( action )
+
