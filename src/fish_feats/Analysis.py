@@ -25,6 +25,8 @@ from napari.utils.notifications import show_info
 
 import fish_feats.Utils as ut
 import fish_feats.MainImage as mi
+import fish_feats.FishWidgets as fwid
+from qtpy.QtWidgets import QWidget, QVBoxLayout
 
 ## disable scipy cluster warning
 from scipy.cluster.hierarchy import ClusterWarning
@@ -51,29 +53,7 @@ def do_hierarchy():
         dint = np.max(img)-np.min(img)
         cview.contrast_limits=(np.min(img), np.max(img)-0.75*dint)
     viewer.axes.visible = True
-
-    return getScales(mig, viewer)
-
-def getScales(mig, viewer):
-    @magicgui(call_button="Update", 
-            scaleXY={"widget_type": "LiteralEvalLineEdit"},
-            scaleZ={"widget_type": "LiteralEvalLineEdit"},
-            )
-    def get_scale( scaleXY= mig.scaleXY, scaleZ= mig.scaleZ,
-                   segmented_cells=pathlib.Path(mig.junction_filename(dim=2,ifexist=True)),
-        ):
-        mig.scaleXY = scaleXY
-        mig.scaleZ = scaleZ
-        for chan in range(mig.nbchannels):
-            viewer.layers['originalChannel'+str(chan)].scale = [mig.scaleZ, mig.scaleXY, mig.scaleXY]
-        ut.remove_all_widgets(viewer)
-        mig.load_segmentation( segmented_cells )
-        mig.popFromJunctions()
-        
-        hiera = HierAnalysis()
-        hiera.set(mig, viewer)
-        hiera.get_data()
-    
+    get_scale = GetScales( viewer, mig )
     wid = viewer.window.add_dock_widget(get_scale, name="Scale")
     return wid
 
@@ -237,3 +217,47 @@ class HierAnalysis:
         self.fig.canvas.draw_idle()
         #plt.show()
 
+
+class GetScales( QWidget ):
+    """ Interface to get metadata """
+
+    def __init__(self, viewer, mig ):
+        """ GUI """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+
+        layout = QVBoxLayout()
+        ## get scales parameters
+        ## scalexy parameter
+        scalexy_line, self.scale_xy = fwid.value_line( "Scale XY:", self.mig.scaleXY, descr="Pixel size in the lateral dimensions (XY), in microns" )
+        layout.addLayout(scalexy_line)
+        ## scalez parameter
+        scalez_line, self.scale_z = fwid.value_line( "Scale Z:", self.mig.scaleZ, descr="Pixel size in the axial dimension (Z), in microns" )
+        layout.addLayout(scalez_line)
+        ## load filename
+        load_line, self.segmented_cells = fwid.file_line( "Segmented cells file:", self.mig.junction_filename(dim=2,ifexist=True), "Select the segmented cells file to load", descr="File containing the segmented cells, should be a tif file with integer values" )
+        layout.addLayout( load_line )
+        
+        ## btn go
+        btn_update = fwid.add_button( "Update", self.update_scales, descr="Update the scale of the image and load the segmented cells", color=ut.get_color("go") )
+        layout.addWidget(btn_update)
+
+        self.setLayout(layout)
+
+    def update_scales( self ):
+        """ Go update scale """
+        self.mig.scaleXY = float( self.scale_xy.text() )
+        self.mig.scaleZ = float( self.scale_z.text() )
+        for chan in range(self.mig.nbchannels):
+            self.viewer.layers['originalChannel'+str(chan)].scale = [self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY]
+        ut.remove_all_widget(self.viewer)
+        self.mig.load_segmentation( self.segmented_cells.text() )
+        done = self.mig.popFromJunctions()
+        if done < 0:
+            return
+        
+        hiera = HierAnalysis()
+        hiera.set(self.mig, self.viewer)
+        hiera.get_data()
+    
