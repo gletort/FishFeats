@@ -280,3 +280,122 @@ class CropImage( QWidget ):
         text = "Draw rectangle to crop"
         self.crop_layer.mode = "add_rectangle"
         ut.showOverlayText( self.viewer, text )
+
+
+class Association( QWidget ):
+    """ Interface to associate cell and nuclei together """
+
+    def __init__( self, viewer, mig, cfg ):
+        """ Creates the interface """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+    
+        # initialize parameters, show help msg
+        text = "Find the nucleus associated with each apical cell \n"
+        print("******* Associate apical cells and nuclei together ******")
+        ut.remove_widget( self.viewer, "Associating")
+        ut.showOverlayText(self.viewer, text)
+        ## load parameters
+        defmethod = "Calculate association"
+        distasso = 30.0
+        assojuncfile = self.mig.junction_filename(dim=2, ifexist=True)
+        assonucfile = self.mig.nuclei_filename(ifexist=True)
+        paras = self.cfg.read_parameter_set("Association")
+        if paras is not None:
+            if "method" in paras:
+                defmethod = paras["method"]
+            if "distance_toassociate_micron" in paras:
+                distasso = float(paras["distance_toassociate_micron"])
+            if "associated_junctions" in paras:
+                assojuncfile = paras["associated_junctions"]
+            if "associated_nuclei" in paras:
+                assonucfile = paras["associated_nuclei"]
+        if os.path.exists(assojuncfile):
+            defmethod = "Load association"
+
+        layout = QVBoxLayout()
+        ## choice of association method
+        line_method, self.method = fwid.list_line( "Association method:", descr="Choose the method to associate cells and nuclei" )
+        self.method.addItems( ["Load association", "Calculate association"] )
+        layout.addLayout( line_method )
+        self.method.currentTextChanged.connect( self.update_visibility )
+        self.method.setCurrentText(defmethod)
+        ## choice of cells file
+        cell_line, self.cell_file = fwid.file_line( "Associated cell file:", assojuncfile, "Choose cell file", descr="Choose the file containing the associated cells" )
+        layout.addLayout( cell_line )
+        ## choice of nuclei file
+        nuclei_line, self.nuclei_file = fwid.file_line( "Associated nuclei file:", assonucfile, "Choose nuclei file", descr="Choose the file containing the associated nuclei" )
+        layout.addLayout( nuclei_line )
+        ## max distance for association
+        dist_line, self.max_distance = fwid.value_line( "Max association distance (um):", distasso, descr="Set the maximum distance between nucleus and cell for association" )
+        layout.addLayout( dist_line )
+
+        ## btn go assocation
+        btn_go = fwid.add_button( "Go association", self.go_association, descr="Associate the cells and nuclei based on the selected method", color=ut.get_color("go") )
+        ## help button
+        btn_help = fwid.add_button( "Help", self.open_help, descr="Open the help documentation", color=ut.get_color("help") )
+        ##line with the buttons
+        btn_line = fwid.double_button( btn_go, btn_help )
+
+        layout.addLayout( btn_line )
+        self.setLayout( layout )
+
+    def update_visibility( self ):
+        """ Update the visibility of parameters based on method """
+        booly = self.method.currentText() == "Load association"
+        self.cell_file.setVisible( booly )
+        self.nuclei_file.setVisible( booly )
+        self.max_distance.setVisible( not booly )
+    
+    def open_help(self):
+        """ Open the Wiki documentation page """
+        ut.show_documentation_page("Associate")
+    
+    def load_association( self ):
+        """ Load association from files """
+        self.mig.load_segmentation(self.cell_file.text())
+        self.mig.popFromJunctions()
+        self.mig.load_segmentation_nuclei(self.nuclei_file.text())
+        self.mig.popNucleiFromMask()
+        ut.remove_widget(self.viewer, "Associating")
+        ut.removeOverlayText(self.viewer)
+        self.end_association()
+
+    def go_association( self ):
+        """ Perform association with selected paramters """
+
+        if not self.mig.hasCells():
+            ut.show_error("No junctions were segmented/loaded. Do it before")
+            return
+        if not self.mig.hasNuclei():
+            ut.show_error("No nuclei were segmented/loaded. Do it before")
+            return
+
+        ## save current parameter to conf file
+        self.cfg.addGroupParameter("Association")
+        self.cfg.addParameter("Association", "method", self.method.currentText())
+        self.cfg.addParameter("Association", "associated_junctions", self.cell_file.text())
+        self.cfg.addParameter("Association", "associated_nuclei", self.nuclei_file.text())
+        self.cfg.addParameter("Association", "distance_toassociate_micron", self.max_distance.text())
+        self.cfg.write_parameterfile()
+
+        ## perform selected method
+        if self.method.currentText() == "Calculate association":
+            start_time = ut.get_time()
+            ut.showOverlayText(self.viewer, "Doing junction-nuclei association...")
+            ut.show_info("Associate "+str(self.mig.nbCells())+" junctions with nuclei...")
+            pbar = ut.start_progress( self.viewer, total=2, descr="Calculating association..." )
+            self.go_association(distance=float(self.max_distance.text()), pbar=pbar)
+            ut.close_progress( self.viewer, pbar )
+            ut.show_duration( start_time, "Association calculated in ")
+    
+        else:
+            ut.show_info("Load association from files")
+            self.load_association()
+
+    def go_association( self, distance, pbar=None ):
+        self.mig.go_association(distance=distance, pbar=pbar)
+        ut.remove_widget(self.viewer, "Associating")
+        self.end_association()

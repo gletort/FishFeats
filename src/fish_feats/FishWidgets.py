@@ -218,6 +218,25 @@ def add_check( check, checked, check_func=None, descr="" ):
     cbox.setChecked( checked )
     return cbox
 
+def file_line( title, default_path="", dial_msg="Choose file", filetype="All (*)", descr="" ):
+    """ interface line with browse btn and current path """
+    line = QHBoxLayout()
+    lab = add_label( title, descr )
+    line.addWidget( lab )
+    value = QLineEdit()
+    value.setText( default_path )
+    line.addWidget( value )
+    btn = QPushButton( "Browse" )
+    btn.clicked.connect( lambda: browse_file( value, dial_msg, filetype, default_path ) )
+    line.addWidget( btn )
+    return line, value
+
+def browse_file( value, dial_msg, filetype, default_path ):
+    """ Open a file dialog to select a file """
+    filepath = file_dialog( dial_msg, filetype, directory=default_path )
+    if filepath is not None:
+        value.setText( filepath )   
+
 def file_dialog( title, filetypes, directory=None ):
     """ Open a file dialog to select a file """
     if directory is None:
@@ -231,8 +250,8 @@ def file_dialog( title, filetypes, directory=None ):
     file_dialog.setDirectory(directory)
     if file_dialog.exec_():
         filepath = file_dialog.selectedFiles()[0]
-        if not filepath.endswith('.tif'):
-            raise ValueError("Selected file is not a .tif file")
+        #if not filepath.endswith('.tif'):
+        #    raise ValueError("Selected file is not a .tif file")
     else:
         filepath = None
     return filepath 

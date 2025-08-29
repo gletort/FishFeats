@@ -13,7 +13,7 @@ from fish_feats.NapaRNA import NapaRNA
 from fish_feats.NapaCells import MainCells, Position3D 
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget 
 from fish_feats.FishGrid import FishGrid
-from fish_feats.NapaMix import CheckScale, CropImage
+from fish_feats.NapaMix import CheckScale, CropImage, Association
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
 
@@ -285,19 +285,14 @@ def show_documentation():
 def getImagePath():
     """ Get the image path when it was open from layers """
 
-    @magicgui(call_button="Set path",)
-    def get_image_path( image_path=pathlib.Path(mig.get_image_path())):
-        """ Get the image path when it was open from layers """
-        global cfg 
-        mig.set_image_path(image_path)
-        ut.update_history(mig.imagedir)
-        if cfg is None:
-            cfg = cf.Configuration(mig.save_filename(), show=False)
-        ut.remove_widget( viewer, "ImagePath" )
-        endInit()
-
-    wid = viewer.window.add_dock_widget( get_image_path, name="ImagePath" )
-    return wid
+    image_path = fwid.file_dialog( "Select image path", "All files (*)", directory=mig.get_image_path() )
+    
+    global cfg 
+    mig.set_image_path(image_path)
+    ut.update_history(mig.imagedir)
+    if cfg is None:
+        cfg = cf.Configuration(mig.save_filename(), show=False)
+    return endInit()
 
 def checkScale():
     """ Interface to choose the image scales and channels """
@@ -791,87 +786,8 @@ def getNuclei():
 
 def doCellAssociation():
     """ Association of nuclei with corresponding apical junction cells """
-    text = "Find the nucleus associated with each apical cell \n"
-    print("******* Associate apical cells and nuclei together ******")
-    ut.remove_widget(viewer, "Associating")
-    ut.showOverlayText(viewer, text)
-    ## load parameters
-    defmethod = "Calculate association"
-    distasso = 30.0
-    assojuncfile = mig.junction_filename(dim=2, ifexist=True)
-    assonucfile = mig.nuclei_filename(ifexist=True)
-    paras = cfg.read_parameter_set("Association")
-    if paras is not None:
-        if "method" in paras:
-            defmethod = paras["method"]
-        if "distance_toassociate_micron" in paras:
-            distasso = float(paras["distance_toassociate_micron"])
-        if "associated_junctions" in paras:
-            assojuncfile = paras["associated_junctions"]
-        if "associated_nuclei" in paras:
-            assonucfile = paras["associated_nuclei"]
-    if os.path.exists(assojuncfile):
-        defmethod = "Load association"
 
-    def parameters_visibility():
-        """ Handle which parameters to show """
-        booly = (do_association.method.value=="Load association")
-        do_association.associated_junctions.visible = booly
-        do_association.associated_nuclei.visible = booly
-        do_association.distance_toassociate_micron.visible = (not booly)
-    
-    def load_association():
-        """ Load association from files """
-        mig.load_segmentation(do_association.associated_junctions.value)
-        mig.popFromJunctions()
-        mig.load_segmentation_nuclei(do_association.associated_nuclei.value)
-        mig.popNucleiFromMask()
-        ut.remove_widget(viewer, "Associating")
-        ut.removeOverlayText(viewer)
-        end_association()
-
-    def show_asso_doc():
-        """ Open the Wiki documentation page """
-        ut.show_documentation_page("Associate")
-
-    @magicgui(call_button="Go", method={"choices": ["Load association", "Calculate association"]}, 
-            _={"widget_type":"EmptyWidget", "value": False},
-            Help ={"widget_type":"PushButton", "value": False},)
-    def do_association(method = defmethod,
-            associated_junctions=pathlib.Path(assojuncfile),
-            associated_nuclei=pathlib.Path(assonucfile),
-            distance_toassociate_micron=distasso,
-            _ = False,
-            Help = False, ):
-        if not mig.hasCells():
-            ut.show_error("No junctions were segmented/loaded. Do it before")
-            return
-        if not mig.hasNuclei():
-            ut.show_error("No nuclei were segmented/loaded. Do it before")
-            return
-        
-        cfg.addGroupParameter("Association")
-        cfg.addParameter("Association", "method", method)
-        cfg.addParameter("Association", "associated_junctions", associated_junctions)
-        cfg.addParameter("Association", "associated_nuclei", associated_nuclei)
-        cfg.addParameter("Association", "distance_toassociate_micron", distance_toassociate_micron)
-        cfg.write_parameterfile()
-        
-        if method == "Calculate association":
-            start_time = ut.get_time()
-            ut.showOverlayText(viewer, "Doing junction-nuclei association...")
-            ut.show_info("Associate "+str(mig.nbCells())+" junctions with nuclei...")
-            pbar = ut.start_progress( viewer, total=2, descr="Calculating association..." )
-            go_association(distance=distance_toassociate_micron, pbar=pbar)
-            ut.close_progress( viewer, pbar )
-            ut.show_duration( start_time, "Association calculated in ")
-        else:
-            ut.show_info("Load association from files")
-            load_association()
-    
-    parameters_visibility()
-    do_association.method.changed.connect(parameters_visibility)
-    do_association.Help.clicked.connect(show_asso_doc)
+    do_association = Association( viewer, mig, cfg )
     viewer.window.add_dock_widget(do_association, name="Associating")
     
 
@@ -889,10 +805,6 @@ def end_association():
     associateCNWidget( viewer.layers["CellContours"], viewer.layers["CellNuclei"] )
     saveAssociation()
 
-def go_association( distance, pbar=None ):
-    mig.go_association(distance=distance, pbar=pbar)
-    ut.remove_widget(viewer, "Associating")
-    end_association()
 
 def saveAssociation():
     """ Finish and save cells-nuclei association """
