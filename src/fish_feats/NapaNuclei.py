@@ -1,6 +1,7 @@
 
 import fish_feats.Utils as ut
 import fish_feats.FishWidgets as fwid
+from fish_feats.NapaMix import Separation
 import numpy as np
 from qtpy.QtWidgets import QVBoxLayout, QWidget 
 from napari.utils.translations import trans
@@ -90,13 +91,11 @@ class MeasureNuclei( QWidget ):
 class NucleiWidget(QWidget):
     """ Widget to get nuclei options """
 
-    def __init__( self, viewer, mig, cfg, divorceFunc, showCellsWidget ):
+    def __init__( self, viewer, mig, cfg, showCellsWidget ):
         super().__init__()
         self.mig = mig
         self.viewer = viewer
         self.cfg = cfg
-
-        self.divorceJunctionsNuclei = divorceFunc
         self.showCellsWidget = showCellsWidget
 
         ## Load default/configuration parameters
@@ -320,7 +319,8 @@ class NucleiWidget(QWidget):
         else:
             if self.mig.should_separate():
                 ut.show_info("Junctions and nuclei staining in the same channel, separate them first")
-                self.divorceJunctionsNuclei()
+                separation = Separation( self.viewer, self.mig, self.cfg ) 
+                self.viewer.window.add_dock_widget(separation, name="Separate")
             else:
                 if self.method_choice.currentText() == "CellPose3D":
                     ut.showOverlayText( self.viewer, "Doing segmentation of cell nuclei...")

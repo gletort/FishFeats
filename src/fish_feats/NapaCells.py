@@ -2,19 +2,19 @@
 import os
 import fish_feats.Utils as ut
 import fish_feats.FishWidgets as fwid
+from fish_feats.NapaMix import Separation
 import numpy as np
 from qtpy.QtWidgets import QVBoxLayout, QWidget 
 
 class MainCells( QWidget ):
     """ Main interface for cell (junctions) segmentation """
 
-    def __init__( self, viewer, mig, cfg, divorceJunctionsNuclei, showCellsWidget, getChoices ):
+    def __init__( self, viewer, mig, cfg, showCellsWidget, getChoices ):
         """ Interface to choose loading or proj and seg """
         super().__init__()
         self.viewer = viewer
         self.mig = mig
         self.cfg = cfg
-        self.divorceJunctionsNuclei = divorceJunctionsNuclei
         self.showCellsWidget = showCellsWidget
         self.getChoices = getChoices
         self.proj = None
@@ -34,7 +34,7 @@ class MainCells( QWidget ):
 
         if len(methods) == 2:
             ## there is nothing to load, go directly to projection and segmentation
-            self.proj = Projection( self.viewer, self.mig, self.cfg, self.divorceJunctionsNuclei, self.showCellsWidget, self.getChoices )
+            self.proj = Projection( self.viewer, self.mig, self.cfg,  self.showCellsWidget, self.getChoices )
             return
 
         layout = QVBoxLayout()
@@ -53,7 +53,7 @@ class MainCells( QWidget ):
         method = self.methodChoice.currentText()
         if method == "Do projection and segmentation":
             ## go to projection plugin
-            proj = Projection( self.viewer, self.mig, self.cfg, self.divorceJunctionsNuclei, self.showCellsWidget, self.getChoices )
+            proj = Projection( self.viewer, self.mig, self.cfg, self.showCellsWidget, self.getChoices )
             self.viewer.window.add_dock_widget( proj, name="JunctionProjection2D" )
         elif method == "Load previous files":
             ## load and show the projection
@@ -70,7 +70,7 @@ class MainCells( QWidget ):
 class Projection( QWidget ):
     """ Get the 2D projection (local) of the junctions image """
 
-    def __init__( self, viewer, mig, cfg, separateFun, showCells, getChoices ):
+    def __init__( self, viewer, mig, cfg, showCells, getChoices ):
         """ Interface to handle local projection """
         super().__init__()
         self.viewer = viewer
@@ -78,7 +78,6 @@ class Projection( QWidget ):
         self.cfg = cfg
         self.show_cells = showCells
         self.get_choices = getChoices
-        self.separate = separateFun
         self.projection_filename = None
         self.projection_filename = self.mig.junction_projection_filename( ifexist=True )
 
@@ -137,7 +136,8 @@ class Projection( QWidget ):
         ## separate if necessary the signals
         if self.mig.should_separate():
             ut.show_info("Junctions and nuclei staining in the same channel, separate them first")
-            self.separate()
+            separation = Separation( self.viewer, self.mig, self.cfg ) 
+            self.viewer.window.add_dock_widget(separation, name="Separate")
             return
         else:
             ## calculates the projection

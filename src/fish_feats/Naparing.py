@@ -12,7 +12,7 @@ from fish_feats.NapaRNA import NapaRNA
 from fish_feats.NapaCells import MainCells, Position3D 
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget, PreprocessNuclei 
 from fish_feats.FishGrid import FishGrid
-from fish_feats.NapaMix import CheckScale, CropImage, Association
+from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
 
@@ -297,7 +297,7 @@ def checkScale():
     """ Interface to choose the image scales and channels """
     global cfg
 
-    cs = CheckScale( viewer, mig, cfg, load_all_previous_files, divorceJunctionsNuclei, getChoices )
+    cs = CheckScale( viewer, mig, cfg, load_all_previous_files, getChoices )
     wid = viewer.window.add_dock_widget(cs, name="Scale")
     cfg = cs.cfg
     return wid
@@ -367,7 +367,7 @@ def load_all_previous_files():
         separated_junctionsfile = mig.separated_junctions_filename(ifexist=True)
         separated_nucleifile = mig.separated_nuclei_filename(ifexist=True)
         if (separated_junctionsfile != "") and (separated_nucleifile != ""):
-            load_separated( separated_junctionsfile, separated_nucleifile, end_dis=False )
+            load_separated( separated_junctionsfile, separated_nucleifile )
     
     loadfilename = mig.junction_filename(dim=2,ifexist=True)
     if loadfilename != "":
@@ -392,6 +392,11 @@ def load_all_previous_files():
     viewer.window.remove_dock_widget("all")
     getChoices(default_action="Classify cells")
 
+def load_separated( juncfile, nucfile ):
+    """ load the separated files """
+    mig.load_separated_staining( juncfile, nucfile )
+    ut.show_info("Separated stainings loaded")
+
 def loadJunctionsFile():
     """ Load the segmentation from given file and directly init the cells """
     loadfilename = mig.junction_filename(dim=2,ifexist=True)
@@ -407,190 +412,35 @@ def goJunctions():
         ut.show_warning( "No junction channel selected in the configuration. Go back to Image Scalings to select one." )
         return
 
-    main_cells = MainCells( viewer, mig, cfg, divorceJunctionsNuclei, showCellsWidget, getChoices ) 
+    main_cells = MainCells( viewer, mig, cfg, showCellsWidget, getChoices ) 
     if main_cells.proj is not None:
         viewer.window.add_dock_widget( main_cells.proj, name="JunctionProjection2D" )
     else:
         viewer.window.add_dock_widget( main_cells, name="Get cells" )
 
 
-#######################################################################
+################################
 ###### Show cell in 3D and possibility to edit the Z position of cells
 def show3DCells():
     """ Cells in 3D and update Z position of cells """
     cells_3D = Position3D( viewer, mig, cfg )
     viewer.window.add_dock_widget(cells_3D, name="Cells in 3D")
 
-
-####################################################################
+###############################
 ##### preprocessing functions
 def preprocNuclei():
     """ Preprocess the nuclei before segmentation """
     preproc_nuclei = PreprocessNuclei( viewer, mig, cfg )
     viewer.window.add_dock_widget(preproc_nuclei, name="Preprocess Nuclei")
 
-
-#######################################################################
+##############################################
 ################### Junction and nuclei separation functions
 
 def divorceJunctionsNuclei():
     """ Separate the junctions and nuclei staining if they are in the same channel """
-    
-    text = "Separate the junction and nuclei staining that are in the same channel \n"
-    text += "Creates two new layers, junctionStaining and nucleiStaining \n"
-    text += "Tophat filter option separate the signals based on morphological filtering \n"
-    text += "Check the \'close layers\' box if you want the two created layers to be closed at the end of this step \n"
-    text += "SepaNet option separate the signals with trained neural networks \n"
-    ut.showOverlayText(viewer, text)
-    ut.show_info("********** Separating the junction and nuclei staining ***********")
 
-    paras = {}
-    paras["tophat_radxy"] = 4
-    paras["tophat_radz"] = 1
-    paras["outlier_thres"] = 40
-    paras["smooth_nucleixy"] = 2
-    paras["smooth_nucleiz"] = 2
-    paras["sepanet_path"] = os.path.join(".", "sepaNet")
-    
-    load_paras = cfg.read_parameter_set("Separate")
-    if load_paras is not None:
-        if "method" in load_paras:
-            paras["method"] = load_paras["method"]
-        if "tophat_radxy" in load_paras:
-            paras["tophat_radxy"] = int(load_paras["tophat_radxy"])
-        if "tophat_radz" in load_paras:
-            paras["tophat_radz"] = int(load_paras["tophat_radz"])
-        if "outlier_thres" in load_paras:
-            paras["outlier_thres"] = int(load_paras["outlier_thres"])
-        if "smooth_nucleixy" in load_paras:
-            paras["smooth_nucleixy"] = int(load_paras["smooth_nucleixy"])
-        if "smooth_nucleiz" in load_paras:
-            paras["smooth_nucleiz"] = int(load_paras["smooth_nucleiz"])
-        if "sepanet_path" in load_paras:
-            paras["sepanet_path"] = load_paras["sepanet_path"]
-    
-    defmethod = "SepaNet"
-    if "method" in paras:
-        defmethod = paras["method"]
-    separated_junctionsfile = mig.separated_junctions_filename(ifexist=True)
-    if separated_junctionsfile != "":
-        defmethod = "Load"
-
-    def sep_para(booly):
-        """ Parameters visibility """
-        separate.tophat_radxy.visible = booly
-        separate.tophat_radz.visible = booly
-        separate.outlier_thres.visible = booly
-        separate.smooth_nucleixy.visible = booly
-        separate.smooth_nucleiz.visible = booly
-    
-    def choose_method():
-        separate.sepanet_path.visible = (separate.method.value=="SepaNet")
-        sep_para( separate.method.value == "Tophat filter" )
-        separate.separated_junctions_path.visible = (separate.method.value == "Load")
-        separate.separated_nuclei_path.visible = (separate.method.value == "Load")
-    
-    def save_separated_staining():
-        """ Save the two result images """
-        if "junctionsStaining" in viewer.layers:
-            outname = mig.separated_junctions_filename()
-            mig.save_image( viewer.layers["junctionsStaining"].data, outname, hasZ=True, imtype="uint8" )
-        if "nucleiStaining" in viewer.layers:
-            outname = mig.separated_nuclei_filename()
-            mig.save_image( viewer.layers["nucleiStaining"].data, outname, hasZ=True, imtype="uint8" )
-    
-    def separate_help():
-        """ Open the documentation page """
-        ut.show_documentation_page("Separate-junctions-and-nuclei")
-
-    def separate_go():
-        """ Perform separation with selected method and parameters """
-        ut.showOverlayText(viewer, "Discriminating between nuclei and junctions...")
-        ut.hide_color_layers(viewer, mig)
-        ut.remove_layer(viewer,"junctionsStaining")
-        ut.remove_layer(viewer,"nucleiStaining")
-        if separate.method.value == "Tophat filter":
-            discriminating(separate.tophat_radxy.value, separate.tophat_radz.value, separate.outlier_thres.value, separate.smooth_nucleixy.value, separate.smooth_nucleiz.value )
-        if separate.method.value == "SepaNet":
-            sepaneting( separate.sepanet_path.value )
-        if separate.method.value == "Load":
-            load_separated(separate.separated_junctions_path.value, separate.separated_nuclei_path.value, end_dis=True)
-
-    @magicgui(call_button="Separation done",
-            method={"choices": ["Load", "SepaNet", "Tophat filter"]},
-            sepanet_path={'mode': 'd'},
-            Separate={"widget_type":"PushButton", "value": False},
-            _={"widget_type":"EmptyWidget", "value": False},
-            Save_separated={"widget_type":"PushButton", "value": False},
-            Help={"widget_type":"PushButton", "value": False},)
-    def separate( method = defmethod,
-            separated_junctions_path=pathlib.Path(separated_junctionsfile),
-            separated_nuclei_path=pathlib.Path(mig.separated_nuclei_filename(ifexist=True)),
-            sepanet_path=pathlib.Path(os.path.join(paras["sepanet_path"])),
-            tophat_radxy=paras["tophat_radxy"],
-            tophat_radz=paras["tophat_radz"],
-            outlier_thres=paras["outlier_thres"],
-            smooth_nucleixy=paras["smooth_nucleixy"],
-            smooth_nucleiz=paras["smooth_nucleiz"],
-            close_layers = False,
-            Separate = False,
-            _ = False,
-            Save_separated = False,
-            Help = False,
-            ):
-        ut.remove_widget(viewer, "Separate")
-        cfg.addGroupParameter("Separate")
-        cfg.addParameter("Separate", "method", method)
-        cfg.addParameter("Separate", "sepanet_path", sepanet_path)
-        cfg.addParameter("Separate", "tophat_radxy", tophat_radxy)
-        cfg.addParameter("Separate", "tophat_radz", tophat_radz)
-        cfg.addParameter("Separate", "outlier_thres", outlier_thres)
-        cfg.addParameter("Separate", "smooth_nucleixy", smooth_nucleixy)
-        cfg.addParameter("Separate", "smooth_nucleiz", smooth_nucleiz)
-        cfg.write_parameterfile()
-        if close_layers:
-            ut.remove_layer(viewer, "junctionsStaining")
-            ut.remove_layer(viewer, "nucleiStaining")
-        return 1
-
-    choose_method()
-    separate.method.changed.connect(choose_method)
-    separate.Save_separated.clicked.connect(save_separated_staining)
-    separate.Separate.clicked.connect(separate_go)
-    separate.Help.clicked.connect(separate_help)
-    viewer.window.add_dock_widget(separate, name="Separate")
-
-def end_discrimination():
-    """ Show resulting separated stainings """
-    viewer.add_image( mig.junstain, name="junctionsStaining", blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap="red" )
-    viewer.add_image( mig.nucstain, name="nucleiStaining", blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap="blue" )
-    ut.removeOverlayText(viewer)
-
-#@thread_worker(connect={'yielded': end_discrimination})
-def sepaneting( sepanet_dir ):
-    """ Separate the junction and nuclei stainign with SepaNet trained networks """
-    viewer.window._status_bar._toggle_activity_dock(True)
-    mig.separate_with_sepanet( sepanet_dir )
-    viewer.window._status_bar._toggle_activity_dock(False)
-    end_discrimination()
-    #yield 1
-
-def load_separated( junfile, nucfile, end_dis=True ):
-    """ Load the two separated staining from files """
-    mig.load_separated_staining( junfile, nucfile )
-    ut.show_info("Separated stainings loaded")
-    if end_dis:
-        end_discrimination()
-
-
-@thread_worker(connect={'yielded': end_discrimination})
-def discriminating( wthradxy, wthradz, outthres, smoothxy, smoothz):
-    mig.separate_junctions_nuclei( wth_radxy=wthradxy,
-                wth_radz = wthradz,
-                rmoutlier_threshold=outthres,
-                smoothnucxy=smoothxy,
-                smoothnucz=smoothz )
-    yield 1
+    separation = Separation( viewer, mig, cfg ) 
+    viewer.window.add_dock_widget(separation, name="Separate")
 
 
 #######################################################################
@@ -608,7 +458,7 @@ def getNuclei():
     ut.hide_color_layers(viewer, mig)
     ut.show_layer(viewer, mig.nucchan)
         
-    nuclei_widget = NucleiWidget( viewer, mig, cfg, divorceJunctionsNuclei, showCellsWidget )
+    nuclei_widget = NucleiWidget( viewer, mig, cfg, showCellsWidget )
     viewer.window.add_dock_widget( nuclei_widget, name="Get nuclei" )
 
 #######################################################################

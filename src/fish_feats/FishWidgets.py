@@ -274,11 +274,47 @@ def file_line( title, default_path="", dial_msg="Choose file", filetype="All (*)
     line.addWidget( btn )
     return line, value
 
+def dir_line( title, default_path="", dial_msg="Choose directory", descr="" ):
+    """ interface line with browse btn and current path """
+    line = QHBoxLayout()
+    lab = add_label( title, descr )
+    line.addWidget( lab )
+    value = QLineEdit()
+    value.setText( default_path )
+    line.addWidget( value )
+    btn = QPushButton( "Browse" )
+    btn.clicked.connect( lambda: browse_dir( value, dial_msg, default_path ) )
+    line.addWidget( btn )
+    return line, value
+
 def browse_file( value, dial_msg, filetype, default_path ):
     """ Open a file dialog to select a file """
     filepath = file_dialog( dial_msg, filetype, directory=default_path )
     if filepath is not None:
         value.setText( filepath )   
+
+def browse_dir( value, dial_msg, default_path ):
+    """ Open a file dialog to select a directory """
+    dirpath = dir_dialog( dial_msg, directory=default_path )
+    if dirpath is not None:
+        value.setText( dirpath )
+
+def dir_dialog( title, directory=None ):
+    """ Opens a dialog to select a folder """
+    if directory is None:
+        directory = ''
+    else:
+        directory = str( os.path.dirname(directory) )
+    file_dialog = QFileDialog()
+    file_dialog.setFileMode(QFileDialog.Directory)
+    #file_dialog.setOption(QFileDialog.ShowDirsOnly, True)
+    file_dialog.setWindowTitle(title)
+    file_dialog.setDirectory(directory)
+    if file_dialog.exec_():
+        filepath = file_dialog.selectedFiles()[0]
+    else:
+        filepath = None
+    return filepath 
 
 def file_dialog( title, filetypes, directory=None ):
     """ Open a file dialog to select a file """

@@ -10,7 +10,7 @@ class CheckScale( QWidget):
         Handle the update of metadata parameters, choice of channel
     """
 
-    def __init__( self, viewer, mig, cfg, load_all_previous, separation, next_step ):
+    def __init__( self, viewer, mig, cfg, load_all_previous, next_step ):
         """
             Initialize the interface to set metadata
         """
@@ -18,7 +18,6 @@ class CheckScale( QWidget):
         self.mig = mig
         self.cfg = cfg
         self.load_all_previous_files = load_all_previous
-        self.divorceJunctionsNuclei = separation
         self.getChoices = next_step
 
         super().__init__()
@@ -123,7 +122,8 @@ class CheckScale( QWidget):
         
         if self.mig.should_separate():
             ut.show_info("Junctions and nuclei staining in the same color channel, need to separate them")
-            self.divorceJunctionsNuclei()
+            separation = Separation( self.viewer, self.mig, self.cfg ) 
+            self.viewer.window.add_dock_widget(separation, name="Separate")
 
         if not ut.has_widget( self.viewer, "Main" ):
             self.getChoices()
@@ -619,6 +619,196 @@ class AssociateCN( QWidget ):
         self.layerNuc.show_selected_label = False
         self.resync_layers.setChecked( False )
 
-    
-    
+class Separation( QWidget ):
+    """ Interface to separate junctions and nuclei if they are in the same channel """
 
+    def __init__( self, viewer, mig, cfg ):
+        """ Separation GUI """
+        super().__init__()
+
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+
+        self.show_text()
+        ## load parameters
+        paras = {}
+        paras["tophat_radxy"] = 4
+        paras["tophat_radz"] = 1
+        paras["outlier_thres"] = 40
+        paras["smooth_nucleixy"] = 2
+        paras["smooth_nucleiz"] = 2
+        paras["sepanet_path"] = os.path.join(".", "sepaNet")
+    
+        load_paras = self.cfg.read_parameter_set("Separate")
+        if load_paras is not None:
+            if "method" in load_paras:
+                paras["method"] = load_paras["method"]
+            if "tophat_radxy" in load_paras:
+                paras["tophat_radxy"] = int(load_paras["tophat_radxy"])
+            if "tophat_radz" in load_paras:
+                paras["tophat_radz"] = int(load_paras["tophat_radz"])
+            if "outlier_thres" in load_paras:
+                paras["outlier_thres"] = int(load_paras["outlier_thres"])
+            if "smooth_nucleixy" in load_paras:
+                paras["smooth_nucleixy"] = int(load_paras["smooth_nucleixy"])
+            if "smooth_nucleiz" in load_paras:
+                paras["smooth_nucleiz"] = int(load_paras["smooth_nucleiz"])
+            if "sepanet_path" in load_paras:
+                paras["sepanet_path"] = load_paras["sepanet_path"]
+    
+        defmethod = "SepaNet"
+        if "method" in paras:
+            defmethod = paras["method"]
+        separated_junctionsfile = self.mig.separated_junctions_filename(ifexist=True)
+        if separated_junctionsfile != "":
+            defmethod = "Load"
+
+        ## create interface
+        layout = QVBoxLayout()
+        ## choose method for separation
+        method_line, self.method = fwid.list_line( "Separation method:", descr="Choose the method to separate junctions and nuclei" )
+        self.method.addItems( ["Load", "Tophat filter", "SepaNet"] )
+        layout.addLayout( method_line )
+
+        ## parameters for loading
+        self.load_group, load_layout = fwid.group_layout( "Loading parameters", descr="Parameters to choose files to load" )
+        filejunc_line, self.separated_juncfile = fwid.file_line( "Separated junction file:", separated_junctionsfile, "Choose separated junction file", descr="Choose the file containing the separated junctions" )
+        filenuc_line, self.separated_nucfile = fwid.file_line( "Separated nuclei file:", self.mig.separated_nuclei_filename(ifexist=True), "Choose separated nuclei file", descr="Choose the file containing the separated nuclei" )
+        load_layout.addLayout( filejunc_line )
+        load_layout.addLayout( filenuc_line )
+        self.load_group.setLayout( load_layout )
+        layout.addWidget( self.load_group )
+
+        ## parameters for SepaNet
+        self.sepanet_group, sepanet_layout = fwid.group_layout( "SepaNet parameters", descr="Parameters for SepaNet neural network separation" )
+        sepamodel_line, self.sepanet_modelpath = fwid.dir_line( "SepaNet model path:", os.path.join(paras["sepanet_path"]), "Choose SepaNet model path", descr="Choose the path to the SepaNet model" )
+        sepanet_layout.addLayout( sepamodel_line )
+        self.sepanet_group.setLayout( sepanet_layout )
+        layout.addWidget( self.sepanet_group )
+
+        ## parameters for top hat filter
+        self.tophat_group, tophat_layout = fwid.group_layout( "Top hat filter parameters", descr="Parameters for top hat filter separation" )
+        radxy_line, self.tophat_radxy = fwid.value_line( "Tophat radius XY (pixels):", paras["tophat_radxy"], descr="Set the radius in XY for the tophat filter" )
+        radz_line, self.tophat_radz = fwid.value_line( "Tophat radius Z (pixels):", paras["tophat_radz"], descr="Set the radius in Z for the tophat filter" )
+        tophat_layout.addLayout( radxy_line )
+        tophat_layout.addLayout( radz_line )
+        #" outlier para"
+        outlier_line, self.outlier_thres = fwid.value_line( "Outlier threshold:", paras["outlier_thres"], descr="Set the outlier threshold for the tophat filter" )
+        tophat_layout.addLayout( outlier_line )
+        # smoothing
+        smoothxy_line, self.smooth_nucleixy = fwid.value_line( "Nuclei smoothing XY (pixels):", paras["smooth_nucleixy"], descr="Set the smoothing in XY for the nuclei after tophat filter" )
+        smoothz_line, self.smooth_nucleiz = fwid.value_line( "Nuclei smoothing Z (pixels):", paras["smooth_nucleiz"], descr="Set the smoothing in Z for the nuclei after tophat filter" )
+        tophat_layout.addLayout( smoothxy_line )
+        tophat_layout.addLayout( smoothz_line )
+        self.tophat_group.setLayout( tophat_layout )
+        layout.addWidget( self.tophat_group )
+
+        ## Go separate buton
+        separate_btn = fwid.add_button( "Go separation", self.separate_go, descr="Separate the junctions and nuclei based on the selected method", color=ut.get_color("go") )
+        layout.addWidget( separate_btn )
+
+        ## save results
+        save_btn = fwid.add_button( "Save separated", self.save_separated_staining, descr="Save the separated junctions and nuclei to files", color=ut.get_color("save") )
+        help_btn = fwid.add_button( "Help", self.separate_help, descr="Open the help documentation", color=ut.get_color("help") )
+        btn_line = fwid.double_button( save_btn, help_btn )
+        layout.addLayout( btn_line )
+
+        ## close layer when finishing
+        self.close_layers = fwid.add_check( "Close layers", True, None, descr="Close the created junction and nuclei layers at the end of this step" )
+        btn_done = fwid.add_button( "Separation done", self.separate_done, descr="Finish the separation step and remove the created layers", color=ut.get_color("done") )
+        done_line = fwid.double_widget( self.close_layers, btn_done )
+        layout.addLayout( done_line )
+
+        self.setLayout( layout )
+        self.method.currentTextChanged.connect( self.update_visibility )
+        self.method.setCurrentText( defmethod )
+        self.update_visibility()
+
+    def update_visibility( self ):
+        """ update visibility of parameters option """
+        self.load_group.setVisible( self.method.currentText() == "Load" )
+        self.sepanet_group.setVisible( self.method.currentText() == "SepaNet" )
+        self.tophat_group.setVisible( self.method.currentText() == "Tophat filter" )
+
+    def show_text( self ):
+        """ Show help message """
+        text = "Separate the junction and nuclei staining that are in the same channel \n"
+        text += "Creates two new layers, junctionStaining and nucleiStaining \n"
+        text += "Tophat filter option separate the signals based on morphological filtering \n"
+        text += "Check the \'close layers\' box if you want the two created layers to be closed at the end of this step \n"
+        text += "SepaNet option separate the signals with trained neural networks \n"
+        ut.showOverlayText( self.viewer, text )
+        ut.show_info("********** Separating the junction and nuclei staining ***********")
+
+    def separate_help( self ):
+        """ Open the documentation page """
+        ut.show_documentation_page("Separate-junctions-and-nuclei")
+    
+    def save_separated_staining( self ):
+        """ Save the two result images """
+        if "junctionsStaining" in self.viewer.layers:
+            outname = self.mig.separated_junctions_filename()
+            self.mig.save_image( self.viewer.layers["junctionsStaining"].data, outname, hasZ=True, imtype="uint8" )
+        if "nucleiStaining" in self.viewer.layers:
+            outname = self.mig.separated_nuclei_filename()
+            self.mig.save_image( self.viewer.layers["nucleiStaining"].data, outname, hasZ=True, imtype="uint8" )
+
+    def separate_done( self ):
+        """ Finish the step """
+        ut.remove_widget( self.viewer, "Separate" )
+        self.cfg.addGroupParameter("Separate")
+        self.cfg.addParameter("Separate", "method", self.method.currentText() )
+        self.cfg.addParameter("Separate", "sepanet_path", self.sepanet_modelpath.text() )
+        self.cfg.addParameter("Separate", "tophat_radxy", int(self.tophat_radxy.text()))
+        self.cfg.addParameter("Separate", "tophat_radz", int(self.tophat_radz.text()))
+        self.cfg.addParameter("Separate", "outlier_thres", int(self.outlier_thres.text()))
+        self.cfg.addParameter("Separate", "smooth_nucleixy", int(self.smooth_nucleixy.text()))
+        self.cfg.addParameter("Separate", "smooth_nucleiz", int(self.smooth_nucleiz.text()))
+        self.cfg.write_parameterfile()
+        if self.close_layers.isChecked():
+            ut.remove_layer(self.viewer, "junctionsStaining")
+            ut.remove_layer(self.viewer, "nucleiStaining")
+        return 1
+    
+    def separate_go( self ):
+        """ Perform separation with selected method and parameters """
+        ut.showOverlayText( self.viewer, "Discriminating between nuclei and junctions...")
+        ut.hide_color_layers(self.viewer, self.mig)
+        ut.remove_layer(self.viewer,"junctionsStaining")
+        ut.remove_layer(self.viewer,"nucleiStaining")
+        if self.method.currentText() == "Tophat filter":
+            self.discriminating()
+        if self.method.currentText() == "SepaNet":
+            self.sepaneting( self.sepanet_modelpath.text() )
+        if self.method.currentText() == "Load":
+            self.load_separated( self.separated_juncfile.text(), self.separated_nucfile.text(), end_dis=True)
+
+    def load_separated( self, junfile, nucfile, end_dis=True ):
+        """ Load the two separated staining from files """
+        self.mig.load_separated_staining( junfile, nucfile )
+        ut.show_info("Separated stainings loaded")
+        if end_dis:
+            self.end_discrimination()
+
+    def sepaneting( self, sepanet_dir ):
+        """ Separate the junction and nuclei stainign with SepaNet trained networks """
+        self.viewer.window._status_bar._toggle_activity_dock(True)
+        self.mig.separate_with_sepanet( sepanet_dir )
+        self.viewer.window._status_bar._toggle_activity_dock(False)
+        self.end_discrimination()
+
+    def discriminating( self ):
+        """ do top hat discrimination """
+        self.mig.separate_junctions_nuclei( wth_radxy=int(self.tophat_radxy.text()),
+                wth_radz = int(self.tophat_radz.text()),
+                rmoutlier_threshold=int(self.outlier_thres.text()),
+                smoothnucxy=int(self.smooth_nucleixy.text()),
+                smoothnucz=int(self.smooth_nucleiz.text()) )
+        self.end_discrimination()
+
+    def end_discrimination(self):
+        """ Show resulting separated stainings """
+        self.viewer.add_image( self.mig.junstain, name="junctionsStaining", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap="red" )
+        self.viewer.add_image( self.mig.nucstain, name="nucleiStaining", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap="blue" )
+        ut.removeOverlayText(self.viewer)
