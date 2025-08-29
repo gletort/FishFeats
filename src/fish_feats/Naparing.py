@@ -1,10 +1,8 @@
 import napari
-import os, pathlib
 import numpy as np
 import time
-from magicgui import magicgui
 from napari.qt import create_worker, thread_worker
-from qtpy.QtWidgets import QApplication, QWidget, QVBoxLayout
+from qtpy.QtWidgets import QWidget, QVBoxLayout
 import fish_feats.MainImage as mi
 import fish_feats.Configuration as cf
 import fish_feats.Utils as ut
@@ -606,8 +604,6 @@ def textCellsWidget():
     text += "If n_edit_dim is set on 3 (top left panel), edition will affect all or several z (slices) \n"
     text += "If n_edit_dim is set on 2, edition will only affect the active slice \n"
     return text
-
-
 
 
 def measureNuclearIntensity():
