@@ -812,3 +812,140 @@ class Separation( QWidget ):
         self.viewer.add_image( self.mig.junstain, name="junctionsStaining", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap="red" )
         self.viewer.add_image( self.mig.nucstain, name="nucleiStaining", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap="blue" )
         ut.removeOverlayText(self.viewer)
+
+class CytoplasmMeasure( QWidget ):
+    """
+    Measure the cytoplasm intensity of the cells
+    """
+
+    def __init__( self, viewer, mig, cfg ):
+        """ GUI to measure cyto intensity """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+        import ast
+
+        ## show message
+        text = "Measure cytoplasmic intensity close to the apical surface \n"
+        text += "Choose the channel to measure in the \'cyto_channels\' parameter \n"
+        text += "z_thickness is the number of z slices below the apical surface used for the measure \n "
+        text += "Use the rectangle to estimate background intensity. The value will be averaged from the z_thickness slices below the rectangle \n"
+        ut.showOverlayText( self.viewer, text )
+        print("********** Measure cytoplasmic intensities **************")
+
+        for layer in self.viewer.layers:
+            layer.visible = False
+
+        # load parameters
+        self.meanz = self.mig.getAverageCellZ()
+        paras = {}
+        paras["cytoplasmic_channels"] = [self.mig.free_channel()]
+        paras["save_measures_table"] = True
+        paras["show_measures_image"] = True
+        paras["z_thickness"] = 3
+        load_paras = self.cfg.read_parameter_set("MeasureCytoplasmic")
+        if load_paras is not None:
+            if "z_thickness" in load_paras:
+                paras["z_thickness"] = int(load_paras["z_thickness"])
+            if "cytoplasmic_channels" in load_paras:
+                paras["cytoplasmic_channels"] = ast.literal_eval( load_paras["cytoplasmic_channels"].strip() )
+
+        ## create the GUI
+        layout = QVBoxLayout()
+        ## choose channel(s) to measure
+        chan_line, self.channels = fwid.add_multiple_list( "Channel(s ):", descr="Choose the channel(s) to measure cytoplasmic intensity")
+        self.channels.addItems( [str(chan) for chan in range(self.mig.nbchannels)] )
+        self.channels.itemSelectionChanged.connect( self.update_channel_selection )
+        layout.addLayout( chan_line )
+
+        ## choose thickness of measure
+        thick_line, self.thickness = fwid.value_line( "Z thickness (slices):", paras["z_thickness"], descr="Set the number of z slices below the apical surface used for the measure" )
+        layout.addLayout( thick_line )
+
+        ## btn go measure
+        measure_btn = fwid.add_button(" Measure cytoplasmic intensity", self.measure_cyto, descr="Measure intensity in selected channels" )
+        layout.addWidget(measure_btn)
+
+        ## btn help, done
+        help_btn = fwid.add_button(" Help", self.show_cytomeas_doc, descr="Show help for cytoplasmic intensity measurement", color=ut.get_color("help") )
+        done_btn = fwid.add_button(" Measurement done", self.measure_done, descr="Finish the cytoplasmic intensity measurement step", color=ut.get_color("done") )
+        btn_line = fwid.double_button( help_btn, done_btn )
+        layout.addLayout(btn_line)
+
+        self.setLayout(layout)
+
+    def measure_cyto( self ):
+        """ Launch the measurement and show the resulting maps. Save the results """
+        channels = self.channels.selectedItems()
+        channels = [int(chan.text()) for chan in channels]
+        bgrois = []
+        for chan in channels:
+            layer = self.viewer.layers["backgroundRectangle_"+str(chan)]
+            bgrois.append(layer.data)
+            layer.visible = False
+        
+        self.cfg.addGroupParameter("MeasureCytoplasmic")
+        self.cfg.addParameter("MeasureCytoplasmic", "cytoplasmic_channels", list(channels))
+        self.cfg.addParameter("MeasureCytoplasmic", "z_thickness", int(self.thickness.text()))
+        self.cfg.write_parameterfile()
+        ut.removeOverlayText(self.viewer)
+
+        results = self.mig.measureCytoplasmic(channels, bgrois, int(self.thickness.text()))
+        self.mig.save_results()
+        self.show_measure_images( results )
+
+    def show_measure_images( self, results ):
+        """ Draw and show the measurement maps """
+        channels = self.channels.selectedItems()
+        channels = [int(chan.text()) for chan in channels]
+        for i, chan in enumerate(channels):
+            if "Intensity"+str(chan) in self.viewer.layers:
+                ut.remove_layer(self.viewer, "CytoplasmicNormalisedIntensity"+str(chan))
+            cytomes = self.mig.drawCytoplasmicMeasure( chan, results )
+            cproj = self.viewer.add_image(cytomes, name="CytoplasmicNormalisedIntensity"+str(chan), scale=(self.mig.scaleXY, self.mig.scaleXY), colormap=ut.colormapname(chan), blending="additive")
+            cproj.contrast_limits=ut.quantiles(cytomes)
+
+    def update_channel_selection( self ):
+        """ the selected channels has changed, update the background rectangles """
+        channels = self.channels.selectedItems()
+        channels = [int(chan.text()) for chan in channels]
+        dep = 20
+        size = 50
+        step = 30
+        #QApplication.instance().processEvents()
+        for layer in self.viewer.layers:
+            layer.visible = False
+        for pchan in range(self.mig.nbchannels):
+            if pchan not in channels:
+                ut.remove_layer(self.viewer, "backgroundRectangle_"+str(pchan))
+        for chan in channels:
+            polygon = np.array([[self.meanz, dep, dep], [self.meanz, dep, dep+size], [self.meanz, dep+size, dep+size], [self.meanz, dep+size, dep]])
+            colname = ut.colormapname(chan)
+            if not isinstance(colname, str):
+                colname = colname.map(np.array([0.99]))
+            try:
+                #QApplication.instance().processEvents()
+                if not "backgroundRectangle_"+str(chan) in self.viewer.layers:
+                    self.viewer.add_shapes( polygon, name="backgroundRectangle_"+str(chan), ndim=3, shape_type='rectangle', edge_width=0, face_color=colname, scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY) )
+                ut.show_layer(self.viewer, chan)
+            except:
+                ut.show_error( "Error while adding shape layer "+str(chan)+" \nPlease retry" )
+                for pchan in range(self.mig.nbchannels):
+                    ut.remove_layer(self.viewer, "backgroundRectangle_"+str(pchan))
+                return
+            dep += step
+        self.viewer.dims.ndisplay = 2
+        self.viewer.dims.set_point(0,self.meanz*self.mig.scaleZ)
+
+    def measure_done(self):
+        """ Finish the step """
+        ut.removeOverlayText(self.viewer)
+        ut.remove_widget(self.viewer, "Measure cytos")
+        for chan in range(self.mig.nbchannels):
+            ut.remove_layer(self.viewer, "backgroundRectangle_"+str(chan))
+            ut.remove_layer(self.viewer, "CytoplasmicNormalisedIntensity"+str(chan))
+
+    def show_cytomeas_doc(self):
+        """ Open the wiki page on cytoplasmic measures """
+        ut.show_documentation_page("Measure-cytoplasmic-staining")

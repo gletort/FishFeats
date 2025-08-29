@@ -12,7 +12,7 @@ from fish_feats.NapaRNA import NapaRNA, OverlapRNA
 from fish_feats.NapaCells import MainCells, Position3D 
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget, PreprocessNuclei 
 from fish_feats.FishGrid import FishGrid
-from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation
+from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
 
@@ -586,11 +586,6 @@ def showCellsWidget(layerName, shapeName='CellNames', dim=3):
     #def show_help(layer):
     #    ut.showHideOverlayText(viewer)
 
-    #@magicgui(call_button="Relabel",)
-    #def addnamelayer(show_cellnames: bool, ):
-    #    relabel_layer()
-    #    return
-
     #addnamelayer.show_cellnames.changed.connect(show_names)
     help_text = ut.labels_shortcuts( level = 0 )
     header = ut.helpHeader(viewer, layerName)
@@ -627,127 +622,9 @@ def measureNuclearIntensity():
 ############ measure cyto
 def cytoplasmicStaining():
     """ Measure the cytoplasmic signal close to the apical surface """
-    import ast
-    text = "Measure cytoplasmic intensity close to the apical surface \n"
-    text += "Choose the channel to measure in the \'cyto_channels\' parameter \n"
-    text += "z_thickness is the number of z slices below the apical surface used for the measure \n "
-    text += "Use the rectangle to estimate background intensity. The value will be averaged from the z_thickness slices below the rectangle \n"
-    ut.showOverlayText(viewer, text)
-    print("********** Measure cytoplasmic intensities **************")
 
-    for layer in viewer.layers:
-        layer.visible = False
-    meanz = mig.getAverageCellZ()
-    paras = {}
-    paras["cytoplasmic_channels"] = [mig.free_channel()]
-    paras["save_measures_table"] = True
-    #paras["keep_previous_measures"] = True
-    paras["show_measures_image"] = True
-    paras["z_thickness"] = 3
-    load_paras = cfg.read_parameter_set("MeasureCytoplasmic")
-    if load_paras is not None:
-        if "z_thickness" in load_paras:
-            paras["z_thickness"] = int(load_paras["z_thickness"])
-        if "save_measures_table" in load_paras:
-            paras["save_measures_table"] = (load_paras["save_measures_table"].strip()) == "True"
-        #if "keep_previous_measures" in load_paras:
-        #    paras["keep_previous_measures"] = (load_paras["keep_previous_measures"].strip()) == "True"
-        if "show_measures_image" in load_paras:
-            paras["show_measures_image"] = (load_paras["show_measures_image"].strip()) == "True"
-        if "cytoplasmic_channels" in load_paras:
-            paras["cytoplasmic_channels"] = ast.literal_eval( load_paras["cytoplasmic_channels"].strip() )
-
-
-    def update_cytochannels():
-        dep = 20
-        size = 50
-        step = 30
-        for layer in viewer.layers:
-            layer.visible = False
-        for pchan in range(mig.nbchannels):
-            ut.remove_layer(viewer, "backgroundRectangle_"+str(pchan))
-            QApplication.instance().processEvents()
-        ## add this for removing layer bug in some windows (seems similar to that: https://github.com/napari/napari/issues/6472)
-        QApplication.instance().processEvents()
-        for chan in np.unique(cytochan.cyto_channels.value):
-            polygon = np.array([[meanz, dep, dep], [meanz, dep, dep+size], [meanz, dep+size, dep+size], [meanz, dep+size, dep]])
-            colname = ut.colormapname(chan)
-            if not isinstance(colname, str):
-                colname = colname.map(np.array([0.99]))
-            try:
-                QApplication.instance().processEvents()
-                viewer.add_shapes( polygon, name="backgroundRectangle_"+str(chan), ndim=3, shape_type='rectangle', edge_width=0, face_color=colname, scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY) )
-                ut.show_layer(viewer, chan)
-            except:
-                ut.show_error( "Error while adding shape layer "+str(chan)+" \nPlease retry" )
-                for pchan in range(mig.nbchannels):
-                    ut.remove_layer(viewer, "backgroundRectangle_"+str(pchan))
-                return
-            dep += step
-        viewer.dims.ndisplay = 2
-        viewer.dims.set_point(0,meanz*mig.scaleZ)
-
-    def show_cytomeas_doc():
-        """ Open the wiki page on cytoplasmic measures """
-        ut.show_documentation_page("Measure-cytoplasmic-staining")
-
-    @magicgui(call_button="Cytoplasmic measure done", 
-            measure_cyto={"widget_type":"PushButton", "value": False},
-            cyto_channels={"widget_type": "ListEdit",}, 
-            _={"widget_type":"EmptyWidget", "value": False},
-            Help={"widget_type":"PushButton", "value": False}, )
-    def cytochan( cyto_channels=paras["cytoplasmic_channels"], 
-            show_measures_image=paras["show_measures_image"], save_measures_table=paras["save_measures_table"], 
-            #keep_previous_measures=paras["keep_previous_measures"], 
-            z_thickness=paras["z_thickness"], measure_cyto=False,
-            _ = False,
-            Help = False, ):
-        measure_done()
-
-    def measure():
-        cytochans = np.unique(cytochan.cyto_channels.value)
-        bgrois = []
-        for chan in cytochans:
-            layer = viewer.layers["backgroundRectangle_"+str(chan)]
-            bgrois.append(layer.data)
-            layer.visible = False
-        
-        cfg.addGroupParameter("MeasureCytoplasmic")
-        cfg.addParameter("MeasureCytoplasmic", "cytoplasmic_channels", list(cytochans))
-        cfg.addParameter("MeasureCytoplasmic", "save_measures_table", cytochan.save_measures_table.value)
-        #cfg.addParameter("MeasureCytoplasmic", "keep_previous_measures", cytochan.keep_previous_measures.value)
-        cfg.addParameter("MeasureCytoplasmic", "show_measures_image", cytochan.show_measures_image.value)
-        cfg.addParameter("MeasureCytoplasmic", "z_thickness", cytochan.z_thickness.value)
-        cfg.write_parameterfile()
-        ut.removeOverlayText(viewer)
-
-        results = mig.measureCytoplasmic(cytochans, bgrois, int(cytochan.z_thickness.value))
-        if cytochan.save_measures_table.value:
-            mig.save_results()
-        
-        if cytochan.show_measures_image.value:
-            for i, chan in enumerate(cytochans):
-                if "CytoplasmicNormalisedIntensity"+str(chan) in viewer.layers:
-                    ut.remove_layer(viewer, "CytoplasmicNormalisedIntensity"+str(chan))
-                cytomes = mig.drawCytoplasmicMeasure( chan, results )
-                print(np.unique(cytomes))
-                cproj = viewer.add_image(cytomes, name="CytoplasmicNormalisedIntensity"+str(chan), scale=(mig.scaleXY, mig.scaleXY), colormap=ut.colormapname(chan), blending="additive")
-                cproj.contrast_limits=ut.quantiles(cytomes)
-        #if cytochan.show_measures_table.value:
-        #    show_table(results)
-        
-    def measure_done():
-        ut.removeOverlayText(viewer)
-        ut.remove_widget(viewer, "Measure cytos")
-        for chan in range(mig.nbchannels):
-            ut.remove_layer(viewer, "backgroundRectangle_"+str(chan))
-            ut.remove_layer(viewer, "CytoplasmicNormalisedIntensity"+str(chan))
-
-    update_cytochannels()
-    cytochan.cyto_channels.changed.connect(update_cytochannels)
-    cytochan.measure_cyto.clicked.connect(measure)
-    cytochan.Help.clicked.connect(show_cytomeas_doc)
-    viewer.window.add_dock_widget(cytochan, name="Measure cytos")
+    cytoMeas = CytoplasmMeasure( viewer, mig, cfg )
+    viewer.window.add_dock_widget(cytoMeas, name="Measure cytos")
 
 
 def helpMessageEditContours(dim=2):
