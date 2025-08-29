@@ -292,11 +292,9 @@ class NucleiWidget(QWidget):
         self.mig.load_segmentation_nuclei( self.nuclei_filename )
         self.end_segmentation_nuclei( start_time, pbar )
 
-
-
     def get_nuclei( self ):
-        """ Get nuclei from the interface """
         """ Interface to choose parameters of 3d nuclei segmentation """
+        ut.remove_layer( self.viewer, "segmentedNuclei" )
         self.cfg.addGroupParameter("NucleiSeg")
         self.cfg.addParameter( "NucleiSeg", "method", self.method_choice.currentText() )
         self.cfg.addParameter( "NucleiSeg", "Stardist_probability_threshold", self.stardist_probability_threshold.text() )

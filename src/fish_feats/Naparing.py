@@ -259,14 +259,13 @@ def endInit():
 
 def byebye():
     """ Quit the pipeline """
-    global mig
+    global mig, cfg, viewer
     viewer.window.remove_dock_widget("all")
+    ut.remove_all_layers( viewer )
     viewer.title = "napari"
     ut.removeOverlayText(viewer)
     if cfg.blabla.shown():
         cfg.blabla.close()
-    cfg.write_parameterfile()
-    ut.remove_all_layers( viewer )
     print("Bye bye")
     #del mig
 
