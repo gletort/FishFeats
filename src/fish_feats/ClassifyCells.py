@@ -1,7 +1,7 @@
 import numpy as np
 import napari
-from magicgui import magicgui
 from napari.utils.notifications import show_info
+#from magicgui import magicgui
 from magicgui.widgets import Table
 import fish_feats.MainImage as mi
 import fish_feats.Utils as ut
@@ -174,54 +174,6 @@ class HandleTable(QWidget):
         layout = QVBoxLayout()
 
         self.setLayout(layout)
-    
-
-
-def do_features_table(mig, viewer):
-    @magicgui(call_button="Table done",
-            reset_table={"widget_type":"PushButton", "value": False}, 
-            load_table={"widget_type":"PushButton", "value": False}, 
-            save_table={"widget_type":"PushButton", "value": False}, 
-            show_table={"widget_type":"PushButton", "value": False},)
-    def result_table(
-            show_table_options = False,
-            reset_table = False, load_table = False,
-            load_file=pathlib.Path(mig.features_filename(ifexist=True)),
-            save_table=False, show_table=False):
-            ut.remove_widget(viewer, "Features table")
-            ut.remove_widget(viewer, "Add feature")
-            ut.remove_layer(viewer,"Cells")
-
-    def show_options():
-        """ Show additional options or not """
-        booly = result_table.show_table_options.value
-        result_table.show_table.visible = booly
-        result_table.reset_table.visible = booly
-        result_table.load_table.visible = booly
-        result_table.load_file.visible = booly
-
-
-    def showTable():
-        tab = mig.getFeaturesTable()
-        Table(tab).show()
-
-    def resetTable():
-        """ Erase all measured features """
-        mig.initFeatureCells()
-        
-    def loadTable():
-        """ Load features from a table file """
-        filename = result_table.load_file.value
-        mig.loadFeatureTable(filename)
-
-    result_table.save_table.clicked.connect(saveTable)
-    result_table.show_table.clicked.connect(showTable)
-    result_table.reset_table.clicked.connect(resetTable)
-    result_table.load_table.clicked.connect(loadTable)
-    result_table.show_table_options.changed.connect(show_options)
-    show_options()
-    viewer.window.add_dock_widget(result_table, name="Features table")
-
 
 class AddFeature(QWidget):
     """ Options to add a feature to measure """
