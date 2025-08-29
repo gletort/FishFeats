@@ -232,6 +232,26 @@ def double_widget( wida, widb ):
     line.addWidget( widb )
     return line
 
+def check_value_line( name, checked,  value_name, value_default, descr="" ):
+    """ Line with value visible only if checked """
+    line = QHBoxLayout()
+    cbox = QCheckBox( text=name )
+    cbox.setChecked( checked )
+    line.addWidget( cbox )
+    lab = QLabel()
+    lab.setText( value_name )
+    line.addWidget( lab )
+    value = QLineEdit()
+    value.setText( str(value_default) )
+    line.addWidget( value )
+    if descr != "":
+        lab.setToolTip( descr )
+    cbox.stateChanged.connect( lambda state: value.setVisible( state == Qt.Checked ) )
+    cbox.stateChanged.connect( lambda state: lab.setVisible( state == Qt.Checked ) )
+    value.setVisible( checked )
+    lab.setVisible( checked )
+    return line, cbox, value
+
 def add_check( check, checked, check_func=None, descr="" ):
     """ Add a checkbox with set parameters """
     cbox = QCheckBox( text=check )

@@ -10,7 +10,7 @@ import fish_feats.Configuration as cf
 import fish_feats.Utils as ut
 from fish_feats.NapaRNA import NapaRNA
 from fish_feats.NapaCells import MainCells, Position3D 
-from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget 
+from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget, PreprocessNuclei 
 from fish_feats.FishGrid import FishGrid
 from fish_feats.NapaMix import CheckScale, CropImage, Association
 from fish_feats import ClassifyCells as cc
@@ -422,181 +422,12 @@ def show3DCells():
     viewer.window.add_dock_widget(cells_3D, name="Cells in 3D")
 
 
-#######################################################################
+####################################################################
 ##### preprocessing functions
-
-def preprocJunctions2D(imgjun):
-    """ Preprocessing the projection (filters, denoising)"""
-
-    saveimg = np.copy(imgjun)
-    if "2DJunctions" not in viewer.layers:
-        viewer.add_image( imgjun, name="2DJunctions", blending="additive", scale=(mig.scaleXY, mig.scaleXY), colormap="red" )
-
-    def update_parameters():
-        removebg_parameters(preprocess.remove_background.value)
-        tophat_parameters(preprocess.tophat_filter.value)
-        n2v_parameters(preprocess.noise2void.value)
-    
-    def reset_junc():
-        ut.remove_layer(viewer,"2DJunctions")
-        imgjun = saveimg
-        viewer.add_image( imgjun, name="2DJunctions", blending="additive", scale=(mig.scaleXY, mig.scaleXY), colormap="red" )
-    
-    def n2v_parameters(booly):
-        preprocess.denoising_done.visible = booly
-
-    def end_denoising():
-        if "Denoised" in viewer.layers:
-            ut.remove_widget(viewer, "Dock widget 1")
-            ut.remove_layer(viewer, "2DJunctions")
-            viewer.layers["Denoised"].name = "2DJunctions"
-        viewer.layers["2DJunctions"].refresh()
-
-    def removebg_parameters(booly):
-        preprocess.remove_background_radius.visible = booly
-    
-    def tophat_parameters(booly):
-        preprocess.tophat_filter_radius.visible = booly
-
-    @magicgui(call_button="Preprocess", 
-            reset_junction_staining={"widget_type":"PushButton", "value": False, "name": "reset_junction_staining"}, 
-            denoising_done={"widget_type":"PushButton", "value": False, "name": "denoising_done"}, )
-    def preprocess(
-            remove_background=False,
-            remove_background_radius = 50,
-            tophat_filter=False,
-            tophat_filter_radius = 5,
-            noise2void = False,
-            reset_junction_staining=False,
-            denoising_done = False,
-            ):
-        cfg.addText("Preprocess 2D junction staining")
-        
-        imgjun = viewer.layers["2DJunctions"].data
-        if remove_background:
-            #cfg.addTextParameter("Preprocess", "remove_background_radius", remove_background_radius)
-            imgjun = mig.preprocess_junction2D_removebg( imgjun, remove_background_radius )
-            ut.show_info("background removed")
-        
-        if tophat_filter:
-            #cfg.addTextParameter("Preprocess", "tophat_filter_radius", tophat_filter_radius)
-            imgjun = mig.preprocess_junction2D_tophat( imgjun, tophat_filter_radius )
-            ut.show_info("Tophat filter applied")
-        
-        if "2DJunctions" in viewer.layers:
-            viewer.layers["2DJunctions"].data = imgjun
-            viewer.layers["junctionsStaining"].refresh()
-        
-        if noise2void:
-            #mig.prepare_junctions()
-            from napari_n2v import PredictWidgetWrapper
-            viewer.window.add_dock_widget(PredictWidgetWrapper(viewer))
-
-        if not "2DJunctions" in viewer.layers:
-            viewer.add_image( imgjun, name="2DJunctions", blending="additive", scale=(mig.scaleXY, mig.scaleXY), colormap="blue" )
-        viewer.layers["2DJunctions"].data = imgjun
-        viewer.layers["2DJunctions"].refresh()
-    
-    removebg_parameters(False)
-    tophat_parameters(False)
-    n2v_parameters(False)
-    preprocess.remove_background.changed.connect(update_parameters)
-    preprocess.tophat_filter.changed.connect(update_parameters)
-    preprocess.noise2void.changed.connect(update_parameters)
-    preprocess.reset_junction_staining.clicked.connect(reset_junc)
-    preprocess.denoising_done.clicked.connect(end_denoising)
-    ut.hide_color_layers(viewer, mig)
-    if "junctionsStaining" in viewer.layers:
-        viewer.layers["junctionsStaining"].visible = True
-    viewer.window.add_dock_widget(preprocess, name="Preprocess2D")
-
 def preprocNuclei():
-    """ Preprocessing of the 3D nuclei (filters, denoising) """
-    print("********** Preprocessing nuclei signal *************")
-    rm_bg = False
-    rm_bg_rad = 20
-    medfilt = False
-    medfilt_rad = 2
-    paras = cfg.read_parameter_set("PreprocessNuclei")
-    if paras is not None:
-        if "remove_background" in paras:
-            rm_bg = (paras["remove_background"].strip() == "True")
-        if "median_filter" in paras:
-            medfilt = (paras["median_filter"].strip() == "True")
-        if "remove_background_radius" in paras:
-            rm_bg_rad = int(paras["remove_background_radius"])
-        if "median_filter_radius" in paras:
-            medfilt_rad = int(paras["median_filter_radius"])
-
-    def update_parameters():
-        median_parameters(preprocess.median_filter.value)
-        removebg_parameters(preprocess.remove_background.value)
-        n2v_parameters(preprocess.noise2void.value)
-    
-    def reset_nuc():
-        ut.show_info("Reset nuclei staining")
-        mig.nucstain = None
-        mig.prepare_segmentation_nuclei()
-        ut.remove_layer(viewer,"nucleiStaining")
-        viewer.add_image( mig.nucstain, name="nucleiStaining", blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap="blue" )
-
-    def median_parameters(booly):
-        preprocess.median_radius.visible = booly
-    
-    def n2v_parameters(booly):
-        preprocess.denoising_done.visible = booly
-
-    def end_denoising():
-        if "Denoised" in viewer.layers:
-            ut.remove_widget(viewer, "Dock widget 1")
-            ut.remove_layer(viewer, "nucleiStaining")
-            viewer.layers["Denoised"].name = "nucleiStaining"
-            mig.nucstain = viewer.layers["nucleiStaining"].data
-        viewer.layers["nucleiStaining"].refresh()
-
-    def removebg_parameters(booly):
-        preprocess.remove_background_radius.visible = booly
-
-    @magicgui(call_button="Preprocess", 
-            reset_nuclei_staining={"widget_type":"PushButton", "value": False, "name": "reset_nuclei_staining"}, 
-            denoising_done={"widget_type":"PushButton", "value": False, "name": "denoising_done"}, )
-    def preprocess(median_filter=medfilt, median_radius = medfilt_rad,
-            remove_background=rm_bg,
-            remove_background_radius = rm_bg_rad,
-            noise2void = False,
-            reset_nuclei_staining=False,
-            denoising_done = False,
-            ):
-        cfg.addGroupParameter("PreprocessNuclei")
-        cfg.addParameter("PreprocessNuclei", "remove_background_radius", remove_background_radius)
-        cfg.addParameter("PreprocessNuclei", "median_filter_radius", median_radius)
-        cfg.addParameter("PreprocessNuclei", "remove_background", remove_background)
-        cfg.addParameter("PreprocessNuclei", "median_filter", median_filter)
-        cfg.write_parameterfile()
-
-        if remove_background:
-            mig.preprocess_nuclei_removebg( remove_background_radius )
-        if median_filter:
-            mig.preprocess_nuclei_median( median_radius )
-        if noise2void:
-            mig.prepare_nuclei()
-            from napari_n2v import PredictWidgetWrapper
-            viewer.window.add_dock_widget(PredictWidgetWrapper(viewer))
-
-        if not "nucleiStaining" in viewer.layers:
-            viewer.add_image( mig.nucstain, name="nucleiStaining", blending="additive", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap="blue" )
-        viewer.layers["nucleiStaining"].refresh()
-    
-    update_parameters()
-    preprocess.median_filter.changed.connect(update_parameters)
-    preprocess.remove_background.changed.connect(update_parameters)
-    preprocess.noise2void.changed.connect(update_parameters)
-    preprocess.reset_nuclei_staining.clicked.connect(reset_nuc)
-    preprocess.denoising_done.clicked.connect(end_denoising)
-    ut.hide_color_layers(viewer, mig)
-    if "nucleiStaining" in viewer.layers:
-        viewer.layers["nucleiStaining"].visible = True
-    viewer.window.add_dock_widget(preprocess, name="Preprocess")
+    """ Preprocess the nuclei before segmentation """
+    preproc_nuclei = PreprocessNuclei( viewer, mig, cfg )
+    viewer.window.add_dock_widget(preproc_nuclei, name="Preprocess Nuclei")
 
 
 #######################################################################

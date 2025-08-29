@@ -502,3 +502,90 @@ class Position3D( QWidget ):
         self.cfg.addParameter( "ZCells", "zmap_window_size", int( float(self.localsize.text()) ) )
         self.cfg.write_parameterfile()
         ut.removeOverlayText( self.viewer )
+
+"""
+def preprocJunctions2D(imgjun):
+    "" Preprocessing the projection (filters, denoising)""
+
+    saveimg = np.copy(imgjun)
+    if "2DJunctions" not in viewer.layers:
+        viewer.add_image( imgjun, name="2DJunctions", blending="additive", scale=(mig.scaleXY, mig.scaleXY), colormap="red" )
+
+    def update_parameters():
+        removebg_parameters(preprocess.remove_background.value)
+        tophat_parameters(preprocess.tophat_filter.value)
+        n2v_parameters(preprocess.noise2void.value)
+    
+    def reset_junc():
+        ut.remove_layer(viewer,"2DJunctions")
+        imgjun = saveimg
+        viewer.add_image( imgjun, name="2DJunctions", blending="additive", scale=(mig.scaleXY, mig.scaleXY), colormap="red" )
+    
+    def n2v_parameters(booly):
+        preprocess.denoising_done.visible = booly
+
+    def end_denoising():
+        if "Denoised" in viewer.layers:
+            ut.remove_widget(viewer, "Dock widget 1")
+            ut.remove_layer(viewer, "2DJunctions")
+            viewer.layers["Denoised"].name = "2DJunctions"
+        viewer.layers["2DJunctions"].refresh()
+
+    def removebg_parameters(booly):
+        preprocess.remove_background_radius.visible = booly
+    
+    def tophat_parameters(booly):
+        preprocess.tophat_filter_radius.visible = booly
+
+    @magicgui(call_button="Preprocess", 
+            reset_junction_staining={"widget_type":"PushButton", "value": False, "name": "reset_junction_staining"}, 
+            denoising_done={"widget_type":"PushButton", "value": False, "name": "denoising_done"}, )
+    def preprocess(
+            remove_background=False,
+            remove_background_radius = 50,
+            tophat_filter=False,
+            tophat_filter_radius = 5,
+            noise2void = False,
+            reset_junction_staining=False,
+            denoising_done = False,
+            ):
+        cfg.addText("Preprocess 2D junction staining")
+        
+        imgjun = viewer.layers["2DJunctions"].data
+        if remove_background:
+            #cfg.addTextParameter("Preprocess", "remove_background_radius", remove_background_radius)
+            imgjun = mig.preprocess_junction2D_removebg( imgjun, remove_background_radius )
+            ut.show_info("background removed")
+        
+        if tophat_filter:
+            #cfg.addTextParameter("Preprocess", "tophat_filter_radius", tophat_filter_radius)
+            imgjun = mig.preprocess_junction2D_tophat( imgjun, tophat_filter_radius )
+            ut.show_info("Tophat filter applied")
+        
+        if "2DJunctions" in viewer.layers:
+            viewer.layers["2DJunctions"].data = imgjun
+            viewer.layers["junctionsStaining"].refresh()
+        
+        if noise2void:
+            #mig.prepare_junctions()
+            from napari_n2v import PredictWidgetWrapper
+            viewer.window.add_dock_widget(PredictWidgetWrapper(viewer))
+
+        if not "2DJunctions" in viewer.layers:
+            viewer.add_image( imgjun, name="2DJunctions", blending="additive", scale=(mig.scaleXY, mig.scaleXY), colormap="blue" )
+        viewer.layers["2DJunctions"].data = imgjun
+        viewer.layers["2DJunctions"].refresh()
+    
+    removebg_parameters(False)
+    tophat_parameters(False)
+    n2v_parameters(False)
+    preprocess.remove_background.changed.connect(update_parameters)
+    preprocess.tophat_filter.changed.connect(update_parameters)
+    preprocess.noise2void.changed.connect(update_parameters)
+    preprocess.reset_junction_staining.clicked.connect(reset_junc)
+    preprocess.denoising_done.clicked.connect(end_denoising)
+    ut.hide_color_layers(viewer, mig)
+    if "junctionsStaining" in viewer.layers:
+        viewer.layers["junctionsStaining"].visible = True
+    viewer.window.add_dock_widget(preprocess, name="Preprocess2D")
+"""

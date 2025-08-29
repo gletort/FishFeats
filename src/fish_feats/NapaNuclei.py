@@ -454,3 +454,114 @@ class FinishNuclei( QWidget ):
         ut.remove_widget(self.viewer, "End nuclei")
 
 
+
+class PreprocessNuclei( QWidget ):
+    """ Preprocessing of the 3D nuclei (filters, denoising) """
+
+    def __init__( self, viewer, mig, cfg ):
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+        super().__init__()
+    
+        print("********** Preprocessing nuclei signal *************")
+        ## load default parameters
+        rm_bg = False
+        rm_bg_rad = 20
+        medfilt = False
+        medfilt_rad = 2
+        paras = self.cfg.read_parameter_set("PreprocessNuclei")
+        if paras is not None:
+            if "remove_background" in paras:
+                rm_bg = (paras["remove_background"].strip() == "True")
+            if "median_filter" in paras:
+                medfilt = (paras["median_filter"].strip() == "True")
+            if "remove_background_radius" in paras:
+                rm_bg_rad = int(paras["remove_background_radius"])
+            if "median_filter_radius" in paras:
+                medfilt_rad = int(paras["median_filter_radius"])
+
+        layout = QVBoxLayout()
+        ## median filtering option
+        median_line, self.median_filtering, self.median_radius = fwid.check_value_line( "Median filtering", medfilt, "with radius ", medfilt_rad, descr="Apply median filtering to the nuclei raw image with the given radius" ) 
+        layout.addLayout( median_line )
+        ## remove background option
+        bg_line, self.remove_background, self.remove_background_radius = fwid.check_value_line( "Remove background", rm_bg, "with radius ", rm_bg_rad, descr="Remove background with a rolling ball algorithm with the given radius" )
+        layout.addLayout( bg_line )
+
+        ## go preprocess
+        apply_btn = fwid.add_button( "Apply preprocessing", btn_func=self.preprocess_go, descr="Apply the selected preprocessing steps", color=ut.get_color("go") )
+        layout.addWidget( apply_btn )
+        
+        ## noise2void btn
+        self.noise2void = fwid.add_button( "Noise2Void", self.noise2void_show, descr="Apply Noise2Void denoising" )
+        self.end_n2v = fwid.add_button( "Noise2void done", self.noise2void_close, descr="Finish the noise2void step and go back to preprocessing", color=ut.get_color("done") )
+        n2v_line = fwid.double_widget( self.noise2void, self.end_n2v )
+        layout.addLayout( n2v_line )
+
+        ## reset staining btn
+        reset_btn = fwid.add_button( "Reset nuclei staining", btn_func=self.reset_nuclei, descr="Reset the nuclei staining to the original raw image", color=ut.get_color("reset") )
+        ## done button
+        done_btn = fwid.add_button( "Preprocessing done", btn_func=self.preprocess_done, descr="Finish the nuclei preprocessing", color=ut.get_color("done") )
+        btn_line = fwid.double_widget( reset_btn, done_btn )
+        layout.addLayout( btn_line )
+
+        self.setLayout( layout )
+    
+        self.mig.prepare_segmentation_nuclei()
+        ut.remove_layer( self.viewer, "nucleiStaning" )
+        self.viewer.add_image( self.mig.nucstain, name="nucleiStaining", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap="blue" )
+        ut.hide_color_layers( self.viewer, self.mig )
+
+    def preprocess_go( self ):
+        """ Launch the preprocessing steps """
+        print("Applying preprocessing")
+        self.cfg.addGroupParameter("PreprocessNuclei")
+        self.cfg.addParameter("PreprocessNuclei", "remove_background_radius", int(float(self.remove_background_radius.text())))
+        self.cfg.addParameter("PreprocessNuclei", "median_filter_radius", int(float(self.median_radius.text())))
+        self.cfg.addParameter("PreprocessNuclei", "remove_background", self.remove_background.isChecked())
+        self.cfg.addParameter("PreprocessNuclei", "median_filter", self.median_filtering.isChecked())
+        self.cfg.write_parameterfile()
+
+        if self.remove_background.isChecked():
+            self.mig.preprocess_nuclei_removebg( int(float(self.remove_background_radius.text())) )
+        if self.median_filtering.isChecked():
+            self.mig.preprocess_nuclei_median( int(float(self.median_radius.text())) )
+
+        ut.remove_layer( self.viewer, "nucleiStaining" )
+        self.viewer.add_image( self.mig.nucstain, name="nucleiStaining", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap="blue" )
+        print("Preprocessing applied")
+
+    def noise2void_show( self ):
+        """ Opens noise2void plugin """
+        self.mig.prepare_nuclei()
+        try:
+            from napari_n2v import PredictWidgetWrapper
+            self.viewer.window.add_dock_widget(PredictWidgetWrapper(self.viewer))
+        except ImportError:
+            ut.show_error("Please install napari-n2v to use this feature.")
+
+    def noise2void_close( self ):
+        """ Closes noise2void plugin """
+        if "Denoised" in self.viewer.layers:
+            ut.remove_widget(self.viewer, "Dock widget 1")
+            ut.remove_layer(self.viewer, "nucleiStaining")
+            self.viewer.layers["Denoised"].name = "nucleiStaining"
+            self.mig.nucstain = self.viewer.layers["nucleiStaining"].data
+        if "nucleiStaining" in self.viewer.layers:
+            self.viewer.layers["nucleiStaining"].refresh()
+
+    def reset_nuclei( self ):
+        ut.show_info("Reset nuclei staining")
+        self.mig.nucstain = None
+        self.mig.prepare_segmentation_nuclei()
+        ut.remove_layer( self.viewer, "nucleiStaining" )
+        self.viewer.add_image( self.mig.nucstain, name="nucleiStaining", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap="blue" )
+
+    def preprocess_done( self ):
+        """ Finish the step """
+        ut.remove_layer(self.viewer, "nucleiStaining")
+        self.noise2void_close()
+        ut.remove_widget( self.viewer, "Preprocess Nuclei" )
+
+

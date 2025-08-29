@@ -86,6 +86,8 @@ def get_color( obj ):
         return "#7A0FF5"
     if obj == "go":
         return "#2C78B692"
+    if obj == "reset":
+        return "#0E121492"
     if obj == "light":
         return "#B1B7F8"
     if obj == "group1":
