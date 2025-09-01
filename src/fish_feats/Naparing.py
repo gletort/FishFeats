@@ -62,6 +62,7 @@ class FishFeats:
         self.viewer = viewer
         self.cfg = None
         self.mig = None
+        self.main_wid = None
 
         if self.viewer is None:
             self.viewer = napari.current_viewer()
@@ -149,7 +150,8 @@ class FishFeats:
 
         ## display the different channels
         self.display_channels()
-        return self.endInit()
+        self.endInit()
+        return self.main_wid
 
     def openFromLayers( self ):
         """ Open from already opened layers in napari """
@@ -255,7 +257,8 @@ class FishFeats:
         """ Finish, go to metadata step """
         self.viewer.grid.enabled = True
         ut.removeOverlayText(self.viewer)
-        return self.checkScale()
+        self.checkScale()
+        return self.main_wid
 
     def shortcuts_window(self):
         """ Open a separate text window with the main steps and shortcuts """
@@ -276,7 +279,8 @@ class FishFeats:
         ut.update_history(self.mig.imagedir)
         if self.cfg is None:
             self.cfg = cf.Configuration(self.mig.save_filename(), show=False)
-        return self.endInit()
+        self.endInit()
+        return self.main_wid
 
 
     ### Grid tools: regular grid for spatial repere
@@ -308,7 +312,8 @@ class FishFeats:
             cview.contrast_limits=ut.quantiles(img)
             cview.gamma=0.95
         self.viewer.axes.visible = True
-        return self.endInit()
+        self.endInit()
+        return self.main_wid
 
     def byebye( self ):
         """ Quit the pipeline """
@@ -321,7 +326,8 @@ class FishFeats:
         #ut.remove_widget( viewer, "Main" )
         print("Bye bye")
         #del mig
-        ut.remove_all_widget( self.viewer ) 
+        self.main_wid.close()
+        #ut.remove_all_widget( self.viewer ) 
         del self.mig
         del self.cfg
 
@@ -330,7 +336,7 @@ class FishFeats:
         cs = CheckScale(self)
         wid = self.viewer.window.add_dock_widget(cs, name="Scale")
         self.cfg = cs.cfg
-        return wid
+        self.main_wid = wid
 
     #### Action choice
     def getChoices( self, default_action='Get cells'):
@@ -338,7 +344,7 @@ class FishFeats:
         choice_wid = GetChoices( default_action, self.action_launcher )
         ut.remove_widget( self.viewer, "Main" )
         wid = self.viewer.window.add_dock_widget(choice_wid, name="Main")
-        return wid 
+        self.main_wid = wid
 
     def action_launcher( self, action ):
         """ Launch the specified action """
