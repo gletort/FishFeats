@@ -308,7 +308,7 @@ def remove_layer(viewer, layname):
 def remove_all_widget( viewer ):
     """ Remove all widgets """
     viewer.window.remove_dock_widget("all")
-
+    
 def list_widgets( viewer ):
     """ List all open widgets """
     if not version_napari_above("0.6.1"):

@@ -91,12 +91,12 @@ class MeasureNuclei( QWidget ):
 class NucleiWidget(QWidget):
     """ Widget to get nuclei options """
 
-    def __init__( self, viewer, mig, cfg, showCellsWidget ):
+    def __init__( self, ffeats ):
         super().__init__()
-        self.mig = mig
-        self.viewer = viewer
-        self.cfg = cfg
-        self.showCellsWidget = showCellsWidget
+        self.mig = ffeats.mig
+        self.viewer = ffeats.viewer
+        self.cfg = ffeats.cfg
+        self.ffeats = ffeats
 
         ## Load default/configuration parameters
         self.load_parameters()
@@ -345,7 +345,7 @@ class NucleiWidget(QWidget):
         maskview.contour = 0
         filter_nuclei = FilterNuclei( self.viewer, self.mig, self.cfg )
         self.viewer.window.add_dock_widget( filter_nuclei, name="Filtering" )
-        self.showCellsWidget("segmentedNuclei", shapeName="NucleiName", dim=3)
+        self.ffeats.showCellsWidget("segmentedNuclei", shapeName="NucleiName", dim=3)
         finish_nuc = FinishNuclei( self.viewer, self.mig, self.cfg )
         self.viewer.window.add_dock_widget( finish_nuc, name="End nuclei" )
 

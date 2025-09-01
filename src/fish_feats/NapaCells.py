@@ -9,14 +9,13 @@ from qtpy.QtWidgets import QVBoxLayout, QWidget
 class MainCells( QWidget ):
     """ Main interface for cell (junctions) segmentation """
 
-    def __init__( self, viewer, mig, cfg, showCellsWidget, getChoices ):
+    def __init__( self, ffeats ):
         """ Interface to choose loading or proj and seg """
         super().__init__()
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
-        self.showCellsWidget = showCellsWidget
-        self.getChoices = getChoices
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
+        self.ffeats = ffeats
         self.proj = None
     
         methods = ["", "Do projection and segmentation"]
@@ -34,7 +33,7 @@ class MainCells( QWidget ):
 
         if len(methods) == 2:
             ## there is nothing to load, go directly to projection and segmentation
-            self.proj = Projection( self.viewer, self.mig, self.cfg,  self.showCellsWidget, self.getChoices )
+            self.proj = Projection( self.ffeats )
             return
 
         layout = QVBoxLayout()
@@ -47,13 +46,12 @@ class MainCells( QWidget ):
         layout.addLayout( do_line )
         self.setLayout( layout )
 
-
     def go_segmentation( self ):
         """ Start the process according to selected method """
         method = self.methodChoice.currentText()
         if method == "Do projection and segmentation":
             ## go to projection plugin
-            proj = Projection( self.viewer, self.mig, self.cfg, self.showCellsWidget, self.getChoices )
+            proj = Projection( self.ffeats )
             self.viewer.window.add_dock_widget( proj, name="JunctionProjection2D" )
         elif method == "Load previous files":
             ## load and show the projection
@@ -63,21 +61,20 @@ class MainCells( QWidget ):
                 self.viewer.add_image( roijunc, name="2DJunctions", scale=(self.mig.scaleXY, self.mig.scaleXY), blending="additive" )
             ## load the cells and edit them
             self.mig.load_segmentation( self.cellsname )
-            ut.remove_widget( self.viewer, "Get cells" )
-            get_cells = GetCells( self.viewer, self.mig, self.cfg, self.showCellsWidget, self.getChoices )
-            get_cells.end_segmentation()
+            #get_cells = GetCells( self.ffeats )
+            self.ffeats.correction_junctions()
+            self.close()
 
 class Projection( QWidget ):
     """ Get the 2D projection (local) of the junctions image """
 
-    def __init__( self, viewer, mig, cfg, showCells, getChoices ):
+    def __init__( self, ffeats ):
         """ Interface to handle local projection """
         super().__init__()
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
-        self.show_cells = showCells
-        self.get_choices = getChoices
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
+        self.ffeats = ffeats
         self.projection_filename = None
         self.projection_filename = self.mig.junction_projection_filename( ifexist=True )
 
@@ -169,7 +166,7 @@ class Projection( QWidget ):
     def go_segmentation( self ):
         """ Segmentation then correction of the apical junctions """
         ut.show_info("******** Segmentation of junctions 2D projection ******")
-        get_cell = GetCells( self.viewer, self.mig, self.cfg, self.show_cells, self.get_choices )
+        get_cell = GetCells( self.ffeats )
         self.viewer.window.add_dock_widget( get_cell, name="Segment cells" )
 
     def load_projection_file( self ):
@@ -190,15 +187,13 @@ class Projection( QWidget ):
 class GetCells( QWidget ):
     """ Segment the cell contours from the image """
 
-    def __init__( self, viewer, mig, cfg, showCells, getChoices ):
+    def __init__( self, ffeats ):
         """ Interface to get the cell contours from the image """
-
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
+        self.ffeats = ffeats
         self.junction_filename = None
-        self.show_cells = showCells
-        self.get_choices = getChoices
 
         super().__init__()
         layout = QVBoxLayout()
@@ -252,6 +247,7 @@ class GetCells( QWidget ):
     
         self.methodsChoice.currentIndexChanged.connect( self.visibility )
         self.methodsChoice.setCurrentText( defmeth )
+        self.visibility()
         self.setLayout( layout )
 
     def visibility( self ):
@@ -266,23 +262,6 @@ class GetCells( QWidget ):
             self.junction_filename = filename
             self.filename_label.setText(filename)
 
-    def end_segmentation( self ):
-        ut.removeOverlayText( self.viewer )
-        ut.remove_widget( self.viewer, "Get junctions")
-        self.correction_junctions()
-
-    def correction_junctions( self ):
-        """ Manual correction of segmentation step """
-        maskview = self.viewer.add_labels( self.mig.junmask, blending='additive', scale=(self.mig.scaleXY, self.mig.scaleXY), name="Junctions" )
-        maskview.contour = 3
-        maskview.selected_label = 2
-        self.show_cells( "Junctions", shapeName="JunctionsName", dim=2 )
-        # saving and finishing
-        endcells = EndCells( self.viewer, self.mig, self.cfg, self.get_choices )
-        self.viewer.window.add_dock_widget( endcells, name="EndCells" )
-
-
-
     def segment_cells( self ):
         """ Segment the cell contours from the image """
         ut.showOverlayText( self.viewer, """Doing segmentation of cell junctions...""", size=15 )
@@ -294,31 +273,31 @@ class GetCells( QWidget ):
         self.cfg.write_parameterfile()
         if method == "Load segmented file":
             self.mig.load_segmentation( self.junction_filename )
-            self.end_segmentation()
+            self.ffeats.correction_junctions()
+            self.close()
         else:
             if "2DJunctions" in self.viewer.layers:
                 roijunc = self.viewer.layers["2DJunctions"].data
                 self.mig.do_segmentation_junctions( method, roijunc, int(self.diameter.text()), self.chunksize )
-                self.end_segmentation()
+                self.ffeats.correction_junctions()
+                self.close()
             else:
                 ut.show_info("No projected junctions to segment, go to projection")
                 ut.remove_widget(self.viewer, "Segment cells")
                 ut.remove_widget( self.viewer, "Get cells" )
-                proj = Projection( self.viewer, self.mig, self.cfg )
+                proj = Projection( self.ffeats )
                 self.viewer.window.add_dock_widget( proj, name="JunctionProjection2D" )
-
 
 
 class EndCells( QWidget ):
     """ Handle the finishing of cell contour edition """
 
-    def __init__( self, viewer, mig, cfg, getChoices ):
+    def __init__( self, ffeats):
         """ Interface to save/finish the cell edition option """
-
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
-        self.getChoices = getChoices
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
+        self.ffeats = ffeats
         
         super().__init__()
         layout = QVBoxLayout()
@@ -371,21 +350,21 @@ class EndCells( QWidget ):
         ut.remove_layer( self.viewer, "2DJunctions" )
         ut.remove_layer( self.viewer, "JunctionsName" )
         self.cfg.removeTmpText()
-        self.getChoices( default_action = "Get nuclei" )
+        self.ffeats.getChoices( default_action = "Get nuclei" )
 
 
 class Position3D( QWidget ):
     """ Interface to set/correct the cell 3D position """
 
-    def __init__( self, viewer, mig, cfg ):
+    def __init__( self, ffeats ):
         """ GUI to handle cell 3D position """
         super().__init__()
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
     
         print("******** Cells Z position viewing/editing ******")
-        header = ut.helpHeader(viewer, "CellContours")
+        header = ut.helpHeader(self.viewer, "CellContours")
         help_text = ut.help_shortcut("pos3d")
         ut.showOverlayText( self.viewer, header+help_text)
         paras = self.cfg.read_parameter_set("ZCells")

@@ -10,25 +10,23 @@ class CheckScale( QWidget):
         Handle the update of metadata parameters, choice of channel
     """
 
-    def __init__( self, viewer, mig, cfg, load_all_previous, next_step ):
+    def __init__( self, ffeats ):
         """
             Initialize the interface to set metadata
         """
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
-        self.load_all_previous_files = load_all_previous
-        self.getChoices = next_step
-
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
+        self.ffeats = ffeats
         super().__init__()
         layout = QVBoxLayout()
 
         if self.cfg is None:
-            self.cfg = cf.Configuration(mig.save_filename(), show=False)
+            self.cfg = cf.Configuration(self.mig.save_filename(), show=False)
 
         ## load saved parameters
         if self.cfg.has_config():
-            self.cfg.read_scale(mig)
+            self.cfg.read_scale(self.mig)
         zdir = "top high z"
         if self.mig.zdirection == 1:
             zdir = "top low z"
@@ -84,7 +82,7 @@ class CheckScale( QWidget):
         self.mig.scaleXY = float( self.scaleXY.text() )
         self.mig.scaleZ = float( self.scaleZ.text() )
         if self.zdirection.currentText() == "top high z":
-            self.mig.zdirection = 1
+            self.mig.zdirection = -1
         else:
             self.mig.zdirection = 1
         self.mig.junchan = self.junchan.currentText()
@@ -117,16 +115,16 @@ class CheckScale( QWidget):
         self.cfg.write_parameterfile()
 
         if self.load_previous.isChecked():
-            self.load_all_previous_files()
+            self.ffeats.load_all_previous_files()
             return None
         
         if self.mig.should_separate():
             ut.show_info("Junctions and nuclei staining in the same color channel, need to separate them")
-            separation = Separation( self.viewer, self.mig, self.cfg ) 
+            separation = Separation( self.ffeats ) 
             self.viewer.window.add_dock_widget(separation, name="Separate")
 
         if not ut.has_widget( self.viewer, "Main" ):
-            self.getChoices()
+            self.ffeats.getChoices()
 
     def show_helptext( self ):
         """ Show scalings choice help text """
@@ -141,12 +139,12 @@ class CheckScale( QWidget):
 class CropImage( QWidget ):
     """ Crop the image and the associated files """
     
-    def __init__( self, viewer, mig, cfg ):
+    def __init__( self, ffeats ):
         """ Interface to crop the image and the associated files """
 
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
         self.crop_layer = None
 
         self.add_shape_layer()
@@ -622,13 +620,13 @@ class AssociateCN( QWidget ):
 class Separation( QWidget ):
     """ Interface to separate junctions and nuclei if they are in the same channel """
 
-    def __init__( self, viewer, mig, cfg ):
+    def __init__( self, ffeats ):
         """ Separation GUI """
         super().__init__()
 
-        self.viewer = viewer
-        self.mig = mig
-        self.cfg = cfg
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
 
         self.show_text()
         ## load parameters
