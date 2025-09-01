@@ -467,7 +467,7 @@ class PreprocessNuclei( QWidget ):
         rm_bg = False
         rm_bg_rad = 20
         medfilt = False
-        medfilt_rad = 2
+        medfilt_rad = 4
         paras = self.cfg.read_parameter_set("PreprocessNuclei")
         if paras is not None:
             if "remove_background" in paras:

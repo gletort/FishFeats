@@ -571,6 +571,8 @@ class MainImage:
         from fish_feats.SegmentObj import preprocessNucleiMedianFilter
         radXY = radius
         radZ = floor(self.scaleZ/self.scaleXY*radius)
+        if radZ == 0:
+            radZ = 1
         self.nucstain = preprocessNucleiMedianFilter(self.nucstain, radXY, radZ)
         
     # cellpose3D
