@@ -32,6 +32,13 @@ def run_on_image(imgtest, model, patchsize, step=50):
     imgtest = normalise(imgtest)
     imgtest = smooth(imgtest)
 
+    ## handle case of very small image, smaller than the patchsize
+    smallimg = None
+    if (imgtest.shape[1] < patchsize) or (imgtest.shape[2] < patchsize):
+        smallimg = np.copy(imgtest)
+        imgtest = np.zeros((imgtest.shape[0], patchsize, patchsize)) 
+        imgtest[:,:smallimg.shape[1], :smallimg.shape[2] ] = smallimg
+
     ## split in patches
     imshape = imgtest.shape
     shapey = imshape[1]
@@ -61,6 +68,9 @@ def run_on_image(imgtest, model, patchsize, step=50):
         for ind, (sy, ey, sx, ex) in enumerate(inds):
             resimg[z,sy:ey, sx:ex,:] += res[ind]/nimg[sy:ey,sx:ex]
 
+    ## get back the original image if it was too small
+    if smallimg is not None:
+        resimg = resimg[:, :smallimg.shape[1], :smallimg.shape[2]]
     resimg = np.uint8(resimg*255)
     return resimg
 
