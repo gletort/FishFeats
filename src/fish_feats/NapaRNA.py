@@ -334,14 +334,16 @@ class PointEditing(QWidget):
         disp_settings["group2"] = ut.get_color("group2")
         disp_settings["group3"] = ut.get_color("group3")
         ## Assignement options
-        auto_line, auto_cbox, self.group_assign = fwid.checkgroup_help( "Automatic assignement", False, "Show/hide automatic assignement options", "Get-rnas", display_settings=disp_settings, groupnb="auto" )
+        auto_line, auto_cbox, self.group_assign = fwid.checkgroup_help( "Automatic assignement", True, "Show/hide automatic assignement options", "Get-rnas", display_settings=disp_settings, groupnb="auto" )
         self.point_editing(paras)
         layout.addLayout( auto_line )
+        auto_cbox.setChecked(False)
         layout.addWidget( self.group_assign )
         ## Correction options
-        corr_line, group_cbox, self.group_correction = fwid.checkgroup_help( "Point correction", False, "Show/hide RNA correction options", "Get-rnas", display_settings=disp_settings, groupnb="group2" )
+        corr_line, group_cbox, self.group_correction = fwid.checkgroup_help( "Point correction", True, "Show/hide RNA correction options", "Get-rnas", display_settings=disp_settings, groupnb="group2" )
         self.interface_corrections()
         layout.addLayout( corr_line )
+        group_cbox.setChecked(False)
         layout.addWidget( self.group_correction )
         ## Display options
         disp_line, group_cbox_disp, self.group_display = fwid.checkgroup_help( "Point display", False, "Show.hide options to change points display", "Get-rnas", display_settings=disp_settings, groupnb="group3" )

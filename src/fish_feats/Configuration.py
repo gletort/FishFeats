@@ -42,9 +42,16 @@ class Configuration:
             if "scaleZ" in paras:
                 mig.scaleZ = float(paras["scalez"])
             if "direction" in paras:
-                mig.zdirection = int(float(paras["direction"]))
-                #if paras["direction"].find("top high z") >= 0:
-                #    mig.zdirection = -1
+                if paras["direction"].find("top high z") >= 0:
+                    mig.zdirection = -1
+                elif paras["direction"].find("top low z") >= 0:
+                    mig.zdirection = 1
+                else:
+                    try:
+                        mig.zdirection = int(float(paras["direction"]))
+                    except:
+                        mig.zdirection = 1
+                        pass
             var = "junction_channel"
             if var in paras:
                 if paras[var] == "None":
