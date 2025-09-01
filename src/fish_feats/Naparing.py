@@ -23,6 +23,11 @@ import fish_feats.FishWidgets as fwid
     Author: Gaëlle Letort, DSCB, Institut Pasteur/CNRS
 """
 
+def show_documentation():
+    """ Open the documentation page """
+    ut.show_documentation_page("")
+    return
+
 ## start without viewer for tests
 def initZen():
     """ Initialize the plugin with the current viewer """
@@ -49,6 +54,16 @@ def startMultiscale():
     ffeats = FishFeats()
     ffeats.init_viewer()
     return ffeats.startMultiscale()
+    
+def convert_previous_results():
+    """ Convert the previous results to the new format """
+    filename = ut.dialog_filename()
+    if filename is None:
+        print("No file selected")
+        return
+    ffeats = FishFeats()
+    return ffeats.convert_previous_results( filename )
+    
 
 def unremove(layer):
     ut.show_info("Removing layer locked, throw an error ")
@@ -186,13 +201,8 @@ class FishFeats:
         self.display_channels()
         return self.getImagePath()
 
-    def convert_previous_results(self):
+    def convert_previous_results(self, filename):
         """ Convert the previous results to the new format """
-        filename = ut.dialog_filename()
-        if filename is None:
-            print("No file selected")
-            return
-
         self.mig = mi.MainImage( talkative=True )
         self.mig.set_imagename( filename )
     
@@ -265,10 +275,6 @@ class FishFeats:
         vie = napari.current_viewer()
         ut.main_shortcuts(vie)
 
-    def show_documentation(self):
-        """ Open the documentation page """
-        ut.show_documentation_page("")
-        return
 
     def getImagePath(self):
         """ Get the image path when it was open from layers """
