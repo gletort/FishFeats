@@ -230,3 +230,29 @@ However, if you don't intend to use Epyseg or use it separatly, the pipeline and
 		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu20.04_fishfeats1.1_py3.11.yaml)
 
 		</details>	
+		
+		<details><summary> Ubuntu 20.04.6, python 3.9, napari 0.4.19 </summary>
+			
+			napari: 0.4.19
+			Platform: Linux-5.15.0-139-generic-x86_64-with-glibc2.31
+			System: Ubuntu 20.04.6 LTS
+			Python: 3.9.19 | packaged by conda-forge | (main, Mar 20 2024, 12:50:21) [GCC 12.3.0]
+			Qt: 5.15.2
+			PySide2: 5.15.2.1
+			NumPy: 1.24.3
+			SciPy: 1.13.0
+			Dask: 2024.8.0
+			VisPy: 0.14.3
+			magicgui: 0.10.0
+			superqt: 0.7.3
+			in-n-out: 0.2.1
+			app-model: 0.2.8
+			npe2: 0.7.8
+
+			OpenGL:
+			- GL version: 4.6.0 NVIDIA 545.29.06
+			- MAX_TEXTURE_SIZE: 32768
+
+			fishfeats: 1.1.31
+		yaml file with all python packages installed in the environment [here](./environnements_list/ubuntu20.04_fishfeats1.1_py39.yaml)
+		</details>	
