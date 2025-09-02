@@ -5,9 +5,9 @@ You can download test data from the zenodo repository to follow it.
 
 All the examples here are done with the image `AB3-HG-AQUCISITION-4CHANNELS-SHRNActrl-filtered_minicrop.ims`.
 
-## Count the number of smFish spots by cell
+## A- Count the number of smFish spots by cell
 
-### 1 - Open the image and check/set the metadata
+### A1 - Open the image and check/set the metadata
 
 Open `Napari` and start FishFeats with `Plugins>FISHFEATS>Start fishfeats`.
 
@@ -35,12 +35,12 @@ You can open this file and you will see the list of steps and parameter values u
 
 You can then choose which steps to perform depending of your analysis by selecting the step in the `Main` panel in the right side of the window.
 
-### 2 - Segment epithelia cells
+### A2 - Segment epithelia cells
 
 To segment the apical contour of the cells, choose `Get cells` option.
 
 If you have already done this step, the plugin will write `Found projection file` and/or `Found cell file` if it found the corresponding files with the default names. 
-You can then choose the option `Load preivous files` to directly load them and go to the manual curation step.
+You can then choose the option `Load previous files` to directly load them and go to the manual curation step.
 
 Else, select `do projection and segmentation`.
 
@@ -74,7 +74,7 @@ You have now segmented all the apical cell contours and estimated their position
 If you open the result file (`AB3-HG-AQUCISITION-4CHANNELS-SHRNActrl-filtered_minicrop_results.csv`) in a table editor (e.g. Excel, R, Prism..) you can already analyse these data (number of cell, apical area, position).
 This file will be enriched with all new information that you will add by performing other steps.
 
-### 3 - Segment the smFish staining
+### A3 - Segment the smFish staining
 
 Select `Get RNA` in the `Main` interface for this step.
 
@@ -101,7 +101,7 @@ You can change the points size with the interface in the right side, as well as 
 
 ![RNA segmentation done](./imgs/step_rnagot.png)
 
-### 4 - Assign the segmented dots to their cell, count them
+### A4 - Assign the segmented dots to their cell, count them
 
 `Automatic assignement` options allow to perform an automatic assignement of each spot to its most likely cell.
 We will do assignement with the simplest method, which is the `Projection`.
@@ -124,3 +124,61 @@ You can also display directly these counts by clicking on `Draw RNA 2 counts` in
 You obtain the map of the cells, where each cell is colored by its number of RNA2 spots assigned to it by Projection, then manually corrected.
 
 ![RNA counts](./imgs/step_rnacount.png)
+
+
+## B - Classify the cells by their intensity in one channel
+
+### B1 - Open the image and set metadata
+
+Open `Napari` and start FishFeats with `Plugins>FISHFEATS>Start fishfeats`.
+
+A window dialog appears to select the image to analyse. 
+Browse your folders and select the downloaded image `AB3-HG-AQUCISITION-4CHANNELS-SHRNActrl-filtered_minicrop.ims` (or another one on which you want to do this test).
+
+The image is loaded and is displayed with its color channels side by side. 
+At the right of the interface, you can set the metadata of the image.
+
+If you have done the previous example, the metadata are reloaded and already set.
+Click on `Update` and directly go the next step.
+
+Else, follow the step [A1](#a1---open-the-image-and-checkset-the-metadata) of the previous example.
+
+### B2 - Segment the apical cell contour
+
+If you have done the previous example A, the cell are already segmented and should be loaded if you let `load previous` parameter selected.
+Then, you can directly go to the `classify cells` step.
+
+Else, see the step [A2](#a2---segment-epithelia-cells) to perform apical cell contour segmentation.
+
+### B3 - Classify the cells by intensity
+
+Select `Classify cells` in the `Main` interface to do this step.
+
+It will load the cell contours so that you can classify them.
+In the interface, select the `Add/Edit a feature` panel and write the name of the feature you want to classify, e.g. `Positive`.
+
+![classify cell begin](./imgs/step_class.png)
+
+Click on `Do feature` to open an interface that allows you to initialize the cell classification.
+
+![classify parameters](./imgs/step_classpara.png)
+
+Select `channel projection+threshold` to set an initial classification based on the projected intensity of one channel.
+Select `1` in `channel to project` parameter to perform this thresholding on the `originalChannel1` channel (the green one).
+Set `Threshold` to `1.2` and click `Create new feature` to launch the classification.
+
+![classified cells](./imgs/step_classdone.png)
+
+A new layer called `Feat_nameofyourfeatureCells` is added to the viewer.
+It contains the cells colored by their class. 
+You can easily edit this classification with the shortcuts that are listed in the top left part of the window and the options in the `Edit Feat_Positive` panel. 
+
+Set the current class value to 2 by pressing <kbd>i</kbd>.
+Press <kbd>Ctrl</kbd>+right-click on a cell that you consider as Positive to set it to the 2nd class (Positive class, in light blue).
+
+Press <kbd>i</kbd> or <kbd>d</kbd> to set the current class value to 1 (negative cells, in maroon), and <kbd>Control</kbd>+right click on the cells that you want to set as Negative.
+
+You can see the table of each cell and its value for the feature (or other features already done) in the `Features table` menu. Click on `Update table` to update it to the latest value of the new feature.
+
+Click on `Stop and Save` or on `Feat_Positive done` when you have finished to save the classification (in the result file with the other analysis).
+
