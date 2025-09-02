@@ -37,6 +37,12 @@ It will open a file dialog box asking you to select the image that you want to a
 Refer to the [documentation](https://gletort.github.io/FishFeats/) for presentation of the different steps possible in the pipeline.
 
 
+## Test dataset
+
+You can find in this zenodo repository freely available images that can be used to test our pipeline.
+All the steps are fully documented in the online [documentation](https://gletort.github.io/FishFeats/) and can be performed with one of these test images.
+
+
 ## License
 
 Fishfeats is distributed freely under the BSD-3 license.
