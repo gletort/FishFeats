@@ -101,6 +101,8 @@ You can change the points size with the interface in the right side, as well as 
 
 ![RNA segmentation done](./imgs/step_rnagot.png)
 
+### 4 - Assign the segmented dots to their cell, count them
+
 `Automatic assignement` options allow to perform an automatic assignement of each spot to its most likely cell.
 We will do assignement with the simplest method, which is the `Projection`.
 Each spot will be assigned to the apical cell that it belongs to after an orthoogonal Z-projection.
