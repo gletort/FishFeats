@@ -417,7 +417,10 @@ class Position3D( QWidget ):
 
         ## Save all button
         saveall_btn = fwid.add_button( "Save updated cells", self.save_all, descr="Save the current cell Z positions", color=ut.get_color("save") )
-        layout.addWidget( saveall_btn )
+        ## finish button
+        end_btn = fwid.add_button( "3D Position done", self.end_position, descr="Finish this step, save and close the panel", color=ut.get_color("done") )
+        btn_line = fwid.double_button( saveall_btn, end_btn )
+        layout.addLayout( btn_line ) 
         self.setLayout( layout )
 
         self.drawCells3D()
@@ -474,12 +477,16 @@ class Position3D( QWidget ):
     def save_all( self ):
         """ Save all updated cell positions """
         self.mig.save_results()
-        ut.remove_widget( self.viewer, "Cells in 3D" )
-        ut.remove_layer( self.viewer, "CellContours" )
         self.cfg.addGroupParameter( "ZCells" )
         self.cfg.addParameter( "ZCells", "zmap_resolution", int( float(self.resolution.text()) ) )
         self.cfg.addParameter( "ZCells", "zmap_window_size", int( float(self.localsize.text()) ) )
         self.cfg.write_parameterfile()
+
+    def end_position( self ):
+        """ Finish and save this step """
+        self.save_all()
+        ut.remove_widget( self.viewer, "Cells in 3D" )
+        ut.remove_layer( self.viewer, "CellContours" )
         ut.removeOverlayText( self.viewer )
 
 """
