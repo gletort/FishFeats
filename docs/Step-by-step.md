@@ -141,14 +141,14 @@ At the right of the interface, you can set the metadata of the image.
 If you have done the previous example, the metadata are reloaded and already set.
 Click on `Update` and directly go the next step.
 
-Else, follow the step [A1](#a1---open-the-image-and-checkset-the-metadata) of the previous example.
+Else, follow the step [A1](#a1-open-the-image-and-checkset-the-metadata) of the previous example.
 
 ### B2 - Segment the apical cell contour
 
 If you have done the previous example A, the cell are already segmented and should be loaded if you let `load previous` parameter selected.
 Then, you can directly go to the `classify cells` step.
 
-Else, see the step [A2](#a2---segment-epithelia-cells) to perform apical cell contour segmentation.
+Else, see the step [A2](#a2-segment-epithelia-cells) to perform apical cell contour segmentation.
 
 ### B3 - Classify the cells by intensity
 
