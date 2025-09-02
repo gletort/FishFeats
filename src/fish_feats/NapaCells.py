@@ -236,7 +236,8 @@ class GetCells( QWidget ):
         #layout.addLayout( self.chunk_line )
         ## choose loading filename
         self.file_group, filename_layout = fwid.group_layout( "", "" )
-        filename_line, choose_filename, self.filename_label = fwid.label_button( "Choose file", self.get_junction_filename, label=self.junction_filename, descr="Choose a file with segmented junctions", color=None )
+        filename_line, self.filename_label = fwid.file_line( "Choose file", self.junction_filename, dial_msg="Choose segmentation file", filetype="*.tif", descr="Choose the file containing the segmentation of the cells (labels)" )
+        #filename_line, choose_filename, self.filename_label = fwid.label_button( "Choose file", self.get_junction_filename, label=self.junction_filename, descr="Choose a file with segmented junctions", color=None )
         filename_layout.addLayout( filename_line)
         self.file_group.setLayout( filename_layout )
         layout.addWidget( self.file_group )
@@ -271,7 +272,11 @@ class GetCells( QWidget ):
         self.cfg.addParameter("JunctionSeg", "cell_diameter", int(self.diameter.text()))
         self.cfg.addParameter("JunctionSeg", "chunk_size", self.chunksize)
         self.cfg.write_parameterfile()
+        ut.remove_layer( self.viewer, "Junctions" )
         if method == "Load segmented file":
+            filename = self.filename_label.text()
+            if os.path.exists( filename ):
+                self.junction_filename = filename
             self.mig.load_segmentation( self.junction_filename )
             self.ffeats.correction_junctions()
             self.close()
