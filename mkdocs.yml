@@ -21,6 +21,7 @@ nav:
         - Touching labels: Touching-labels.md
         - Hierarchical clustering: Hierarchical-clustering.md
         - Add grid: Add-grid.md
+    - Step by step example: Step-by-step.md
     - Trouble shooting: Known-errors-and-solutions.md
 
 theme:
