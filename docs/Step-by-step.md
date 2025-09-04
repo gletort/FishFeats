@@ -1,7 +1,7 @@
 # Step-by-step example 
 
 Here, we propose step-by-step examples of possible usage of the pipeline.
-You can download test data **soon** from the  recherche.data.gouv.fr repository to follow it.
+You can download test data from this zenodo repository: [https://zenodo.org/records/17048217](https://zenodo.org/records/17048217) to follow it.
 
 All the examples here are done with the image `AB3-HG-AQUCISITION-4CHANNELS-SHRNActrl-filtered_minicrop.ims`.
 

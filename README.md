@@ -39,7 +39,7 @@ Refer to the [documentation](https://gletort.github.io/FishFeats/) for presentat
 
 ## Test dataset
 
-You can find in this zenodo repository freely available images that can be used to test our pipeline.
+You can find in this zenodo repository [https://zenodo.org/records/17048217](https://zenodo.org/records/17048217) freely available images that can be used to test our pipeline.
 All the steps are fully documented in the online [documentation](https://gletort.github.io/FishFeats/) and can be performed with one of these test images.
 
 Example of analysis you can do with `FishFeats` are detailled step-by-step [here](https://gletort.github.io/FishFeats/Step-by-step/) and can be followed with the test image.
