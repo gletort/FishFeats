@@ -374,6 +374,10 @@ def finishNuclei( nuclab, minz=2, convexify=False, verbose=True ):
     start_time = time.time()
     regions = regionprops( nuclab )
     for r in regions:
+        ## if only 2 or 3 pixels, too small, remove
+        if r.area < 4:
+            nuclab[nuclab==r.label] = 0
+            continue 
         ## in less than minz slices, too small, remove
         if (r.bbox[3]-r.bbox[0]) < minz:
             nuclab[nuclab==r.label] = 0
@@ -448,7 +452,7 @@ def getNuclei_cellpose3D(model, nucimg, diameter, scaleXY, scaleZ, threshold=0.1
         mask = run_cellpose_nuclei(model, nucimg, False, diameter, scaleXY, scaleZ, threshold, flow_threshold, resample, in3D, stitch_threshold, verbose)
     else:
         mask = run_cellpose_nuclei_dask(model, nucimg, False, diameter, scaleXY, scaleZ, threshold, flow_threshold, resample, in3D, stitch_threshold, chunk=chunk, verbose=verbose)
-    return finishNuclei( mask, 2, convexify=True, verbose=verbose )
+    return finishNuclei( mask, 2, convexify=False, verbose=verbose )
 
 def prepElectroporation(img, radxy, radz):
     from skimage import exposure
