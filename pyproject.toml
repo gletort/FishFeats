@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fishfeats"
-version = "1.2.2"
+version = "1.2.3"
 description = "Napari plugin for RNA-Fish+cells analysis pipeline"
 license.file = "LICENSE"
 readme = "README.md"
@@ -23,8 +23,9 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 dependencies = [
-    "napari < 0.6.5",
+    "napari",
     "numpy",
+	"pyqt5",
     "imaris_ims_file_reader",
     "czifile",
     "tifffile",
@@ -34,6 +35,10 @@ dependencies = [
     "opencv_python_headless",
     "lxml",
     "packaging",
+    "big-fish>=0.6.2",
+    "cellpose[distributed]",
+    "stardist",
+    "epyseg; python_version < '3.11'",
 ]
 #dynamic = ["version"]
 
@@ -42,14 +47,6 @@ dependencies = [
 "Documentation" = "https://gletort.github.io/FishFeats/"
 "Source Code" = "https://github.com/gletort/FishFeats"
 "User Support" = "https://github.com/gletort/FishFeats/issues"
-
-[project.optional-dependencies]
-full = [
-    "big-fish>=0.6.2",
-    "epyseg",
-    "cellpose[distributed]",
-    "stardist",
-]
 
 
 [tool.setuptools]
@@ -61,8 +58,8 @@ packages = [
     "fish_feats",
 ]
 
-#[tool.setuptools_scm]
-#write_to = "src/fish_feats/_version.py"
+[tool.setuptools_scm]
+write_to = "src/fish_feats/_version.py"
 #write_to_template = "__version__ = \"{version}\""
 #version_scheme = "no-guess-dev"
 #local_scheme = "no-local-version"
