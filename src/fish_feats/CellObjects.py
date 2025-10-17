@@ -1109,7 +1109,7 @@ class Population:
         """ Draw in the featimg the cells with the feature values """
         for cellid, cell in self.cells.items():
             value = cell.getFeature(featname)
-            if value is not None:
+            if (value is not None) and (value>0):
                 cellmask, bbox = cell.get_maskBB( self.imgcell )
                 featimg[bbox[0]:bbox[2],bbox[1]:bbox[3]][cellmask] = value
 

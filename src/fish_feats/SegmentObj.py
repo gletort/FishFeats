@@ -371,6 +371,7 @@ def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMod
 
 
 def finishNuclei( nuclab, minz=2, convexify=False, verbose=True ):
+    """ Get rid of too small nuclei, print numbers of kept nuclei """
     start_time = time.time()
     regions = regionprops( nuclab )
     for r in regions:

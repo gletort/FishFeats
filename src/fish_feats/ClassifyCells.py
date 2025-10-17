@@ -333,7 +333,7 @@ class FeaturesTable(QWidget):
             self.wid_table.setHorizontalHeaderItem(c, QTableWidgetItem(column_name))
             for r, value in enumerate(table.get(column)):
                 item = QTableWidgetItem()
-                if value == "":
+                if value == "" or value < 0:
                     value = "0"
                 item.setData( Qt.EditRole, int(value))
                 self.wid_table.setItem(r, c, item)
