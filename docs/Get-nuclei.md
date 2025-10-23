@@ -48,9 +48,11 @@ It allows to run CellPose on very large images when the non distributed version 
 
 #### Remark
 
-Since May 2025, the latest version of CellPose is based on [CellPoseSAM](https://www.biorxiv.org/content/10.1101/2025.04.28.651001v1). Some parameters are not anymore relevant with this version, and it might not be optimal for nuclei segmentation (it is more specialized for cell segmentation). To use the previous CellPose version with the `nuclei` trained model (more specialized), you must install it in your python environement instead of the latest version. In a terminal type:
+Since May 2025, the latest version of CellPose is based on [CellPoseSAM](https://www.biorxiv.org/content/10.1101/2025.04.28.651001v1). Some parameters are not anymore relevant with this version, and it might not be optimal for nuclei segmentation (it is more specialized for cell segmentation). Additionally, this version is **much slower** to run, especially if you don't have GPU. 
+
+To use the previous CellPose version with the `nuclei` trained model (more specialized), you must install it in your python environement instead of the latest version. In a terminal, or in the Napari Terminal interface (:material-console-line: icon at the bottom left of Napari window), type:
 ```
-pip install cellpose==3.0
+pip install cellpose[distributed]==3.0
 ```
 (or select the version 3 or less in the Anaconda interface).
 

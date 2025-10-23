@@ -114,4 +114,4 @@ Go to `Plugins>Install/Uninstall`, search for `fishfeats` and click install.
 You might have to restart napari after the installation.
 
 ??? tip "Updating some dependencies version"
-	If you need to change some dependencies version, you can do so by opening the Napari Terminal by clicking the icon at the bottom left of the Napari window. Then write `pip install modulename==versionnumber` to install the `modulename` library with the given version number.
+	If you need to change some dependencies version, you can do so by opening the Napari Terminal by clicking the icon :material-console-line: at the bottom left of the Napari window. Then write `pip install modulename==versionnumber` to install the `modulename` library with the given version number.
