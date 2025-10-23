@@ -15,11 +15,11 @@ def sepanet( img, sepdir, patchsize=256 ):
     print(tf.test.is_built_with_cuda())
     print(tf.__version__)
     print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-    #config = tf.compat.v1.ConfigProto(
+    ###config = tf.compat.v1.ConfigProto(
       #device_count = {'GPU': 0}
-    #)
-    #sess = tf.compat.v1.Session(config=config)
-    #tf.compat.v1.keras.backend.set_session(sess)
+    ####)
+    ####sess = tf.compat.v1.Session(config=config)
+    ####tf.compat.v1.keras.backend.set_session(sess)
 
     # load model
     model_path = sepdir

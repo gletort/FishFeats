@@ -1,6 +1,8 @@
 import napari
 import numpy as np
 from qtpy.QtWidgets import QWidget, QVBoxLayout
+from qtpy.QtCore import Qt # type: ignore
+from qtpy import QtGui
 import fish_feats.MainImage as mi
 import fish_feats.Configuration as cf
 import fish_feats.Utils as ut
@@ -11,6 +13,7 @@ from fish_feats.FishGrid import FishGrid
 from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
+from fish_feats._button_grid import ButtonGrid
 
 """
     Handle the UI through napari plugin
@@ -332,7 +335,11 @@ class FishFeats:
         #ut.remove_widget( viewer, "Main" )
         print("Bye bye")
         #del mig
-        self.main_wid.close()
+        try:
+            self.main_wid.close()
+            ut.remove_all_widget( self.viewer ) 
+        except:
+            print("Partial closing")
         #ut.remove_all_widget( self.viewer ) 
         del self.mig
         del self.cfg
@@ -347,53 +354,42 @@ class FishFeats:
     #### Action choice
     def getChoices( self, default_action='Get cells'):
         """ Launch the interface of Main step """
-        choice_wid = GetChoices( default_action, self.action_launcher )
+        choices = {}
+
+        choices["Init:Separate stainings"] = self.divorceJunctionsNuclei
+        # actions related to cell contour
+        choices['Cells:Segment'] = self.goJunctions
+        choices['Cells:3D position'] = self.show3DCells
+        # actions related to nuclei
+        choices['Nuclei:Segment'] = self.getNuclei
+        choices["Nuclei:Associate to cells"] = self.doCellAssociation
+
+        choices['Nuclei:Preprocess'] = self.preprocNuclei
+        # related to RNA
+        choices['RNA:Segment&assign'] = self.getRNA
+        choices['RNA:Get overlaps'] = self.getOverlapRNA
+        # Analysis options
+        choices['Measure:Cytoplasmic intensity'] = self.cytoplasmicStaining
+        choices['Measure:Nuclear intensity'] = self.measureNuclearIntensity
+        choices['Measure:Classify cells'] = self.launch_classify
+        # Utilities options
+        choices['Misc:Quit plugin'] = self.byebye
+        choices['Misc:Image scalings'  ] = self.checkScale
+        choices['Misc:Touching labels'] = self.touching_labels
+        choices['Misc:Add grid'] = self.addGrid 
+        choices['Misc:Crop image'] = self.crop_image 
+
+        choice_wid = GetChoices( default_action, choices, self.cfg )
         ut.remove_widget( self.viewer, "Main" )
         wid = self.viewer.window.add_dock_widget(choice_wid, name="Main")
         self.main_wid = wid
 
-    def action_launcher( self, action ):
-        """ Launch the specified action """
-        self.cfg.addSectionText(action)
-        if action == "Get cells":
-            self.goJunctions()
-        elif action == "Load cells from default file":
-            self.loadJunctionsFile()
-        elif action == "Get nuclei":
-            self.getNuclei()
-        elif action == "Get RNA":
-            self.getRNA()
-        elif action == "Get overlapping RNAs":
-            self.getOverlapRNA()
-        elif action == "Associate junctions and nuclei":
-            self.doCellAssociation()
-        elif action == "Quit plugin":
-            self.byebye()
-        elif action == "Image scalings":
-            self.checkScale()
-        elif action == "Separate junctions and nuclei":
-            self.divorceJunctionsNuclei()
-        elif action == "Preprocess nuclei":
-            self.preprocNuclei()
-        elif action == "Measure nuclear intensity":
-            self.measureNuclearIntensity()
-        elif action == "Measure cytoplasmic staining":
-            self.cytoplasmicStaining()
-        elif action == "Crop image":
-            self.crop_image()
-        elif action == "test":
-            test()
-        elif action == "Classify cells":
-            if not self.mig.hasCells():
-                ut.show_info("No cells - segment/load it before")
-            else:
-                cc.classify_cells(self.mig, self.viewer)
-        elif action == "Touching labels":
-            self.touching_labels()
-        elif action == "3D cell positions":
-            self.show3DCells()
-        elif action == "Add grid":
-            self.addGrid()
+    def launch_classify( self ):
+        """ Launch the cell classification """
+        if not self.mig.hasCells():
+            ut.show_info("No cells - segment/load it before")
+        else:
+            cc.classify_cells(self.mig, self.viewer)
 
     def crop_image(self):
         """ Interface to crop the image and associated segmentations/results """
@@ -728,35 +724,60 @@ class TouchingLabels( QWidget):
 
 def test():
     print("for test")
-    #img = mig.tryDiffusion( nchan=2 )
-    #viewer.add_image(img, name="test", scale=(mig.scaleZ, mig.scaleXY, mig.scaleXY), colormap=my_cmap, blending="additive")
 
 
 class GetChoices( QWidget ):
     """ Main widget with all the action choices """
 
-    def __init__( self, default_action, action_fnc ):
+    def __init__( self, default_action, actions, cfg ):
         """ Initialiaze the Main interface with the choice of action to perform """
         super().__init__()
         self.default_action = default_action
-        self.action_fnc = action_fnc
+        self.actions_functions = actions
+        self.cfg = cfg
 
         layout = QVBoxLayout()
         ## Choice list
         action_line, self.action = fwid.list_line( "Action: ", descr="Choose which action (step) to perform now", func=None )
-        choices = ['Get cells', 'Get nuclei', 'Associate junctions and nuclei', 'Get RNA', 'Get overlapping RNAs', 'Measure cytoplasmic staining', 'Measure nuclear intensity', 'Image scalings', 'Separate junctions and nuclei', 'Preprocess nuclei', '3D cell positions', 'Quit plugin', 'Classify cells', 'Touching labels', 'Add grid', 'Crop image']
+        choices = self.actions_functions.keys()
         for choice in choices:
             self.action.addItem(choice)
         self.action.setCurrentText( self.default_action )
+
+        ## Set the colors of the steps
+        font = QtGui.QFont()
+        font.setItalic(True)
+        for ind in range(self.action.count()):
+            step = self.action.itemText( ind )
+            #if step.startswith( "Init:" ):
+            #    self.action.setItemData( ind, QtGui.QColor("#514B64"), Qt.BackgroundRole )
+            if step.startswith( "Cells:" ):
+                self.action.setItemData( ind, QtGui.QColor("#6D2727"), Qt.BackgroundRole )
+            if step.startswith( "Nuclei:" ):
+                self.action.setItemData( ind, QtGui.QColor("#23325C"), Qt.BackgroundRole )
+            if step.startswith( "RNA:" ):
+                self.action.setItemData( ind, QtGui.QColor("#1C5229"), Qt.BackgroundRole )
+            if step.startswith( "Measure:" ):
+                self.action.setItemData( ind, QtGui.QColor("#B3971B"), Qt.BackgroundRole )
+            if step.startswith( "Misc:" ):
+                self.action.setItemData( ind, QtGui.QColor("#969694"), Qt.BackgroundRole )
+            if step.startswith("Nuclei:Preprocess"):
+                self.action.setItemData( ind, font, Qt.FontRole )
+            if step.startswith("RNA:Get overlaps"):
+                self.action.setItemData( ind, font, Qt.FontRole )
+
         layout.addLayout( action_line )
         ## button go
         go_btn = fwid.add_button( "GO", self.launch_action, descr="Launch the selected action", color=ut.get_color("go") )
         layout.addWidget(go_btn)
+
         self.setLayout(layout)
         self.action.currentTextChanged.connect( self.launch_action )
 
     def launch_action(self):
         """ Launch next step with selected action """
         action = self.action.currentText()
-        self.action_fnc( action )
+        self.cfg.addSectionText(action)
+        self.actions_functions[action]()
+    
 
