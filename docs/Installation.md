@@ -97,6 +97,8 @@ Download the bundle version of Napari 0.5.4:
 * [MacOS x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
 * [Windows x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Windows-x86_64.exe)
 
+Then follow the installation steps from the installer.
+
 All these bundle come from Napari github, [release of version 0.5.4](https://github.com/napari/napari/releases/tag/v0.5.4). 
 The installation steps for each OS are described [here](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html).
 
