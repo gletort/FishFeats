@@ -90,7 +90,7 @@ You can compare the version of the dependencies to the ones in your environment 
 
 ## Easier installation
 
-### Napari installation through graphical interfaces
+### Napari installation through graphical interface
 Download the bundle version of Napari 0.5.4:
 
 * [Linux version](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Linux-x86_64.sh)
@@ -107,11 +107,11 @@ The installation steps for each OS are described [here](https://napari.org/stabl
 	We chose this version as it is the last one in python 3.9, the following ones are with python > 3.11, to have all FishFeats options available (including epyseg which is limited to version <3.11).
 	You can still download the latest bundle of Napari if you wish, and then use the Napari console Terminal to fix dependencies install, or not use some options (epyseg, and eventually stardist and SepaNet which are based on tensorflow).
 
-### FishFeats installation through graphical interfaces
+### FishFeats installation through graphical interface
 When the installation is over, double-click on the napari icon and wait for Napari window to open (it can take a few minutes). 
 Go to `Plugins>Install/Uninstall`, search for `fishfeats` and click install. 
 
 You might have to restart napari after the installation.
 
-??? tip Updating some dependencies version
+??? tip "Updating some dependencies version"
 	If you need to change some dependencies version, you can do so by opening the Napari Terminal by clicking the icon at the bottom left of the Napari window. Then write `pip install modulename==versionnumber` to install the `modulename` library with the given version number.
