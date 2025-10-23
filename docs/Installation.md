@@ -2,7 +2,7 @@
 
 [**Standard installation**](#standard-installation): You can install Napari and `FishFeats` by creating/using a python virtual environment (**recommended**).
 
-**Easier installation**: If you have no python virtual environment experience and want to avoid it, you can install Napari through the "bundle" distribution. 
+[**Easier installation**](#easier-installation): If you have no python virtual environment experience and want to avoid it, you can install Napari through the "bundle" distribution. 
 The bundles come with an installer program for Windows and MacOS systemso this allow for an easy installation (everything will be done through graphical interfaces), but allows for less control/flexibility. 
 
 ## Standard installation
@@ -91,6 +91,7 @@ You can compare the version of the dependencies to the ones in your environment 
 ## Easier installation
 
 Download the bundle version of Napari 0.5.4:
+
 * [Linux version](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Linux-x86_64.sh)
 * [MacOS arm64](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-arm64.pkg)
 * [MacOS x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
@@ -100,6 +101,6 @@ All these bundle come from Napari github, [release of version 0.5.4](https://git
 The installation steps for each OS are described [here](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html).
 
 
-??? tip "Why Napari version 0.5.4" 
+??? note "Why Napari version 0.5.4" 
 	We chose this version as it is the last one in python 3.9, the following ones are with python > 3.11, to have all FishFeats options available (including epyseg which is limited to version <3.11).
 	You can still download the latest bundle of Napari if you wish, and then use the Napari console Terminal to fix dependencies install, or not use some options (epyseg, and eventually stardist and SepaNet which are based on tensorflow).
