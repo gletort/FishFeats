@@ -1,13 +1,19 @@
 # Installation
 
-## From Napari interface
+[**Standard installation**](#standard-installation): You can install Napari and `FishFeats` by creating/using a python virtual environment (**recommended**).
+
+**Easier installation**: If you have no python virtual environment experience and want to avoid it, you can install Napari through the "bundle" distribution. 
+The bundles come with an installer program for Windows and MacOS systemso this allow for an easy installation (everything will be done through graphical interfaces), but allows for less control/flexibility. 
+
+## Standard installation
+### From Napari interface
 FishFeats is a Napari plugin, in python. You can install it either through an already installed Napari instance by going in Napari to `Plugins>Install/Uninstall`, search for `FishFeats` and click `Install`.
 You could have version issues between the different modules installed in your environment and FishFeats dependencies, in this case it is recommended to create a new virtual environnement specific for FishFeats.
 
-## From virtual environnement
+### From virtual environnement
 To install FishFeats, you should create a new virtual environnement or activate an exisiting compatible one.
 
-### Create a new virtual environement
+#### Create a new virtual environement
  You can create a virtual environement [with venv](https://www.geeksforgeeks.org/create-virtual-environment-using-venv-python/) or anaconda (you may need to install anaconda, see here: [on windows](https://www.geeksforgeeks.org/how-to-install-anaconda-on-windows/), [on macOS](https://www.geeksforgeeks.org/installation-guide/how-to-install-anaconda-on-macos/?ref=ml_lbp) or [on linux](https://www.geeksforgeeks.org/how-to-install-anaconda-on-linux/) ). 
 
 Then use the Anaconda interface to create a new virtual environement with the desired python version, or [through the Terminal](https://www.geeksforgeeks.org/set-up-virtual-environment-for-python-using-anaconda/).
@@ -17,7 +23,7 @@ For example, in a terminal, once conda is installed, you can create a new enviro
 conda create -n fishfeats_env python=3.10
 ```
 
-### Install FishFeats
+#### Install FishFeats
 Once you have created/identified a virtual environnement, type in the terminal:
 ``` 
 conda activate fishfeats_env
@@ -37,7 +43,7 @@ to install FishFeats.
 	However, it is possible to install directly most of the main dependencies by installing `fishfeats` with the `full` option: ```pip install `fishfeats[full]` ```, or ```pip install fishfeats[full]``` depending on the operating system.
 
 
-### Update FishFeats
+#### Update FishFeats
 
 To get the latest version of FishFeats when it is updated, type
 ``` 
@@ -46,7 +52,7 @@ pip install -U fishfeats
 in your activated environment. 
 If FishFeats was updated since you last installed/updated it, the latest version will be downloaded.
 
-### Start FishFeats
+#### Start FishFeats
 
 Open Napari by typing
 ```
@@ -81,3 +87,19 @@ Please refers to [Trouble shooting](Known-errors-and-solutions.md) if you encoun
 
 We listed examples of fully working configuration in `Windows`, `MacOS` and `Ubuntu` operating systems in the [Trouble shooting](Known-errors-and-solutions.md#tested-and-working-configurations) page.
 You can compare the version of the dependencies to the ones in your environment in case of issue.
+
+## Easier installation
+
+Download the bundle version of Napari 0.5.4:
+* [Linux version](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Linux-x86_64.sh)
+* [MacOS arm64](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-arm64.pkg)
+* [MacOS x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
+* [Windows x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Windows-x86_64.exe)
+
+All these bundle come from Napari github, [release of version 0.5.4](https://github.com/napari/napari/releases/tag/v0.5.4). 
+The installation steps for each OS are described [here](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html).
+
+
+??? tip "Why Napari version 0.5.4" 
+	We chose this version as it is the last one in python 3.9, the following ones are with python > 3.11, to have all FishFeats options available (including epyseg which is limited to version <3.11).
+	You can still download the latest bundle of Napari if you wish, and then use the Napari console Terminal to fix dependencies install, or not use some options (epyseg, and eventually stardist and SepaNet which are based on tensorflow).
