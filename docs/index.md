@@ -1,7 +1,7 @@
 # Fish&Feats ![snap](imgs/snap.png)
 
 ## Usage
-You can launch `fishfeats` in Napari by going to `Plugins>fishfeats>Start`. It will open a file dialog box asking you to select the image that you want to analyze. Possible input formats are currently `.tif, .czi, .ims`. For other formats, you can first open the image within Napari and then start FishFeats by selecting `Plugins>fishfeats>Start from layer(s)`. See [here](Open-Image.md) for more information.
+You can launch `fishfeats` in Napari by going to `Plugins>fishfeats>Start`. It will open a file dialog box asking you to select the image that you want to analyze. Possible input formats are currently `.tif, .czi, .ims`. For other formats, you can first open the image within Napari and then start FishFeats by selecting `Plugins>fishfeats>Start from layer(s)`. See [here](Open-image.md) for more information.
 
 Then the image will be displayed, with the different channels shown as separated layers on the left panel.
 

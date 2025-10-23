@@ -5,18 +5,22 @@ repo_url: https://github.com/gletort/FishFeats/
 nav:
     - Home: index.md
     - Installation: Installation.md
-    - Actions:
+    - Starting:
         - Open image: Open-image.md
         - Image Scalings: Image-scalings.md
-        - Get Cells: Get-cells.md
-        - 3D cell positions: 3d-cell-positions.md
-        - Measure cytoplasmic: Measure-cytoplasmic-staining.md
-        - Get Nuclei: Get-nuclei.md
-        - Measure nuclear: Measure-nuclear-staining.md
-        - Associate: Associate.md
-        - Get RNAs: Get-RNAs.md
-        - Classify cells: Classify-cells.md
         - Separate stainings: Separate-junctions-and-nuclei.md
+    - Cells:
+        - Segment: Get-cells.md
+        - 3D cell positions: 3d-cell-positions.md
+    - Nuclei:
+        - Get Nuclei: Get-nuclei.md
+        - Associate to cell: Associate.md
+    - RNAs:
+        - Segment&assign RNAs: Get-RNAs.md
+    - Measures:
+        - Classify cells: Classify-cells.md
+        - Measure cytoplasmic: Measure-cytoplasmic-staining.md
+        - Measure nuclear: Measure-nuclear-staining.md
     - Additionnal options:
         - Touching labels: Touching-labels.md
         - Hierarchical clustering: Hierarchical-clustering.md
@@ -29,8 +33,8 @@ theme:
     name: material
     features:
         - navigation.footer
-        #- navigation.tabs
-        #- navigation.tabs.sticky
+        - navigation.tabs
+        - navigation.tabs.sticky
         - navigation.path
         - navigation.top
         - navigation.expand
@@ -64,6 +68,8 @@ theme:
             tip: fontawesome/solid/keyboard
             warning: fontawesome/solid/triangle-exclamation
 
+extra_css:
+    - stylesheets/extra.css
 
 ## display code options
 markdown_extensions:
@@ -85,4 +91,3 @@ markdown_extensions:
   - pymdownx.emoji:
       emoji_index: !!python/name:material.extensions.emoji.twemoji
       emoji_generator: !!python/name:material.extensions.emoji.to_svg
-

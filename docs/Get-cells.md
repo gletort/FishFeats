@@ -1,5 +1,5 @@
 !!! abstract "Segment the junction staining to detect the cells apical area."
-    _Choose `Get cells` in the main interface to run it._ (1)
+    _Choose `Cell:Segment` in the main interface to run it._ (1)
     { .annotate }
 
     1.  Nb: in previous version of FishFeats, this step is called `Get junctions` in the interface
