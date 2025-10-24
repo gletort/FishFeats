@@ -38,9 +38,7 @@ pip install fishfeats
 to install FishFeats.
 
 !!! warning "Installation of dependencies"
-	As the plugin relies on several different python modules and for flexibilit, we don't enforce the install of **all dependencies** on the basic installation of FishFeats.
-	It is up to the user to install the extra dependencies that will be usefull for her/his project.
-	However, it is possible to install directly most of the main dependencies by installing `fishfeats` with the `full` option: ```pip install `fishfeats[full]` ```, or ```pip install fishfeats[full]``` depending on the operating system.
+	FishFeats depends on a lot of external librairies, some under active development and others are not anymore mainteined. We tried to put few constraints on the librairies version to allow for flexibility in the install, but also to identify which ones should be limited. In the future, there could some trouble on installing. Don't hesitate to look at our [Trouble shooting page](./Known-errors-and-solutions.md), where we listed some environment configurations that worked and could thus be reproduced.
 
 
 #### Update FishFeats
