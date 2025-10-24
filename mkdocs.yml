@@ -13,14 +13,15 @@ nav:
         - Segment: Get-cells.md
         - 3D cell positions: 3d-cell-positions.md
     - Nuclei:
-        - Get Nuclei: Get-nuclei.md
+        - Segment Nuclei: Get-nuclei.md
         - Associate to cell: Associate.md
+        - Preprocess nuclei: Preprocess-nuclei.md
     - RNAs:
         - Segment&assign RNAs: Get-RNAs.md
     - Measures:
         - Classify cells: Classify-cells.md
-        - Measure cytoplasmic: Measure-cytoplasmic-staining.md
-        - Measure nuclear: Measure-nuclear-staining.md
+        - Measure cytoplasmic intensity: Measure-cytoplasmic-staining.md
+        - Measure nuclear intensity: Measure-nuclear-staining.md
     - Additionnal options:
         - Touching labels: Touching-labels.md
         - Hierarchical clustering: Hierarchical-clustering.md
