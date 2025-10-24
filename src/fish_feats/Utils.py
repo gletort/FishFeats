@@ -346,7 +346,7 @@ def remove_widget(viewer, widname):
                     #print("Widget "+widname+" deleted but not disconnected (pyside2)")
                     pass
                 del viewer.window._dock_widgets[widname]
-                wid.destroyOnClose()
+                #wid.destroyOnClose()
             else:
                 viewer.window.remove_dock_widget( viewer.window.dock_widgets[widname] )
 
