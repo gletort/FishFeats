@@ -23,12 +23,12 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 dependencies = [
-    "pyqt6<6.9; python_version < '3.11'",
+    "pyqt6<6.10; python_version < '3.11'",
     "epyseg; python_version < '3.11'",
-	"tensorflow<2.14; python_version < '3.11'",
+	"tensorflow<2.15; python_version < '3.11'",
 	"tensorflow; python_version >= '3.11'",
     "big-fish>=0.6.2",
-    "napari<0.6; python_version < '3.11'",
+    "napari<0.6.3; python_version < '3.11'",
     "napari; python_version >= '3.11'",
     "numpy<=1.26; python_version < '3.11'",
     "numpy; python_version >= '3.11'",

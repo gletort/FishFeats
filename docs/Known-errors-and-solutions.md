@@ -4,6 +4,8 @@
 
 * `skimage.morphology.selem` module not found error => Problem of compatibility between big-fish and scikit-image versions. Ideally, chooses a recent version of skimage (scikit-image==0.19.3) and big-fish (big-fish==0.6.2).
 * `numpy.core.multiarray failed to import` (on python 3.11, when calling stardist) => Problem of compatibility between numpy version and stardist. You can downgrade numpy to 1.26, tensorflow to 2.14 
+* `DNN library is not found.
+	 [[{{node model/down_level_0_no_0/Relu}}]] [Op:__inference_predict_function_14500]` (on python 3.10, when calling stardist, epyseg or SepaNet) => Problem of tensorflow version compatibility with your cuda drivers installation. See here for the compatible versions [cuda-tensorflow](https://www.tensorflow.org/install/source?hl=pl#gpu). See also this [discussion](https://forum.image.sc/t/dnn-library-is-not-found-problem-with-tensorflow/81673) about this problem.
 
 ### Weird point selection
 
