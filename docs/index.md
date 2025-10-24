@@ -34,6 +34,7 @@ From version 1.2 of FishFeats, for all steps, measures are saved in the same fil
 
 When you open a new image, the plugin will directly go to the first mandatory steps of fixing the image scales and channels (image scalings).
 
+
 ### General shortcuts
 
 For each step, **FishFeats** proposes shortcuts to make its use more agreable/user-friendly, aditionnaly to the ones already proposed by Napari. The specific shortcuts are indicated in the text overlay showed at the top left side of the view. 

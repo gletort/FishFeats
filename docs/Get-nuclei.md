@@ -1,7 +1,7 @@
 !!! abstract "Segment nuclei in 3D from the nuclei staining chanel"
-	_To segment nuclei in 3D, choose the option `Get nuclei` in the main pipeline interface._
+	_To segment nuclei in 3D, choose the option `Nuclei:Segment` in the main pipeline interface._
 
-For some images, preprocessing of the nuclei chanels (to smooth, denoise..) can improve the performance. In these cases, first execute the [preprocess nuclei](preprocess-nuclei) step.
+For some images, preprocessing of the nuclei chanels (to smooth, denoise..) can improve the performance. In these cases, first execute the [preprocess nuclei](./Preprocess-nuclei.md) step.
 
 ## Segmentation methods
 
@@ -119,3 +119,4 @@ When you click on `save nuclei`, it will save the current nuclei segmentation as
 You can load this file to re-edit it later or load the nuclei with the `Load segmented file` option in the `Get nuclei` interface. 
 
 When you have finished the nuclei segmentation, click on `Nuclei done` to quit this step of the pipeline and go back to the main pipeline.
+
