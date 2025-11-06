@@ -92,11 +92,17 @@ You can compare the version of the dependencies to the ones in your environment 
 Download the bundle version of Napari 0.5.4:
 
 * [Linux version](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Linux-x86_64.sh)
-* [MacOS arm64](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-arm64.pkg)
-* [MacOS x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
 * [Windows x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Windows-x86_64.exe)
 
-Then follow the installation steps from the installer.
+* [MacOS arm64](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-arm64.pkg)
+* [MacOS x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
+
+Double-click on the executable.
+It will open an installer program, that you can simply follow step by step.
+You can keep all the default options that are proposed by the installation program.
+When the installation is finished, a shortcut icon should have been created in your desktop.
+
+![snapshots installation](./imgs/bundle_installation.png)
 
 All these bundle come from Napari github, [release of version 0.5.4](https://github.com/napari/napari/releases/tag/v0.5.4). 
 The installation steps for each OS are described [here](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html).
@@ -107,8 +113,14 @@ The installation steps for each OS are described [here](https://napari.org/stabl
 
 ### FishFeats installation through graphical interface
 When the installation is over, double-click on the napari icon and wait for Napari window to open (it can take a few minutes). 
-Go to `Plugins>Install/Uninstall`, search for `fishfeats` and click install. 
+When Napari is open, go to `Plugins>Install/Uninstall` to open the plugin manager.
+In the window that appears, search for `fishfeats` and click Install.
+Wait for the installation to finish (it takes some time), and restart napari.
+You can now use FishFeats by going in `Plugins>fishfeats>start fishfeats`. 
 
+![snapshots plugin installation](./imgs/bundle_plugin_install.png)
+
+If you want to install a specific version of FishFeats, click on `Installation info` to get the list of available versions.
 You might have to restart napari after the installation.
 
 ??? tip "Updating some dependencies version"
