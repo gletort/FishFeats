@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fishfeats"
-version = "1.2.6"
+version = "1.2.7"
 description = "Napari plugin for RNA-Fish+cells analysis pipeline"
 license.file = "LICENSE"
 readme = "README.md"
@@ -23,6 +23,7 @@ classifiers = [
     "Topic :: Scientific/Engineering :: Image Processing",
 ]
 dependencies = [
+    "opencv_python_headless",
     "pyqt6<6.10; python_version < '3.11'",
     "epyseg; python_version < '3.11'",
 	"tensorflow<2.15; python_version < '3.11'",
@@ -39,7 +40,6 @@ dependencies = [
     "munkres",
     "matplotlib",
     "scikit-image",
-    "opencv_python_headless",
     "lxml",
     "packaging",
     "cellpose[distributed]",
