@@ -10,7 +10,7 @@ nav:
         - Image Scalings: Image-scalings.md
         - Separate stainings: Separate-junctions-and-nuclei.md
     - Cells:
-        - Segment: Get-cells.md
+        - Segment Cells: Get-cells.md
         - 3D cell positions: 3d-cell-positions.md
     - Nuclei:
         - Segment Nuclei: Get-nuclei.md

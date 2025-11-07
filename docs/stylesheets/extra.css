@@ -6,19 +6,19 @@
 }
 
 .md-tabs__link[href*="Get-cells"] {
-	color : rgb(128, 12, 12);
+	color : #b60c00;
 }
 
 .md-tabs__link[href*="Get-nuclei"] {
-	color : rgb(19, 33, 114);
+	color : #082cd1;
 }
 
 .md-tabs__link[href*="Get-RNAs"] {
-	color : rgb(37, 97, 19);
+	color : #0b8300;
 }
 
 .md-tabs__link[href*="Classify-cells"] {
-	color : rgb(167, 152, 21);
+	color : #bda30f;
 }
 
 .md-tabs__link[href*="Touching-labels"] {

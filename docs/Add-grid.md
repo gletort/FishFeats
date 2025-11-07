@@ -1,5 +1,5 @@
 !!! abstract "Add a grid to the viewer"
-	_To add/show/hide a grid on the viewer, press <kbd>g</kbd>. Or select `Add grid` in the main pipeline interface_
+	_To add/show/hide a grid on the viewer, press <kbd>g</kbd>. Or select `Misc:Add grid` in the main pipeline interface_
 
 ## Grid set-up
 When creating the grid, if you press <kbd>g</kbd> or select the `Add grid` option, the parameters to setup the grid will appear in the right panel of the viewer.

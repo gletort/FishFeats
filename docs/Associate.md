@@ -1,5 +1,5 @@
 !!! abstract "Associate segmented apical cell with segmented nuclei"
-	_Choose `Associate` in the main pipeline interface to run this step._ The cell junctions and the nuclei must have been segmented/loaded before to do this step.
+	_Choose <span style="background-color:#082cd1">Nuclei: Associate to cells</span> in the main pipeline interface to run this step._ The cell junctions and the nuclei must have been segmented/loaded before to do this step.
 
 Once you have separately segmented the cell (their surface) and the nuclei, this step allows to pair together cell and nuclei to define the full cell. At the end of it, you will have for each segmented cell a corresponding nuclei (indicated by its label) or none if no close enough nuclei corresponded.
 

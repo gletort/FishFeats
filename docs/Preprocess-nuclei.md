@@ -1,5 +1,5 @@
 !!! abstract "Preprocess the nuclei channel for better segmentation"
-	_To preprocess the nuclei staining image, choose the option `Nuclei:Preprocess` in the main pipeline interface._
+	_To preprocess the nuclei staining image, choose the option <span style="background-color:#082cd1">Nuclei:Preprocess</span> in the main pipeline interface._
 
 You can either apply filters to ameliorate the image, or use noise2void, a deep learning method that reduces the noise in images.
 

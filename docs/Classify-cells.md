@@ -1,5 +1,5 @@
 !!! abstract "Classify cells with a user defined criteria"
-	_Select `Classify cells` in the main pipeline step_ (1) 
+	_Select <span style="background-color:#bda30f">Measure:Classify cells</span> in the main pipeline step_ (1) 
 	{ .annotate }
 
 	1. You can also launch it out of the pipeline in `Plugins>FishFeats>Classify segmented cells`

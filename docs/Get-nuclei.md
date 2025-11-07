@@ -1,5 +1,5 @@
 !!! abstract "Segment nuclei in 3D from the nuclei staining chanel"
-	_To segment nuclei in 3D, choose the option `Nuclei:Segment` in the main pipeline interface._
+	_To segment nuclei in 3D, choose the option <span style="background-color:#082cd1">Nuclei:Segment</span> in the main pipeline interface._
 
 For some images, preprocessing of the nuclei chanels (to smooth, denoise..) can improve the performance. In these cases, first execute the [preprocess nuclei](./Preprocess-nuclei.md) step.
 

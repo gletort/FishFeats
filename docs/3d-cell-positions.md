@@ -1,5 +1,5 @@
 !!! abstract "Estimate or correct the Z position of each cell"
-	_Choose `3d cell positions` in the main action choice interface to visualize and edit cells Z position._
+	_Choose <span style="background-color:#b60c00">Cells:3D position</span> in the main action choice interface to visualize and edit cells Z position._
 
 Epithelia junctions were segmented on the [2d projection](Get-cells.md) of the junction staining. From this segmentation, each cell is then back-projected in the 3d junction staining to estimate its position in Z. This information is saved in a file called *imagename_cellsZ.csv*. You can directly modify this file and put the desired Z value in the corresponding cell row, or use the plugin interface to modify it manually.
 

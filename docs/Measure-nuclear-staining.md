@@ -1,5 +1,5 @@
 !!! abstract "Measure the intensity in one or more chanels in the nuclei of cells"
-	_To measure nuclear intensity, choose the option `Measure nuclear staining` in the main pipeline interface_
+	_To measure nuclear intensity, choose the option <span style="background-color:#bda30f">Measure: nuclear intensity</span> in the main pipeline interface_
 
 
 To measure the intensity in the nuclei, they **must have been segmented** before. 

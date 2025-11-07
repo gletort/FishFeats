@@ -1,8 +1,8 @@
 !!! abstract "Segment RNAs and assign them to their cell"
-	_Choose `Get RNA` in the main interface to run it_
+	_Choose <span style="background-color:#0b8300">RNA:segment&assign</span> in the main interface to run it_
 
 This step will first propose you to [segment](#rna-segmentation) the RNA from one of the channels then to [assign](#rna-assignement) it to its corresponding cell. 
-The cells **must have been created before** to do this assignment step, either with the [Get cells](Get-cells.md) step, or loaded from previous file (by default the cells should be reloaded).
+The cells **must have been created before** to do this assignment step, either with the [Cells segmentation](Get-cells.md) step, or loaded from previous file (by default the cells should be reloaded).
 
 Since version 1.1.23, there is also an option to [measure the intensity](#measure-intensity) of a given layer/channel in the segmented spots (e.g. to measure if the segmented spots are inside nuclei, or correlates with some immuno-staining).
 
