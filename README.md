@@ -1,6 +1,6 @@
-# Fish&Feats ![snap](./docs/imgs/snap.png)
+# Fish&Feats ![snap](https://github.com/gletort/FishFeats/raw/main/docs/imgs/snap.png)
 
-[![License BSD-3](https://img.shields.io/pypi/l/fishfeats.svg?color=green)](https://github.com/gletort/FishFeats/-/blob/main/LICENSE)
+[![License BSD-3](https://img.shields.io/pypi/l/fishfeats.svg?color=green)](https://github.com/gletort/FishFeats/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/fishfeats.svg?color=green)](https://pypi.org/project/fishfeats)
 [![Python Version](https://img.shields.io/pypi/pyversions/fishfeats.svg?color=green)](https://python.org)
 
@@ -12,23 +12,17 @@
 FishFeats offers several flexible options to analyse 3D cells and RNA counts, from segmentation of apical cells and nuclei to hierarchical clustering of cells based on their RNA contents. 
 Installation/Usage are all described in the [documentation](https://gletort.github.io/FishFeats/).
 
-![main interface](./docs/imgs/Main_snapshot.png)
+![main interface](https://github.com/gletort/FishFeats/raw/main/docs/imgs/Main_snapshot.png)
 
 ## Installation
 
-Please refer to our [documentation page](https://gletort.github.io/FishFeats/Installation/) for more details on the installation.
+**Please refer to our [documentation page](https://gletort.github.io/FishFeats/Installation/) for more details on the installation.**
 
 `FishFeats` is distributed as a pip module on pypi.
 It can be installed by typing in a python virtual environement:
 ```
 pip install fishfeats
 ``` 
-
-Some options of `Fishfeats` rely on dependencies that are not required by default, so to not force a lot of dependencies installation.
-If you want to do directly the installation with **all dependencies**, type:
-``` 
-pip install `fishfeats[full]`
-```
 
 ## Usage
 
