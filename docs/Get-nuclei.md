@@ -6,6 +6,7 @@ For some images, preprocessing of the nuclei chanels (to smooth, denoise..) can 
 ## Segmentation methods
 
 Two segmentation tools are proposed to perform the 3D segmentation:
+
 * [Stardist](#stardist)
 * [CellPose3D](#cellpose)
 
