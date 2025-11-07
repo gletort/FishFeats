@@ -752,11 +752,11 @@ class GetChoices( QWidget ):
             #if step.startswith( "Init:" ):
             #    self.action.setItemData( ind, QtGui.QColor("#514B64"), Qt.BackgroundRole )
             if step.startswith( "Cells:" ):
-                self.action.setItemData( ind, QtGui.QColor("#6D2727"), Qt.BackgroundRole )
+                self.action.setItemData( ind, QtGui.QColor("#AA2626"), Qt.BackgroundRole )
             if step.startswith( "Nuclei:" ):
-                self.action.setItemData( ind, QtGui.QColor("#23325C"), Qt.BackgroundRole )
+                self.action.setItemData( ind, QtGui.QColor("#214097"), Qt.BackgroundRole )
             if step.startswith( "RNA:" ):
-                self.action.setItemData( ind, QtGui.QColor("#1C5229"), Qt.BackgroundRole )
+                self.action.setItemData( ind, QtGui.QColor("#197A30"), Qt.BackgroundRole )
             if step.startswith( "Measure:" ):
                 self.action.setItemData( ind, QtGui.QColor("#B3971B"), Qt.BackgroundRole )
             if step.startswith( "Misc:" ):
