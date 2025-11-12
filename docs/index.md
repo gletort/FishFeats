@@ -54,6 +54,10 @@ A few other shortcuts are always available:
 	| <kbd>F2</kbd> | Show/hide the second layer, <kbd>F3</kbd> for the third layer...|
 
 
+### Pipeline: steps overview
+
+To guide users through the steps, we propose typical pipelines that can be followed with flowcharts [here](./FishFeatsFlowchartv5.pdf#page=1)
+
 ### Hierarchical clustering
 
 You can launch this analysis with `Plugins>fishfeats>Hierarchical clustering`.
