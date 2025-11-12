@@ -4,6 +4,8 @@
 
 	1. You can also launch it out of the pipeline in `Plugins>FishFeats>Classify segmented cells`
 
+!!! example "See the typical workflow of this step [here](./FishFeatsFlowchartv5.pdf#page=5)"
+
 !!! warning "Cells must have been created/saved before to use this step" 
 	The file named _imagename_`_cells2D.tif` should have been saved, or the `get cells` step should have been performed in the main pipeline before.
 

@@ -1,6 +1,8 @@
 !!! abstract "Segment RNAs and assign them to their cell"
 	_Choose <span style="background-color:#0b8300">RNA:segment&assign</span> in the main interface to run it_
 
+!!! example "See the typical workflow of this step [here](./FishFeatsFlowchartv5.pdf#page=4)"
+
 This step will first propose you to [segment](#rna-segmentation) the RNA from one of the channels then to [assign](#rna-assignement) it to its corresponding cell. 
 The cells **must have been created before** to do this assignment step, either with the [Cells segmentation](Get-cells.md) step, or loaded from previous file (by default the cells should be reloaded).
 

@@ -1,6 +1,8 @@
 !!! abstract "Measure the intensity in one or more chanels in the nuclei of cells"
 	_To measure nuclear intensity, choose the option <span style="background-color:#bda30f">Measure: nuclear intensity</span> in the main pipeline interface_
 
+!!! example "See the typical workflow of this step [here](./FishFeatsFlowchartv5.pdf#page=5)"
+
 
 To measure the intensity in the nuclei, they **must have been segmented** before. 
 If you haven't done it yet, go to [Get nuclei](./Get-nuclei.md) step first.

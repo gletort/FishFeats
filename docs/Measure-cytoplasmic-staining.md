@@ -1,6 +1,8 @@
 !!! abstract "Measure the intensity in one or more chanels in the cytoplasm of cells"
 	_To measure cytoplasmic intensity, choose the <span style="background-color:#bda30f">Measures:Cytoplasmic intensity</span> in the main pipeline interface._
 
+!!! example "See the typical workflow of this step [here](./FishFeatsFlowchartv5.pdf#page=5)"
+
 This step allows you to measure the average intensity (normalised or not) in the cells (after segmentation) in a few z slices close to the cell junctions. You can measure the intensity in several chanels. By default, one is initally proposed, click on the <kbd>+</kbd> sign next to the `cyto chanels` parameter to augment the number of chanels to measure (or <kbd>-</kbd> to remove one). Then, for each chanels to measure, set its number to the corresponding `originalChanel*` staining that you want to measure with the `cyto chanels` parameter(s). When you change the value of this parameter, the plugin shows you directly which chanel you are measuring. 
 
 ![cytomes](imgs/cytomes.png)

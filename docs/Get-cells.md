@@ -4,6 +4,7 @@
 
     1.  Nb: in previous version of FishFeats, this step is called `Get junctions` in the interface
 
+!!! example "See the typical workflow of this step [here](./FishFeatsFlowchartv5.pdf#page=2)"
 
 ## Segmentation process
 
