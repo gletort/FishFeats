@@ -121,7 +121,7 @@ You can now use FishFeats by going in `Plugins>fishfeats>start fishfeats`.
 ![snapshots plugin installation](./imgs/bundle_plugin_install.png)
 
 If you want to install a specific version of FishFeats, click on `Installation info` to get the list of available versions.
-You might have to restart napari after the installation.
+**Restart napari after the plugin installation**.
 
 ??? tip "Updating some dependencies version"
 	If you need to change some dependencies version, you can do so by opening the Napari Terminal by clicking the icon :material-console-line: at the bottom left of the Napari window. Then write `pip install modulename==versionnumber` to install the `modulename` library with the given version number.
