@@ -24,3 +24,9 @@ These steps should be done in that order for the option to function correctly.
 
 When all corrections are done, save the new positions by clicking `Save updated cells`.
 
+## Export 3D segmentation
+
+This option export a 3D stack of the cell labels, placed in their 3D position as a `.tiff` file.
+The exported file will be saved in the `results` folder, called *imagename_cells3D.tif*.
+This file is not necessary for any other step of the pipeline, so click it only if you want to have the 3D segmentation exported to use in another software.
+

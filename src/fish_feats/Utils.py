@@ -80,6 +80,8 @@ def get_color( obj ):
         return "#665071"
     if obj == "save":
         return "#455873" #"#5F6BFA"
+    if obj == "export":
+        return "#173968" #"#5F6BFA"
     if obj == "load":
         return "#1D3658" #"#5F6BFA"
     if obj == "done":

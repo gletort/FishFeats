@@ -419,6 +419,13 @@ class Position3D( QWidget ):
         ## Space
         space2 = fwid.add_label( " ", descr="" )
         layout.addWidget( space2 )
+        
+        ## Save 3D stack
+        save3d_btn = fwid.add_button( "Export 3D segmentation (opt.)", self.save_3d, descr="Save the cell segmentation in a 3D stack", color=ut.get_color("export") )
+        layout.addWidget( save3d_btn )
+        
+        space3 = fwid.add_label( " ", descr="" )
+        layout.addWidget( space3 )
 
         ## Save all button
         saveall_btn = fwid.add_button( "Save updated cells", self.save_all, descr="Save the current cell Z positions", color=ut.get_color("save") )
@@ -478,6 +485,14 @@ class Position3D( QWidget ):
             #self.viewer.layers["CellContours"].data = img
             self.viewer.layers["CellContours"].refresh()
             self.cell_label.setText( "0" )
+
+    def save_3d( self ):
+        """ Save the 3D stack of the segmented cells """
+        if "CellContours" not in self.viewer.layers:
+            ut.show_error( "No 3D cell image opened" )
+            return
+        img = self.viewer.layers["CellContours"].data
+        self.mig.save_image( img, None, hasZ=True, endname="_cells3D.tif" )
 
     def save_all( self ):
         """ Save all updated cell positions """
