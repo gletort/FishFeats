@@ -94,13 +94,17 @@ Download the bundle version of Napari 0.5.4:
 * [Linux version](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Linux-x86_64.sh)
 * [Windows x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Windows-x86_64.exe)
 
-* [MacOS arm64](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-arm64.pkg)
-* [MacOS x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
+
+* [MacOS arm64 (apple chip, from M1 and after)](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-arm64.pkg)
+* [MacOS x86 (Intel chip, before M1)](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
+
+!!! warning "Napari bundle doesn't open on MacOS" 
+	On MacOS, the bundle version 0.5.4 might not work (after installation, it doesn't open). In this case, proceed to the "normal" installation, or install the [latest napari bundle](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html#macos-bundle) (without epyseg then))
 
 Double-click on the executable.
 It will open an installer program, that you can simply follow step by step.
 You can keep all the default options that are proposed by the installation program.
-When the installation is finished, a shortcut icon should have been created in your desktop.
+When the installation is finished (it takes some time), a shortcut icon should have been created in your desktop.
 
 ![snapshots installation](./imgs/bundle_installation.png)
 
