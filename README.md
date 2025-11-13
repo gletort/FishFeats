@@ -3,13 +3,14 @@
 [![License BSD-3](https://img.shields.io/pypi/l/fishfeats.svg?color=green)](https://github.com/gletort/FishFeats/raw/main/LICENSE)
 [![PyPI](https://img.shields.io/pypi/v/fishfeats.svg?color=green)](https://pypi.org/project/fishfeats)
 [![Python Version](https://img.shields.io/pypi/pyversions/fishfeats.svg?color=green)](https://python.org)
+[![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/fishfeats)](https://napari-hub.org/plugins/fishfeats)
 
 [Napari](https://napari.org/stable/) plugin to quantify 3D cells in a tissue and their smRNA-Fish or other RNA contents.
 
 [main.webm](https://github.com/user-attachments/assets/7eda5fa8-3241-4af8-b392-bc3e64aa31b9)
 
 
-FishFeats offers several flexible options to analyse 3D cells and RNA counts, from segmentation of apical cells and nuclei to hierarchical clustering of cells based on their RNA contents. 
+Fish&Feats offers several flexible options to analyse 3D cells and RNA counts, from segmentation of apical cells and nuclei to hierarchical clustering of cells based on their RNA contents. 
 Installation/Usage are all described in the [documentation](https://gletort.github.io/FishFeats/).
 
 ![main interface](https://github.com/gletort/FishFeats/raw/main/docs/imgs/Main_snapshot.png)
