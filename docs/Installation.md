@@ -99,7 +99,7 @@ Download the bundle version of Napari 0.5.4:
 * [MacOS x86 (Intel chip, before M1)](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
 
 !!! warning "Napari bundle doesn't open on MacOS" 
-	On MacOS, the bundle version 0.5.4 might not work (after installation, it doesn't open). In this case, proceed to the "normal" installation, or install the [latest napari bundle](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html#macos-bundle) (without epyseg then))
+	On MacOS, the bundle version 0.5.4 might not work (after installation, it doesn't open, see more in [imagesc forum](https://forum.image.sc/t/bundle-napari-0-5-4-on-macos-permission-denied/117259)). In this case, proceed to the "normal" installation, or install the [latest napari bundle](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html#macos-bundle) (without epyseg then)). 
 
 Double-click on the executable.
 It will open an installer program, that you can simply follow step by step.
