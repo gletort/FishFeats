@@ -19,6 +19,7 @@ nav:
     - RNAs:
         - Segment&assign RNAs: Get-RNAs.md
     - Measures:
+        - Measures: Measures.md
         - Classify cells: Classify-cells.md
         - Measure cytoplasmic intensity: Measure-cytoplasmic-staining.md
         - Measure nuclear intensity: Measure-nuclear-staining.md

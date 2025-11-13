@@ -68,7 +68,7 @@ They can also be all installed by installing FishFeats in full mode `pip install
 ### Operating System
 The plugin has been developped on a Linux environment and is used on Windows and MacOS distributions. It should thus be compatible with all these OS provided to have the adequate python environments.
 
-??? warning "Windows GPU card nvidia A6000"
+??? warning "Windows GPU drivers"
 	We encountered an unsolved yet error only on Windows with some specific nvidia drivers/GPU card. During plugin usage, it returns this error:`OSError: exception: access violation reading 0x0000000000000034`. See [here](Known-errors-and-solutions.md/#Access-violation-reading) for more infos.
 
 

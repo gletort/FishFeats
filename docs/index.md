@@ -29,6 +29,8 @@ From version 1.2 of FishFeats, for all steps, measures are saved in the same fil
 - [Get RNAs](Get-RNAs.md): segment/assign/correct/measure the RNAs in one or more RNA channel.
 - [Classify cells](Classify-cells.md): manually classify the segmented cells with a user defined criteria (eg "PCNA or not"). Can be automatically prefilled then manually corrected.
 - [Measure cytoplasmic staining](Measure-cytoplasmic-staining.md) to measure the intensity of one or more channels in each segmented cell around the surface.
+- [Measure nuclear staining](Measure-nuclear-staining.md) to measure the intensity of one or more channels in each segmented nucleus.
+- [Measure RNA staining](Get-RNAs.md#measure-intensity) to measure the intensity of one or more channels in each segmented RNA.
 
 ![main](imgs/main.png)
 
