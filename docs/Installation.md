@@ -14,9 +14,9 @@ You could have version issues between the different modules installed in your en
 To install FishFeats, you should create a new virtual environnement or activate an exisiting compatible one.
 
 #### Create a new virtual environement
- You can create a virtual environement [with venv](https://www.geeksforgeeks.org/create-virtual-environment-using-venv-python/) or anaconda (you may need to install anaconda, see here: [on windows](https://www.geeksforgeeks.org/how-to-install-anaconda-on-windows/), [on macOS](https://www.geeksforgeeks.org/installation-guide/how-to-install-anaconda-on-macos/?ref=ml_lbp) or [on linux](https://www.geeksforgeeks.org/how-to-install-anaconda-on-linux/) ). 
+ You can create a virtual environement [with venv](https://www.geeksforgeeks.org/create-virtual-environment-using-venv-python/) or mamba/conda/miniforge/anaconda depending on what you have on your computer (you may need to install one of them if you don't have any yet. In this case, to install mamba, see [here](https://informatics.fas.harvard.edu/resources/tutorials/installing-command-line-software-conda-mamba/). Or to install anaconda, see here: [on windows](https://www.geeksforgeeks.org/how-to-install-anaconda-on-windows/), [on macOS](https://www.geeksforgeeks.org/installation-guide/how-to-install-anaconda-on-macos/?ref=ml_lbp) or [on linux](https://www.geeksforgeeks.org/how-to-install-anaconda-on-linux/) ). 
 
-Then use the Anaconda interface to create a new virtual environement with the desired python version, or [through the Terminal](https://www.geeksforgeeks.org/set-up-virtual-environment-for-python-using-anaconda/).
+Then use the conda/Anaconda interface to create a new virtual environement with the desired python version, or [through the Terminal](https://www.geeksforgeeks.org/set-up-virtual-environment-for-python-using-anaconda/).
 
 For example, in a terminal, once conda is installed, you can create a new environnement by typing:
 ```
