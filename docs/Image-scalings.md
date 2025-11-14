@@ -18,7 +18,7 @@ On the right panel, you have a parameter dialog called `Scale` on which you can 
 
 * `nuclei channel`: number of the color channel image in which nuclei staining is. 
 !!! warning "Channel separation"
-    If the nuclei staining is in the same channel as the junction staining, put the same values for the two parameters and the program will [separate the two signals](./Separate-junctions-and-nuclei) later on. If not, be sure to put different numbers, otherwise it will try to separate the two staining.
+    If the nuclei staining is in the same channel as the junction staining, put the same values for the two parameters and the program will [separate the two signals](./Separate-junctions-and-nuclei.md) later on. If not, be sure to put different numbers, otherwise it will try to separate the two staining.
 
 The plugin reads the metadata of your image and will prefill the scaling parameters based on that. However, there can be some mistakes depending on the metadata format, so it's important to always check that the scaling is correct.
 

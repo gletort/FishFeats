@@ -24,7 +24,7 @@ Click on `Do feature` to open the interface to choose how you want to [initializ
 
 ## Classification prefilling
 
-When you click on `Do feature`, it will either [reload the feature](#Load-classification) if it was already present or open a parameter interface to choose how to initialize the feature.
+When you click on `Do feature`, it will either [reload the feature](#load-classification) if it was already present or open a parameter interface to choose how to initialize the feature.
 
 ![parameters of initialization](./imgs/class_parameters.png)
 
