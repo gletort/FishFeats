@@ -75,7 +75,7 @@ Options/shortcuts to correct the RNA assignement:
 
 ???+ tip "Shortcut/options"
     
-     _See Napari Point layer [documentation](https://napari.org/dev/howtos/layers/points.html) for more information on the point edition tools available by default in Napari (and accessible in the top left panel of the interface)_
+     _See napari Point layer [documentation](https://napari.org/dev/howtos/layers/points.html) for more information on the point edition tools available by default in napari (and accessible in the top left panel of the interface)_
 
 	=== "Visualization"
 	

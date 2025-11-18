@@ -8,7 +8,7 @@ FishFeats is distributed as a pip module and can be installed normally in a virt
 See more details in the [installation](./Installation.md) page, especially if you are not familiar with installing a pip module.
 
 ## Usage
-You can launch `fishfeats` in Napari by going to `Plugins>fishfeats>Start`. It will open a file dialog box asking you to select the image that you want to analyze. Possible input formats are currently `.tif, .czi, .ims`. For other formats, you can first open the image within Napari and then start FishFeats by selecting `Plugins>fishfeats>Start from layer(s)`. See [here](Open-image.md) for more information.
+You can launch `fishfeats` in napari by going to `Plugins>fishfeats>Start`. It will open a file dialog box asking you to select the image that you want to analyze. Possible input formats are currently `.tif, .czi, .ims`. For other formats, you can first open the image within napari and then start FishFeats by selecting `Plugins>fishfeats>Start from layer(s)`. See [here](Open-image.md) for more information.
 
 Then the image will be displayed, with the different channels shown as separated layers on the left panel.
 

@@ -71,7 +71,7 @@ To correct eventual segmentation errors, on the left top panel, you have the nap
 
 ???+ tip "Shortcut/options"
     
-     _See Napari Label layer [documentation](https://napari.org/0.5.0/howtos/layers/labels.html) for more information on the label edition tools available by default in Napari (and accessible in the top left panel of the interface)_
+     _See napari Label layer [documentation](https://napari.org/0.5.0/howtos/layers/labels.html) for more information on the label edition tools available by default in napari (and accessible in the top left panel of the interface)_
 
 	=== "Visualization"
 	

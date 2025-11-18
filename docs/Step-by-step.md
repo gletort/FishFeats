@@ -9,7 +9,7 @@ All the examples here are done with the image `AB3-HG-AQUCISITION-4CHANNELS-SHRN
 
 ### A1 - Open the image and check/set the metadata
 
-Open `Napari` and start FishFeats with `Plugins>FISHFEATS>Start fishfeats`.
+Open `napari` and start FishFeats with `Plugins>FISHFEATS>Start fishfeats`.
 
 A window dialog appears to select the image to analyse. 
 Browse your folders and select the downloaded image `AB3-HG-AQUCISITION-4CHANNELS-SHRNActrl-filtered_minicrop.ims` (or another one on which you want to do this test).
@@ -95,7 +95,7 @@ Click on `Get RNA channel` to perform the segmentation with the selected paramet
 Wait for the segmentation to be calculated (0.103 min on the test image).
 
 When it is finished, a new layer is added to the view, called `assignedRNA2`. 
-The center of each RNA spot is displayed as a Napari point in white.
+The center of each RNA spot is displayed as a napari point in white.
 Two new panels have been added to the right side interface of the `RNAs` option. 
 You can change the points size with the interface in the right side, as well as colored them by specific properties, in the `Point display` part in `EditRNA2` panel.
 
@@ -130,7 +130,7 @@ You obtain the map of the cells, where each cell is colored by its number of RNA
 
 ### B1 - Open the image and set metadata
 
-Open `Napari` and start FishFeats with `Plugins>FISHFEATS>Start fishfeats`.
+Open `napari` and start FishFeats with `Plugins>FISHFEATS>Start fishfeats`.
 
 A window dialog appears to select the image to analyse. 
 Browse your folders and select the downloaded image `AB3-HG-AQUCISITION-4CHANNELS-SHRNActrl-filtered_minicrop.ims` (or another one on which you want to do this test).

@@ -9,10 +9,10 @@ Then you can proceed with the main pipeline, by first [checking and updating the
 
 
 ## Load other format images
-If your raw images have another format not handled by FishFeats, you have to open them first in Napari.
-Open the image with Napari built-in readers or other plugin readers that are compatible with your image format. For example, this [plugin](https://github.com/AllenCellModeling/napari-aicsimageio#multi-scene-selection) offers options to open a lot of classical microcospy data format.
+If your raw images have another format not handled by FishFeats, you have to open them first in napari.
+Open the image with napari built-in readers or other plugin readers that are compatible with your image format. For example, this [plugin](https://github.com/AllenCellModeling/napari-aicsimageio#multi-scene-selection) offers options to open a lot of classical microcospy data format.
 
-The image can be opened as a single layer in Napari (containing both the channels and the 3D dimensions) or as several layers, one by color channel. 
+The image can be opened as a single layer in napari (containing both the channels and the 3D dimensions) or as several layers, one by color channel. 
 **However, the only opened layers should be the one of the image to analyse**.
 
 ![open image](imgs/open_layers.png)

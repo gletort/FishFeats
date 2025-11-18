@@ -41,7 +41,7 @@ CellPose uses an isotropic image for the segmentation (same scaling in x, y, and
 	- `resample`: run CellPose 3D reconstruction in the resized scale: slower but more precise if the nuclei are smaller than 18 pixels diameter, faster but less precise if the nuclei are bigger than 18 pixels.  
 
 
-When the segmentation is finished, the labelled nuclei will be displayed in Napari, and can be manually corrected.
+When the segmentation is finished, the labelled nuclei will be displayed in napari, and can be manually corrected.
 
 #### Dask option
 
@@ -53,7 +53,7 @@ It allows to run CellPose on very large images when the non distributed version 
 
 Since May 2025, the latest version of CellPose is based on [CellPoseSAM](https://www.biorxiv.org/content/10.1101/2025.04.28.651001v1). Some parameters are not anymore relevant with this version, and it might not be optimal for nuclei segmentation (it is more specialized for cell segmentation). Additionally, this version is **much slower** to run, especially if you don't have GPU. 
 
-To use the previous CellPose version with the `nuclei` trained model (more specialized), you must install it in your python environement instead of the latest version. In a terminal, or in the Napari Terminal interface (:material-console-line: icon at the bottom left of Napari window), type:
+To use the previous CellPose version with the `nuclei` trained model (more specialized), you must install it in your python environement instead of the latest version. In a terminal, or in the napari Terminal interface (:material-console-line: icon at the bottom left of napari window), type:
 ```
 pip install cellpose[distributed]==3.0
 ```
@@ -76,7 +76,7 @@ Click on `Update nuclei` to perform the automatic filtering and get rid of "too 
 ### Nuclei: manual correction
 
 Here we also use a label layer to edit the nuclei segmentation.
-_See Napari Label layer [documentation](https://napari.org/0.5.0/howtos/layers/labels.html) for more information on the label edition tools available by default in Napari (and accessible in the top left panel of the interface)_
+_See napari Label layer [documentation](https://napari.org/0.5.0/howtos/layers/labels.html) for more information on the label edition tools available by default in napari (and accessible in the top left panel of the interface)_
 
 ???+ tip "Shortcut/options"
 

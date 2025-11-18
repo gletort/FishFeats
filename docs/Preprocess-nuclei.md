@@ -27,7 +27,7 @@ If you are happy with the filtering, click on `Preprocessing done` to use this n
 
 ## Noise2Void
 
-Denoising with noise2void needs the Napari plugin `napari-n2v` that you can install in the virtual environment: `pip install napari-n2v` or through the Napari plugin interface.
+Denoising with noise2void needs the napari plugin `napari-n2v` that you can install in the virtual environment: `pip install napari-n2v` or through the napari plugin interface.
 
 Click the button `Noise2Void` to open the napari noise2void plugin interface. It will open an interface to perform denoising with a trained noise2void model.
 

@@ -1,13 +1,13 @@
 # Installation
 
-[**Standard installation**](#standard-installation): You can install Napari and `FishFeats` by creating/using a python virtual environment (**recommended**).
+[**Standard installation**](#standard-installation): You can install napari and `FishFeats` by creating/using a python virtual environment (**recommended**).
 
-[**Easier installation**](#easier-installation): If you have no python virtual environment experience and want to avoid it, you can install Napari through the "bundle" distribution. 
+[**Easier installation**](#easier-installation): If you have no python virtual environment experience and want to avoid it, you can install napari through the "bundle" distribution. 
 The bundles come with an installer program for Windows and MacOS systemso this allow for an easy installation (everything will be done through graphical interfaces), but allows for less control/flexibility. 
 
 ## Standard installation
-### From Napari interface
-FishFeats is a Napari plugin, in python. You can install it either through an already installed Napari instance by going in Napari to `Plugins>Install/Uninstall`, search for `FishFeats` and click `Install`.
+### From napari interface
+FishFeats is a napari plugin, in python. You can install it either through an already installed napari instance by going in napari to `Plugins>Install/Uninstall`, search for `FishFeats` and click `Install`.
 You could have version issues between the different modules installed in your environment and FishFeats dependencies, in this case it is recommended to create a new virtual environnement specific for FishFeats.
 
 ### From virtual environnement
@@ -52,7 +52,7 @@ If FishFeats was updated since you last installed/updated it, the latest version
 
 #### Start FishFeats
 
-Open Napari by typing
+Open napari by typing
 ```
 napari
 ```
@@ -73,11 +73,11 @@ The plugin has been developped on a Linux environment and is used on Windows and
 
 
 ### Python version
-We tested the plugin with python 3.9, 3.10, 3.11 with Napari 0.4.19, 0.6.1. 
+We tested the plugin with python 3.9, 3.10, 3.11 with napari 0.4.19, 0.6.1. 
 In [Trouble shooting](Known-errors-and-solutions.md), we listed some environnement that worked for given operating system/python version. 
 You can also create your environment directly from these `.yaml` files.
 
-There is an incompability with Napari 0.4.17 (strongly not recommended) for point edition in 3D.
+There is an incompability with napari 0.4.17 (strongly not recommended) for point edition in 3D.
 
 Please refers to [Trouble shooting](Known-errors-and-solutions.md) if you encounter issues at the installation/usage or to the repository issues. Finally if you don't find any information on your error, open a [new issue](https://github.com/gletort/FishFeats/issues) in this repository.
 
@@ -88,8 +88,8 @@ You can compare the version of the dependencies to the ones in your environment 
 
 ## Easier installation
 
-### Napari installation through graphical interface
-Download the bundle version of Napari 0.5.4:
+### napari installation through graphical interface
+Download the bundle version of napari 0.5.4:
 
 * [Linux version](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Linux-x86_64.sh)
 * [Windows x86](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-Windows-x86_64.exe)
@@ -98,7 +98,7 @@ Download the bundle version of Napari 0.5.4:
 * [MacOS arm64 (apple chip, from M1 and after)](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-arm64.pkg)
 * [MacOS x86 (Intel chip, before M1)](https://github.com/napari/napari/releases/download/v0.5.4/napari-0.5.4-macOS-x86_64.pkg)
 
-!!! warning "Napari bundle doesn't open on MacOS" 
+!!! warning "napari bundle doesn't open on MacOS" 
 	On MacOS, the bundle version 0.5.4 might not work (after installation, it doesn't open, see more in [imagesc forum](https://forum.image.sc/t/bundle-napari-0-5-4-on-macos-permission-denied/117259)). In this case, proceed to the "normal" installation, or install the [latest napari bundle](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html#macos-bundle) (without epyseg then)). 
 
 Double-click on the executable.
@@ -108,16 +108,16 @@ When the installation is finished (it takes some time), a shortcut icon should h
 
 ![snapshots installation](./imgs/bundle_installation.png)
 
-All these bundle come from Napari github, [release of version 0.5.4](https://github.com/napari/napari/releases/tag/v0.5.4). 
+All these bundle come from napari github, [release of version 0.5.4](https://github.com/napari/napari/releases/tag/v0.5.4). 
 The installation steps for each OS are described [here](https://napari.org/stable/tutorials/fundamentals/installation_bundle_conda.html).
 
-??? note "Why Napari version 0.5.4" 
+??? note "Why napari version 0.5.4" 
 	We chose this version as it is the last one in python 3.9, the following ones are with python > 3.11, to have all FishFeats options available (including epyseg which is limited to version <3.11).
-	You can still download the latest bundle of Napari if you wish, and then use the Napari console Terminal to fix dependencies install, or not use some options (epyseg, and eventually stardist and SepaNet which are based on tensorflow).
+	You can still download the latest bundle of napari if you wish, and then use the napari console Terminal to fix dependencies install, or not use some options (epyseg, and eventually stardist and SepaNet which are based on tensorflow).
 
 ### FishFeats installation through graphical interface
-When the installation is over, double-click on the napari icon and wait for Napari window to open (it can take a few minutes). 
-When Napari is open, go to `Plugins>Install/Uninstall` to open the plugin manager.
+When the installation is over, double-click on the napari icon and wait for napari window to open (it can take a few minutes). 
+When napari is open, go to `Plugins>Install/Uninstall` to open the plugin manager.
 In the window that appears, search for `fishfeats` and click Install.
 Wait for the installation to finish (it takes some time), and restart napari.
 You can now use FishFeats by going in `Plugins>fishfeats>start fishfeats`. 
@@ -128,4 +128,4 @@ If you want to install a specific version of FishFeats, click on `Installation i
 **Restart napari after the plugin installation**.
 
 ??? tip "Updating some dependencies version"
-	If you need to change some dependencies version, you can do so by opening the Napari Terminal by clicking the icon :material-console-line: at the bottom left of the Napari window. Then write `pip install modulename==versionnumber` to install the `modulename` library with the given version number.
+	If you need to change some dependencies version, you can do so by opening the napari Terminal by clicking the icon :material-console-line: at the bottom left of the napari window. Then write `pip install modulename==versionnumber` to install the `modulename` library with the given version number.

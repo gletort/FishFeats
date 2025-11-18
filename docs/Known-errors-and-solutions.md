@@ -9,8 +9,8 @@
 
 ### Weird point selection
 
-We encountered a weird point selection on a version of Napari, where the selected points did not correspond at all to the drawn selection rectangle.
-This is due to Napari version 0.4.19, we strongly recommend to avoid this version.
+We encountered a weird point selection on a version of napari, where the selected points did not correspond at all to the drawn selection rectangle.
+This is due to napari version 0.4.19, we strongly recommend to avoid this version.
 
 ### Acces violation reading
 
