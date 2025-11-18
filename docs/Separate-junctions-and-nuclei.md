@@ -5,7 +5,7 @@
 	1. If you do directly the junction or nuclei segmentation, the plugin will automatically do this step with the default parameters. When the separation is not good, then it is necessary to follow this step to choose better parameters.
 
 
-When the `junction channel` and `nuclei channel` parameters from the [Image scalings interface](Image-scalings.md) are set to the same value, the program will try to separate automatically the two stainings to have one only-junction signal and one only-nuclei. If this step is not called before, the `Get junctions` and `Get nuclei` steps will call it. 
+When the `junction channel` and `nuclei channel` parameters from the [Image scalings interface](Image-scalings.md) are set to the same value, the program will try to separate automatically the two stainings to have one only-junction signal and one only-nuclei. If this step is not called before, the `Cells:Segment` and `Nuclei:Segment` steps will call it. 
 
 ⚠️ The separated images are artificial. Be careful if you plan to do intensity measurement, the value of the pixel in these separated images are not relevant ! The separated images are useful for segmentation purposes, for measurement you should use the original image.
 

@@ -149,7 +149,7 @@ The results file can thus contains the counts from several assignement methods, 
 _Select the onglet `MeasureIntensity*` to start this option_
 
 This options allows to measure the intensity inside each segmented spot (RNA) in a chosen image channel or opened layer.
-It can also indicate for each spot if it is inside a segmented nucleus or not (you must have performed the nuclei segmentation before for that, see [Get nuclei](./Get-nuclei.md) step).
+It can also indicate for each spot if it is inside a segmented nucleus or not (you must have performed the nuclei segmentation before for that, see the [nuclei segmentation](./Get-nuclei.md) step).
 
 ### Inside segmented nuclei
 

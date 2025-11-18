@@ -26,10 +26,10 @@ From version 1.2 of FishFeats, for all steps, measures are saved in the same fil
 `fishfeats` proposes several analyses steps in the main interface:
 
 - [Image scalings](Image-scalings.md): set the global parameter of the image to analyse (scalings, channels)
-- [Get cells](Get-cells.md): segment/load/correct the cell apical contours in 2D
-- [Get nuclei](Get-nuclei.md): segment/load/correct the nuclei in 3D.
+- [Segment cells](Get-cells.md): segment/load/correct the cell apical contours in 2D
+- [Segment nuclei](Get-nuclei.md): segment/load/correct the nuclei in 3D.
 - [Separate junctions and nuclei](Separate-junctions-and-nuclei.md): if the junctions staining and nuclei staining are in the same channel, to segment them it is necessary to separate them before with this step.
-- [Get RNAs](Get-RNAs.md): segment/assign/correct/measure the RNAs in one or more RNA channel.
+- [Segment and assign RNAs](Get-RNAs.md): segment/assign/correct/measure the RNAs in one or more RNA channel.
 - [Classify cells](Classify-cells.md): manually classify the segmented cells with a user defined criteria (eg "PCNA or not"). Can be automatically prefilled then manually corrected.
 - [Measure cytoplasmic staining](Measure-cytoplasmic-staining.md) to measure the intensity of one or more channels in each segmented cell around the surface.
 - [Measure nuclear staining](Measure-nuclear-staining.md) to measure the intensity of one or more channels in each segmented nucleus.

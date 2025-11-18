@@ -5,7 +5,7 @@
 
 
 To measure the intensity in the nuclei, they **must have been segmented** before. 
-If you haven't done it yet, go to [Get nuclei](./Get-nuclei.md) step first.
+If you haven't done it yet, go to [nuclei segmentation](./Get-nuclei.md) step first.
 
 This step allows to measure the nuclear intensity of a chosen staining inside each segmented nucleus.
 Choose the channel to measure and click on `Measure` to launch the computation.

@@ -37,7 +37,7 @@ You can then choose which steps to perform depending of your analysis by selecti
 
 ### A2 - Segment epithelia cells
 
-To segment the apical contour of the cells, choose `Get cells` option.
+To segment the apical contour of the cells, choose <span style="background-color:#b60c00">Cells:Segment</span> option.
 
 If you have already done this step, the plugin will write `Found projection file` and/or `Found cell file` if it found the corresponding files with the default names. 
 You can then choose the option `Load previous files` to directly load them and go to the manual curation step.
@@ -76,7 +76,7 @@ This file will be enriched with all new information that you will add by perform
 
 ### A3 - Segment the smFish staining
 
-Select `Get RNA` in the `Main` interface for this step.
+Select <span style="background-color:#0b8300">Get RNA</span> in the `Main` interface for this step.
 
 The interface that opens allow you to choose the channel to segment, and the parameter for the segmentation.
 Choose `2` in `RNA channel` parameter.
@@ -146,13 +146,13 @@ Else, follow the step [A1](#a1-open-the-image-and-checkset-the-metadata) of the 
 ### B2 - Segment the apical cell contour
 
 If you have done the previous example A, the cell are already segmented and should be loaded if you let `load previous` parameter selected.
-Then, you can directly go to the `classify cells` step.
+Then, you can directly go to the <span style="background-color:#bda30f">Measure:Classify cells</span> step.
 
 Else, see the step [A2](#a2-segment-epithelia-cells) to perform apical cell contour segmentation.
 
 ### B3 - Classify the cells by intensity
 
-Select `Classify cells` in the `Main` interface to do this step.
+Select <span style="background-color:#bda30f">Measure:Classify cells</span> in the `Main` interface to do this step.
 
 It will load the cell contours so that you can classify them.
 In the interface, select the `Add/Edit a feature` panel and write the name of the feature you want to classify, e.g. `Positive`.
