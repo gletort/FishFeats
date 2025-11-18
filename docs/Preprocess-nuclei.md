@@ -3,6 +3,10 @@
 
 You can either apply filters to ameliorate the image, or use noise2void, a deep learning method that reduces the noise in images.
 
+!!! note "Applying preprocessing outside FishFeats"
+	If you want to apply other preprocessing that are not yet available in FishFeats, you can either work with another software with the required softwares and save the preprocessed nuclei in the input image, or work other napari plugins and use the option to [start FishFeats from already opened layers](./Open-image.md#load-raw-images-from-fishfeats). 
+	_You can also contact us ([filling an issue](https://github.com/gletort/FishFeats/issues/new/choose) in this repository) to ask for the possibility to add a given preprocessing algorithm in FishFeats_
+
 ![interface](./imgs/nuclei_preprocess.png)
 
 ## Filtering

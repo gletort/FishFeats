@@ -22,6 +22,12 @@
 
 ![get_juncs](imgs/get_juncs.png)
 
+??? note "Applying preprocessing"
+	In some cases, you might need to apply preprocessing to improve the results.
+	If you want to apply other preprocessing that are not yet available in FishFeats, you can either work with another software with the required softwares and save the preprocessed nuclei in the input image, or work other napari plugins and use the option to [start FishFeats from already opened layers](./Open-image.md#load-raw-images-from-fishfeats). 
+	_You can also contact us ([filing an issue](https://github.com/gletort/FishFeats/issues/new/choose) in this repository) to ask for the possibility to add a given preprocessing algorithm in FishFeats_
+
+
 ### 2D projection 
 
 The junction staining will be segmented in 2D. 

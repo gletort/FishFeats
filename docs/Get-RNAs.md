@@ -8,6 +8,7 @@ The cells **must have been created before** to do this assignment step, either w
 
 Since version 1.1.23, there is also an option to [measure the intensity](#measure-intensity) of a given layer/channel in the segmented spots (e.g. to measure if the segmented spots are inside nuclei, or correlates with some immuno-staining).
 
+
 ## RNA segmentation
 
 First, you have to select which channel of the images to analyze for RNA detection, by setting the `rna channel` parameter to the corresponding `originalChannel*` number.
@@ -25,6 +26,12 @@ When all the spots will have been detected, `fishfeats` will display them in a n
 If the resulting dots do not correspond well with the RNA spots in your channels, you can run again this step and changing either the dots size parameters or the threshold value.
 
 You also have an option to load previous segmentation if you already segmented the RNA in this channel. When you select this option, the `load file` parameter will appear and let you choose the corresponding file to load.
+
+??? note "Applying preprocessing"
+	In some cases, you might need to apply preprocessing to improve the results.
+	If you want to apply other preprocessing that are not yet available in FishFeats, you can either work with another software with the required softwares and save the preprocessed nuclei in the input image, or work other napari plugins and use the option to [start FishFeats from already opened layers](./Open-image.md#load-raw-images-from-fishfeats). 
+	_You can also contact us ([filing an issue](https://github.com/gletort/FishFeats/issues/new/choose) in this repository) to ask for the possibility to add a given preprocessing algorithm in FishFeats_
+
 
 ## RNA assignement
 
