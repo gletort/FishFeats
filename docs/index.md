@@ -38,7 +38,14 @@ From version 1.2 of FishFeats, for all steps, measures are saved in the same fil
 ![main](imgs/main.png)
 
 When you open a new image, the plugin will directly go to the first mandatory steps of fixing the image scales and channels (image scalings).
+To guide you through the steps, we propose typical pipelines that can be followed with flowcharts [here](./FishFeatsFlowchartv5.pdf#page=1).
+Fish&Feats allows flexibility in its usage, so that it can be used for different image analysis tasks, so we don't enforce any order for the proposed action, but a few depends on other being done before. Please refer to the flowchart to see the dependencies.
 
+Finally, to allow for more flexibility, it is possible to go back and forth between steps. 
+For example, after segmenting the cells, if you work on classifying the cells and spot an error in the segmentation that you missed previously, you can go back to the segmentation correction and back again to the classification afterwards without having to restart it from scratch.
+Just save regurlarly your data to be able to reload it.
+
+The parameters that you enter in the interface for each step are saved in a configuration file (.cfg) so that when you reload an image, all parameters will be set to the last value used.
 
 ### General shortcuts
 
