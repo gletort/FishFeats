@@ -1,41 +1,58 @@
 # Installation
 
+FishFeats is distributed in a pip module and can be installed as:
+```
+pip install fishfeats
+```
+in a virtual environment (python 3.10 recommended).
+
+If you are not familiar with the procedure, here are two options for installation with more details:
+
 [**Standard installation**](#standard-installation): You can install napari and `FishFeats` by creating/using a python virtual environment (**recommended**).
 
 [**Easier installation**](#easier-installation): If you have no python virtual environment experience and want to avoid it, you can install napari through the "bundle" distribution. 
 The bundles come with an installer program for Windows and MacOS systemso this allow for an easy installation (everything will be done through graphical interfaces), but allows for less control/flexibility. 
 
 ## Standard installation
+To install FishFeat you need to install napari first. 
+Napari is Python based and you need to install Python management package if you don't have one already. 
+You first need to install that (few minutes to 10min), then create a virtual environment and install napari and fishfeats (less than 5 min). 
+
 ### From napari interface
 FishFeats is a napari plugin, in python. You can install it either through an already installed napari instance by going in napari to `Plugins>Install/Uninstall`, search for `FishFeats` and click `Install`.
-You could have version issues between the different modules installed in your environment and FishFeats dependencies, in this case it is recommended to create a new virtual environnement specific for FishFeats.
+You could have version issues between the different modules installed in your environment and FishFeats dependencies, in this case it is recommended to create a new virtual environment specific for FishFeats.
 
-### From virtual environnement
-To install FishFeats, you should create a new virtual environnement or activate an exisiting compatible one.
+### From virtual environnement (recommended)
 
-#### Create a new virtual environement
- You can create a virtual environement [with venv](https://www.geeksforgeeks.org/create-virtual-environment-using-venv-python/) or mamba/conda/miniforge/anaconda depending on what you have on your computer (you may need to install one of them if you don't have any yet. In this case, to [install miniforge](https://kirenz.github.io/codelabs/codelabs/miniforge-setup/#0) or to install mamba, see [here](https://informatics.fas.harvard.edu/resources/tutorials/installing-command-line-software-conda-mamba/). If you prefer to install anaconda (slower), see here: [on windows](https://www.geeksforgeeks.org/how-to-install-anaconda-on-windows/), [on macOS](https://www.geeksforgeeks.org/installation-guide/how-to-install-anaconda-on-macos/?ref=ml_lbp) or [on linux](https://www.geeksforgeeks.org/how-to-install-anaconda-on-linux/) ). 
+**Step 1 : install a Python management package (if you don't have one already).** 
+You have different options, but you have to choose one:  
+- Miniforge (**recommended**): fast, free but no interface. Follow the detailled steps here to [install miniforge](https://kirenz.github.io/codelabs/codelabs/miniforge-setup/#0)
+- venv: fast and simple install in general, no interface. See [tutorial here](https://www.geeksforgeeks.org/create-virtual-environment-using-venv-python/)
+- Mamba: fast, free but no interface. See [here](https://informatics.fas.harvard.edu/resources/tutorials/installing-command-line-software-conda-mamba/)
+- Anaconda: a sort of interface, works well on MacOS and Windows but slow and might not stay free to all. See here: [on windows](https://www.geeksforgeeks.org/how-to-install-anaconda-on-windows/), [on macOS](https://www.geeksforgeeks.org/installation-guide/how-to-install-anaconda-on-macos/?ref=ml_lbp) or [on linux](https://www.geeksforgeeks.org/how-to-install-anaconda-on-linux/) ). 
+ 
+**Step 2 : Create a virtual environment with that python management package.** 
+Once you have installed such Python management package, they generally create one environment (=call env) called base but you should not install anything in that env.  
 
-Then use the conda/Anaconda interface to create a new virtual environement with the desired python version, or [through the Terminal](https://www.geeksforgeeks.org/set-up-virtual-environment-for-python-using-anaconda/).
+- You need to create an environment where you will install fishfeats and napari. To do so you first open the terminal, then you can write `conda env list` to list all your env. 
+If you don’t already have one env for fishfeats you can create one by : ```conda create -n fishfeats_env python=3.10``` 
+It will install python 3.10 and create an environment called `fishfeats_env`. 
 
-For example, in a terminal, once conda is installed, you can create a new environnement by typing:
-```
-conda create -n fishfeats_env python=3.10
-```
+- Then you need to activate that environment (=like entering or opening it) by writing : ```conda activate fishfeats_env``` 
 
-#### Install FishFeats
-Once you have created/identified a virtual environnement, type in the terminal:
-``` 
-conda activate fishfeats_env
-```
-to activate it (and start working in that environnement).
+- Then you can install napari and fishfeats and all the depencies they need : `pip install fishfeats`. 
+It takes a bit of time, be patient. Congrats and see you in Step 3 then. 
 
-Type in the activated environnement window:
+**Step 3: Open napari**
+You can open napari by writing `napari` in the terminal. 
+It is often slow to open the first time but that’s it. 
+ 
 
-```
-pip install fishfeats
-```
-to install FishFeats.
+**Extra information:** 
+
+- you can create more environment, they are rather light in size. Be careful because with Python, and napari of course, plugin and librairies are often dependent on many other to properly works and very often, installing a new one can create major issues in the environment that was previously working.... 
+
+- to logout, you can just close the terminal. To come back to FishFeats, you can open the terminal, enter `conda activate fishfeats_env`, `napari` 
 
 !!! warning "Installation of dependencies"
 	FishFeats depends on a lot of external librairies, some under active development and others are not anymore mainteined. We tried to put few constraints on the librairies version to allow for flexibility in the install, but also to identify which ones should be limited. In the future, there could some trouble on installing. Don't hesitate to look at our [Trouble shooting page](./Known-errors-and-solutions.md), where we listed some environment configurations that worked and could thus be reproduced.
