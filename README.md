@@ -4,6 +4,7 @@
 [![PyPI](https://img.shields.io/pypi/v/fishfeats.svg?color=green)](https://pypi.org/project/fishfeats)
 [![Python Version](https://img.shields.io/pypi/pyversions/fishfeats.svg?color=green)](https://python.org)
 [![napari hub](https://img.shields.io/endpoint?url=https://api.napari-hub.org/shields/fishfeats)](https://napari-hub.org/plugins/fishfeats)
+[![DOI](https://zenodo.org/badge/1002973766.svg)](https://doi.org/10.5281/zenodo.17701225)
 
 [Napari](https://napari.org/stable/) plugin to quantify 3D cells in a tissue and their smRNA-Fish or other RNA contents.
 
