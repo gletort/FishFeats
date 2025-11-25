@@ -16,13 +16,13 @@ Two segmentation tools are proposed to perform the 3D segmentation:
 ### Stardist 
 _Stardist run in 2D + 3D reconstruction._
  
-Each z-slice will be segmented in 2D for individual nuclei with [stardist](https://github.com/stardist/stardist) (Schmidt et al., 2018). Then the 3D nuclei will be reconstructed by associating the nuclei from each consecutive slices, either with the `Munkres` method (Hungarian algorithm, optimization of the pairing of the ojects) or with the `overlap` method (associating overlapping object, faster).
+Each Z-slice will be segmented in 2D for individual nuclei with [Stardist](https://github.com/stardist/stardist) (Schmidt et al., 2018). Then the 3D nuclei will be reconstructed by associating the nuclei from each consecutive slices, either with the `Munkres` method (Hungarian algorithm, optimization of the pairing of the ojects) or with the `overlap` method (associating overlapping object, faster).
 
 
 ??? example "Stardist parameters"
 
-	- `probability threshold`: threshold of stardist output probability to keep a detected nuclei. Increase it will decrease the number/size of nuclei found.
-	- `nuclei overlap`: stardist parameter of how much nuclei overlap in general. Increasing it to split more nuclei, decreasing to have bigger objects.
+	- `probability threshold`: threshold of Stardist output probability to keep a detected nuclei. Increase it will decrease the number/size of nuclei found.
+	- `nuclei overlap`: Stardist parameter of how much nuclei overlap in general. Increasing it to split more nuclei, decreasing to have bigger objects.
 	- `association method`: how to reconstruct 3D nuclei from the 2D slice nuclei, either by combinataion (optimization of the distance between nuclei in two consecutives slices), `Munkres` method, or by associating nuclei from consecutive slices that overlap enough `Overlap` method (faster). 
 	- `threshold overlap`: for the `overlap` method, associate two nuclei from consecutive slices as one if they overlap by at least more % than the threshold.
 	- `association distance limit micron`: For the `Munkres` method, can associate nuclei from consecutive slices only if they are closer than the distance limit (in microns). 
@@ -47,13 +47,13 @@ When the segmentation is finished, the labelled nuclei will be displayed in napa
 
 This option combines [CellPose](https://www.cellpose.org/) segmentation with the [Dask](https://www.dask.org/) library for parallel computing. This option is inspired from the [distributed segmentation script](https://github.com/MouseLand/cellpose/blob/main/cellpose/contrib/distributed_segmentation.py) for CellPose. 
 
-It allows to run CellPose on very large images when the non distributed version will crash due to lack of memory or be much too slow.
+It allows CellPose to run on very large images when the non distributed version will crash due to lack of memory or be much too slow.
 
-#### Remark
+#### Note 
 
-Since May 2025, the latest version of CellPose is based on [CellPoseSAM](https://www.biorxiv.org/content/10.1101/2025.04.28.651001v1). Some parameters are not anymore relevant with this version, and it might not be optimal for nuclei segmentation (it is more specialized for cell segmentation). Additionally, this version is **much slower** to run, especially if you don't have GPU. 
+Since May 2025, the latest version of CellPose is based on [CellPoseSAM](https://www.biorxiv.org/content/10.1101/2025.04.28.651001v1). Some parameters are no longer relevant with this version, and it might not be optimal for nuclei segmentation (it is more specialized for cell segmentation). Additionally, this version is **much slower** to run, especially if you don't have GPU. 
 
-To use the previous CellPose version with the `nuclei` trained model (more specialized), you must install it in your python environement instead of the latest version. In a terminal, or in the napari Terminal interface (:material-console-line: icon at the bottom left of napari window), type:
+To use the previous CellPose version with the `nuclei` trained model (more specialized), you must install it in your Python environment instead of the latest version. In a terminal, or in the napari Terminal interface (:material-console-line: icon at the bottom left of napari window), type:
 ```
 pip install cellpose[distributed]==3.0
 ```
@@ -68,7 +68,7 @@ You can remove all nuclei that are smaller than a given volume, or detected only
 
 
 To filter, check the `remove small nuclei` option, and choose a threshold volume below which nuclei will be considered as segmentation errors and not kept with the `minimum volume` parameter. 
-To remove nuclei that are not detected in several slices, fix the parameter `keep ifatleast z` to the minimum of z slices in which one nuclei should be present to not be an error.
+To remove nuclei that are not detected in several slices, fix the parameter `keep ifatleast z` to the minimum of Z slices in which one nuclei should be present to not be an error.
 
 Click on `Update nuclei` to perform the automatic filtering and get rid of "too small" nuclei. You can close this panel when you don't want to use it anymore.
 
@@ -108,7 +108,7 @@ _See napari Label layer [documentation](https://napari.org/0.5.0/howtos/layers/l
 As for junctions, the labels should be unique for each nuclei. 
 Thus if you want to add a new nuclei don't forget to **get the max label + 1 by pressing <kbd>m</kbd>**. 
 
-You can see the value of the label of a nuclei by selecting it with the picker tool, or by hovering the mouse pointer on top of it. It displays the value of the current layer intensity below your pointer in the left bottom panel of the napari window, see image below:
+You can see the value of the label of a nucleus by selecting it with the picker tool, or by hovering the mouse pointer on top of it. It displays the value of the current layer intensity below your pointer in the left bottom panel of the napari window, see image below:
 
 ![nucleilab](imgs/nucleilab.png)
 

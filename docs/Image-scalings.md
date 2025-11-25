@@ -12,16 +12,16 @@ On the right panel, you have a parameter dialog called `Scale` on which you can 
 
 * `scaleZ`: the size in µm of 1 voxel in the Z direction.
 
-* `direction`: direction of imaging, if junctions are above the nuclei when you move in Z, then select `top high z`, else if the junctions are towards the smaller z, select `top low z`
+* `direction`: direction of imaging- if junctions are above the nuclei when you move in Z, then select `top high z`, otherwise if the junctions are towards the smaller z, select `top low z`
 
-* `junction channel`: number of the color channel image in which junction staining is. The number is indicated in the name of each layers in the left panel: `originalChannel0`, `originalChannel1`...
+* `junction channel`: the number of the color channel that contains the junction staining. The number is indicated in the name of each layers to the left panel: `originalChannel0`, `originalChannel1`...
 
-* `nuclei channel`: number of the color channel image in which nuclei staining is. 
+* `nuclei channel`: the number of the color channel image that contains the nuclei staining. 
 !!! warning "Channel separation"
-    If the nuclei staining is in the same channel as the junction staining, put the same values for the two parameters and the program will [separate the two signals](./Separate-junctions-and-nuclei.md) later on. If not, be sure to put different numbers, otherwise it will try to separate the two staining.
+    If the nuclei staining is in the same channel as the junction staining, put the same values for the two parameters and the program will [separate the two signals](./Separate-junctions-and-nuclei.md) later on. If not, be sure to put different numbers, otherwise it will try to separate the two stainings.
 
 The plugin reads the metadata of your image and will prefill the scaling parameters based on that. However, there can be some mistakes depending on the metadata format, so it's important to always check that the scaling is correct.
 
-A configuration file is created in the `results` folder when you launch the pipeline. It records some information on your current step and the parameters that you selected. If you quit the plugin with the option `Quit plugin` it will then saved this file that can be read the next time you used `fishfeats` on the same image. It will then pre-select the parameters to the one you filled the first time. The recorded file is saved in the `results` folder, named as the image but with a `.cfg` extension.
+<span style="color:#ede055">:material-creation:</span> A configuration file is created in the `results` folder when you launch the pipeline. It records some information on your current step and the parameters that you selected. If you quit the plugin with the option `Quit plugin` it will then save this file that can be read the next time you use `fishfeats` on the same image. It will then pre-select the parameters to the ones you filled in the first time. The recorded file is saved in the `results` folder, named as the image but with a `.cfg` extension.
 
 Click `Update` when you have selected all the parameters to choose the next analysis step to perform.

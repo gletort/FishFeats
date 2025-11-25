@@ -2,10 +2,10 @@
 
 ### Module versions
 
-* `skimage.morphology.selem` module not found error => Problem of compatibility between big-fish and scikit-image versions. Ideally, chooses a recent version of skimage (scikit-image==0.19.3) and big-fish (big-fish==0.6.2).
-* `numpy.core.multiarray failed to import` (on python 3.11, when calling stardist) => Problem of compatibility between numpy version and stardist. You can downgrade numpy to 1.26, tensorflow to 2.14 
+* `skimage.morphology.selem` module not found error => Problem of compatibility between Big-fish and scikit-image versions. Ideally, chooses a recent version of skimage (scikit-image==0.19.3) and Big-fish (big-fish==0.6.2).
+* `numpy.core.multiarray failed to import` (on python 3.11, when calling stardist) => Problem of compatibility between Numpy version and Stardist. You can downgrade Numpy to 1.26, Tensorflow to 2.14.
 * `DNN library is not found.
-	 [[{{node model/down_level_0_no_0/Relu}}]] [Op:__inference_predict_function_14500]` (on python 3.10, when calling stardist, epyseg or SepaNet) => Problem of tensorflow version compatibility with your cuda drivers installation. See here for the compatible versions [cuda-tensorflow](https://www.tensorflow.org/install/source?hl=pl#gpu). See also this [discussion](https://forum.image.sc/t/dnn-library-is-not-found-problem-with-tensorflow/81673) about this problem.
+	 [[{{node model/down_level_0_no_0/Relu}}]] [Op:__inference_predict_function_14500]` (on python 3.10, when calling stardist, epyseg or SepaNet) => Problem of Tensorflow version compatibility with your cuda drivers installation. See here for the compatible versions [cuda-tensorflow](https://www.tensorflow.org/install/source?hl=pl#gpu). See also this [discussion](https://forum.image.sc/t/dnn-library-is-not-found-problem-with-tensorflow/81673) about this problem.
 
 ### Weird point selection
 
@@ -20,23 +20,23 @@ This is due to napari version 0.4.19, we strongly recommend to avoid this versio
 This error happened only in Windows with specific nvidia card (A6000).
 It happens when adding or deleting Shape layers, quite often in `cytoplasmic measure` option.
 It seems to be an error external to the plugin or napari. 
-We haven't found a solution yet, but please refer to [this discussion](https://forum.image.sc/t/napari-crash-problem-with-opengl-and-or-vispy-and-or-nvidia-and-or-windows/113859) on imagesc forum for more infos/updates.
+We haven't found a solution yet, but please refer to [this discussion](https://forum.image.sc/t/napari-crash-problem-with-opengl-and-or-vispy-and-or-nvidia-and-or-windows/113859) on imagesc forum for more info/updates.
 
-### Other issue
+### Other issues
 
-You can also check on the [issues](https://github.com/gletort/FishFeats/issues) page of the repository if your problem has already been reported and has a solution. 
+You can also check on the [issues](https://github.com/gletort/FishFeats/issues) page of the repository to see if your problem has already been reported and has a solution. 
 Otherwise, open a new one in this page and we will do our best to answer fast.
 
 
 ## Tested and working configurations
 
-Here we proposed the list of versions that worked fine for us. For some versions, we provide the full list of package versions that were installed on several python environment, with the corresponding operating system, that worked fine for us.
+Here we proposed the list of versions that worked fine for us. For some versions, we provide the full list of package versions that were installed on several python environments, with the corresponding operating system, that worked fine for us.
 
 For each set-up, we list first the graphical info that we get with `napari --info`, then the link to the full yaml file.
 
 Note that `Epyseg` cannot be install on python versions above 3.10. 
 Thus, to use the full pipeline with all options, we recommend python 3.10. 
-However, if you don't intend to use Epyseg or use it separatly, the pipeline and the other dependencies are compatible with more recent python versions.
+However, if you don't intend to use Epyseg or use it separately, the pipeline and the other dependencies are compatible with more recent python versions.
 
 ???+ example "Environment lists"
 

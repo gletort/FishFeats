@@ -28,7 +28,7 @@ nav:
         - Hierarchical clustering: Hierarchical-clustering.md
         - Add grid: Add-grid.md
     - Step by step example: Step-by-step.md
-    - Trouble shooting: Known-errors-and-solutions.md
+    - Troubleshooting: Known-errors-and-solutions.md
 
 theme:
     logo: imgs/snap.png

@@ -16,7 +16,7 @@
 * [CellPose](https://www.cellpose.org/): tool for cellular segmentation from Stringer et al. 2021.
 * Load an already segmented file (should be a file of labelled cell). If you choose this option, the plugin will look for the labelled file of cell, named _imagename_`_cells2D.tif` in the results folder, but you can select another file.
 
-**3/ Manual correction:** When the computation of the segmentation is finished, `fishfeats` will show you the results in a `label` layer called `Junctions`. You can then perform manual correction if needed before to save the results.
+**3/ Manual correction:** When the computation of the segmentation is finished, `fishfeats` will show you the results in a `label` layer called `Junctions`. You can then perform manual correction if needed before saving the results.
 
 **4/ 2D->3D:** At the end of the process, when you click on `Junctions done`, the pipeline creates the cells from the segmentation. The shape will be the label shape and the [cell position in Z](3d-cell-positions.md) will be back-projected into the junction staining. Thus this step can take a few minutes to calculate the back-projection. 
 
@@ -32,14 +32,14 @@
 
 The junction staining will be segmented in 2D. 
 
-If you have already calculated the projection previously or with another pipeline, you can load here the image of the projection and directly use it. Else, the pipeline will calculate the projection by looking at local maximum intensities.
+If you have already calculated the projection previously or with another pipeline, you can load here the image of the projection and directly use it. Otherwise, the pipeline will calculate the projection by looking at local maximum intensities.
 
 ![projecting](imgs/projection.png)
 
 The projection will be displayed in a new layer, shown in white, and called `2DJunctions`.
 The pipeline will by default save the calculated projection in the `results` folder, except if you don't check the `save projection` option. When this step is done, you can now performs the segmentation of this projected image.
 
-#### Loading projection
+#### Loading the projection
 
 Click on `Load default` if you have already saved the projection with the default name (`yourimagename_junction_projection.tif`).
 
@@ -60,7 +60,7 @@ If the result is not satisfying, then several parameters can be tuned by checkin
 
 Click on `Project now` to recalultes with the new parameters.
 
-If this algorithm don't succeed even with tuning the parameters, you can use dedicated software to local projection as [LocalZProjector](https://gitlab.pasteur.fr/iah-public/localzprojector) and then load the results in `fishfeats`.
+If this algorithm doesn't succeed even with tuning the parameters, you can use dedicated software to local projection as [LocalZProjector](https://gitlab.pasteur.fr/iah-public/localzprojector) and then load the results in `fishfeats`.
 
 
 ## Manual correction
@@ -101,7 +101,7 @@ To correct eventual segmentation errors, on the left top panel, you have the nap
 
 ## Save corrected results
 
-To save the manual corrections, click on `save junctions`. It will save a file called _imagename_`_cells2D.tif` in the `results` folder that contained the labelled cells.
+To save the manual corrections, click on `save junctions`. It will save a file called _imagename_`_cells2D.tif` in the `results` folder that contains the labelled cells.
 
 ## Measures
 You can display a table of measurements of the cells position, area and label. Click on the button `Show measures` to perform the measurement. A new window containing the table of all the cells and their area will appear.
@@ -110,7 +110,7 @@ You can display a table of measurements of the cells position, area and label. C
 
 This table will be automatically saved when the cell segmentation is saved, in the _imagename_`_results.csv` output file and will be completed during the pipeline by other measurements (cytoplasmic measures, nuclei measure, RNA counts...)
 
-## Junctions analysis finished
+## Junction analysis finished
 
 When you have finished the segmentation and manual correction steps, click on `Junctions done` to quit this step and go back to the main step choices.
 

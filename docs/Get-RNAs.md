@@ -15,17 +15,17 @@ First, you have to select which channel of the images to analyze for RNA detecti
 
 ![RNAs](imgs/rna_toseg.png)
 
-Then, the segmentation of the RNA dots can be performed with [Big-fish](https://github.com/fish-quant/big-fish) (Imbert et al. 2021). To detect correctly the dots, `big-fish` needs the average size of an individual spot. As the spot resolution can be different in the z-direction, the size of the spot should be specify both in XY and in Z. Put the average spot radius in the XY plane, in nanometers in the `spotXYRadiusNm` field, and the average spot radius in Z in nanometers in the `spotZRadiusNm`.
+Then, the segmentation of the RNA dots can be performed with [Big-fish](https://github.com/fish-quant/big-fish) (Imbert et al. 2021). To correctly detect dots, `big-fish` needs the average size of an individual spot. As the spot resolution can be different in the Z-direction, the size of the spot should be specify both in XY and in Z. Put the average spot radius in the XY plane, in nanometers in the `spotXYRadiusNm` field, and the average spot radius in Z in nanometers in the `spotZRadiusNm`.
 
-Big-fish filters the detected spots based on their mean intensity with a threshold. If you select `automatic threshold`, big-fish will estimate and use this threshold. Else you can fix its value in the `threshold` field. Note that after you run it one time on automatic mode, the value of big fish estimated threshold will appear in the `threshold` field, so that you can vary it around this value if the results are not satisfying.
+Big-fish filters the detected spots based on their mean intensity with a threshold. If you select `automatic threshold`, Big-fish will estimate and use this threshold. Otherwise you can specify a value in the `threshold` field. Note that after you run it one time on automatic mode, the value of the Big fish estimated threshold will appear in the `threshold` field, so that you can vary it around this value if the results are not satisfying.
 
-Big fish can sometimes find spots in the first and last slices when there is no real spots or signals. The option `removeSpotInExtremeZ` allows to get rid of these artefact spots. Un-select it if you have RNAs spots that you want to analyze even in the first or last slices.
+Big-fish can sometimes find spots in the first and last slices when there is no real spots or signals. The option `removeSpotInExtremeZ` allows to get rid of these artefact spots. Un-select it if you have RNAs spots that you want to analyze even in the first or last slices.
 
 When all the spots will have been detected, `fishfeats` will display them in a new Spots layer. To choose the size at which the spots will be displayed, change the `drawing spot size` parameter.
 
-If the resulting dots do not correspond well with the RNA spots in your channels, you can run again this step and changing either the dots size parameters or the threshold value.
+If the resulting dots do not correspond well with the RNA spots in your channels, you can run this step again changing either the dot size parameters or the threshold value.
 
-You also have an option to load previous segmentation if you already segmented the RNA in this channel. When you select this option, the `load file` parameter will appear and let you choose the corresponding file to load.
+You also have an option to load a previous segmentation if you already segmented the RNA in this channel. When you select this option, the `load file` parameter will appear and let you choose the corresponding file to load.
 
 ??? note "Applying preprocessing"
 	In some cases, you might need to apply preprocessing to improve the results.
@@ -33,13 +33,13 @@ You also have an option to load previous segmentation if you already segmented t
 	_You can also contact us ([filing an issue](https://github.com/gletort/FishFeats/issues/new/choose) in this repository) to ask for the possibility to add a given preprocessing algorithm in FishFeats_
 
 
-## RNA assignement
+## RNA assignment
 
-Assigning RNAs corresponds to attributing at each dots the same label as the cell we considered it belongs to. Several methods can be used for an automatic selection, manual assignement or correction can also be done.
+Assigning RNAs corresponds to attributing to each dot the same label as the cell we consider that it belongs to. Several methods can be used for an automatic selection, and manual assignment or correction can also be done.
 
-## Assignement methods:
+## Assignment methods:
 
-* `Projection`: assign each RNA to a cell by projection in Z. Thus, the assignement depends only on the X,Y position of the dot and on the junction segmentation. Cells with a large apical area are more likely to have more points assigned.
+* `Projection`: assign each RNA to a cell by projection in Z. Thus, the assignment depends only on the X,Y position of the dot and on the junction segmentation. 
 
 *  `ClosestNucleus`: assign each RNA to the cell of which the nucleus is the closest to the dot in 3D. The distance is calculated from the closest point of each nuclei to the RNA spot. 
 
@@ -47,10 +47,10 @@ Assigning RNAs corresponds to attributing at each dots the same label as the cel
 
 * `Hull`: to update
 
-* `FromNClosest`: assign each RNA according to its n-closests RNA from other chanels already assigned. This finds the n-closests points (n is defined by the `nb closest rnas` parameter) and assigns to the current RNA spot the more represented cell in these neighboring points.
+* `FromNClosest`: assign each RNA according to its n-closest RNA from other chanels already assigned. This finds the n-closest points (n is defined by the `nb closest rnas` parameter) and assigns to current RNA spot to the most represented cell among these neighboring points.
 You can select which reference RNA points to use for this (already assigned channels). In the `reference rna channels`, the list of already assigned RNA channels is given, and you can select as many as these channels as you want.
 
-For example, in the image below, 2 channels (1 and 2) have already been assigned and are by default pre-selected to use for the assignment of the 3rd channel. Thus by keeping these parameters, the program will look for each point of channel 3 at the 10-closest points from the channels 1 and 2. Then it will assign to this point the cell that is the most present among these 10-closest points. If these points are in majority unassigned, the current point will also be unassigned.
+For example, in the image below, 2 channels (1 and 2) have already been assigned and are by default pre-selected to use for the assignment of the 3rd channel. Thus by keeping these parameters, for each point of channel 3, the program will look at the 10-closest points from channels 1 and 2. It will then assign to this point the cell identity that is the most present among these 10-closest points. If the majority of points are unassigned, the current point will also be unassigned.
 
 ![fromnclosest](imgs/fromnclosest.png)
  
@@ -59,19 +59,19 @@ For example, in the image below, 2 channels (1 and 2) have already been assigned
 If you select the `show advanced parameters` option, you can also choose additional parameters to control the assignment method:
 
 * `limit distance to assign micron`: to apply a threshold of distance at which a point is still assigned to the corresponding cell/nucleus. When the calculated distance is above this threshold (in microns), the point will be unassigned.
-*  `assign when above cells`: if selected, then RNA dots that were found above the cells (so not in the cells) can still be assigned to a cell with the selected method. Otherwise, only spots that are below the apical cells surface will be assigned. If selected, you can also choose the `nb z keep above` parameter to control until how many z slices above the cells RNA points are still assigned.
+*  `assign when above cells`: if selected, then RNA dots that were found above the cells (so not in the cells) can still be assigned to a cell with the selected method. Otherwise, only spots that are below the apical cells surface will be assigned. If selected, you can also choose the `nb z keep above` parameter to control until how many Z slices above the cells RNA points are still assigned.
 * `filename` is the name of the file on which the RNA segmentation and assignement will be saved. It is advised to keep the default name as it is also the one that the program will look for to load it.
 
 
-Click on `apply assignement` to launch the assignement method on the segmented dots. The dots will be all white during the calculation of the assignement. When the computation will be finished, they will be colored by their assigned cell. Dots with a maroon color, labelled "1" are unassigned, i.e. no corresponding cell was found.
+Click on `apply assignment` to launch the assignment method on the segmented dots. The dots will be all white during the calculation of the assignment. When the computation will be finished, they will be colored by their assigned cell. Dots with a maroon color, labelled "1" are unassigned, i.e. no corresponding cell was found.
 
 ## RNA manual correction
 
-To correct RNA assignement, select the point(s) to change the assignement value, put the value (label) of the cell to assign it to in the `assign points to cell` parameter field and click on `assign selected points`. 
+To correct RNA assignment, select the point(s) to change the assignment value, put the value (label) of the cell to assign it to in the `assign points to cell` parameter field and click on `assign selected points`. 
 
 ![assigning](imgs/assigning.png)
 
-Options/shortcuts to correct the RNA assignement:
+Options/shortcuts to correct the RNA assignment:
 
 ???+ tip "Shortcut/options"
     
@@ -109,53 +109,53 @@ The program locks the layers so that it is not possible to remove them by accide
 
 ### Point display
 
-To further help the manual correction of the spots, `FishFeats` proposes option to change the point size display.
+To further help with the manual correction of spots, `FishFeats` proposes an option to change the point size display.
 
 Check the `Point display` box to expand its content in the `Edit RNA` interface on the right side of the window.
 
-You can directly change all point displayed size by sliding the `Display point size` parameter bar, but you can also display some points at the current size, and hide other points by displaying them very small.
+You can change the display size for all points by sliding the `Display point size` parameter bar, but you can also display some points at the current size, and hide other points by displaying them very small.
 For this select the criteria to display a spot as big or very small, in the `Point size from:` parameter, and select the desired option.
-The point can be displayed differently according to the intensity inside the point (`point intensity`) or from their assignement score (`assignemnt score`) which refers to the certainty of their assignement.
+The point can be displayed differently according to the intensity inside the point (`point intensity`) or from their assignment score (`assignment score`) which refers to the certainty of their assignment.
 
-Click on `Reset point display` to display again all the spots with the same size, controlled by the `Display point size` parameter.
+Click on `Reset point display` to display all the spots with the same size again, controlled by the `Display point size` parameter.
 
 ![display options](imgs/rna_display.png)
 
 ## Save/load RNAs
 
 When you click on `save and quit RNA*`, it will save the current point layer in a `.csv` file saved in the `results` folder called _imagename_`_RNA*.csv` (here * is the number of the corresponding channel). 
-The file contains the position of each spot and its assignement.
+The file contains the position of each spot and its assignment.
 The counts of the RNA of this channel in each cell will be added to the _results_ file in a new column.
-The edition interface of the current RNA will be closed so that you can go to the next RNA.
+The editing interface of the current RNA will be closed so that you can go to the next RNA.
 
-To reload/continue the assignement later on, you can load this file in the segmenting RNA step by choosing `load file` in the segmentation method choice parameter.
+To reload/continue the assignment later on, you can load this file in the segmenting RNA step by choosing `load file` in the segmentation method choice parameter.
 
 
 When you click on `save RNAs`, it will automatically save all the RNA channel that have been done and udpate the results saved as well.
 You can click this button at any time during the manual correction process, without stopping it.
-We recommend to do it regularly in case something happens during the correction steps.
+**We recommend saving regularly** in case something happens during the correction steps.
 
 
 ## Draw RNA counts
 
-This option, at the bottom of the  `Edit RNA*` interface, allows to visualize the cells, colored by their number of RNA assigned to it. 
+This option, at the bottom of the  `Edit RNA*` interface, allows the cells to be visualized, colored by their number of assigned RNAs. 
 
-Click on `Draw RNA* counts` to add a new (2D) layer containing the cells number of RNAs.
+Click on `Draw RNA* counts` to add a new (2D) layer containing the cells ans their number of RNAs.
 In each cell the intensity reflects the number of RNA assigned. 
 
 ![rna counts](./imgs/rna_counts.png)
 
 You can also save this image as a 2D file by clicking `Save drawn RNA* counts`.
 
-This counts can also be found in the _results_ file, in the corresponding `nbRNA_C*_MethodName` column.
+The RNA counts can also be found in the _results_ file, in the corresponding `nbRNA_C*_MethodName` column.
 MethodName will be the name of the method used for the initial assigment.
-The results file can thus contains the counts from several assignement methods, but note that when you reload it, it will load only the last used method.
+The results file can thus contain the counts from several assignment methods, but note that when you reload it, it will load only the last used method.
 
 ## Measure intensity
 
 _Select the onglet `MeasureIntensity*` to start this option_
 
-This options allows to measure the intensity inside each segmented spot (RNA) in a chosen image channel or opened layer.
+This option allows the intensity inside each segmented spot (RNA) in a chosen image channel or opened layer to be measured.
 It can also indicate for each spot if it is inside a segmented nucleus or not (you must have performed the nuclei segmentation before for that, see the [nuclei segmentation](./Get-nuclei.md) step).
 
 ### Inside segmented nuclei
