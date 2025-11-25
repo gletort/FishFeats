@@ -136,6 +136,72 @@ class CheckScale( QWidget):
         """ Open doc webpage for Image scalings """
         ut.show_documentation_page( "Image-scalings" )
 
+class ThresholdChannel( QWidget ):
+    """ Apply a threshold of a chosen channel """
+    def __init__( self, ffeats ):
+        """ Interface to crop the image and the associated files """
+
+        self.viewer = ffeats.viewer
+        self.mig = ffeats.mig
+        self.cfg = ffeats.cfg
+        self.threshold_layer = None
+        
+        super().__init__()
+        layout = QVBoxLayout()
+        
+        ## Choose rna channel to process
+        line, self.layer_choice = fwid.list_line( "Threshold layer:", descr="Choose opened layer to threshold", func=None )
+        self.update_layers_list()
+        layout.addLayout(line)
+
+        ## Choose threshold
+        self.current_layer = self.viewer.layers[self.layer_choice.currentText()]
+        vmin = np.min( self.current_layer.data )
+        vmax = np.max( self.current_layer.data )
+        vmean = np.mean( self.current_layer.data )
+        thres_line, self.threshold = fwid.slider_line( "Threshold:", vmin, vmax, 1, vmean, show_value=False, slidefunc=None, descr="Choose threshold value", div=1 )
+        layout.addLayout( thres_line )
+
+        self.update_current_layer()
+        self.layer_choice.currentIndexChanged.connect( self.update_current_layer )
+        self.update_threshold()
+        self.threshold.valueChanged.connect( self.update_threshold )
+    
+        self.setLayout( layout )
+    
+    def update_layers_list( self ):
+        """ Update list of opened layers """
+        self.layer_choice.clear()
+        layers = self.viewer.layers
+        for lay in layers:
+            self.layer_choice.addItem(lay.name)
+
+    def update_threshold( self ):
+        """ When change the threshold value, update the display """
+        threshold = int(self.threshold.value())
+        self.threshold_layer.data = self.current_layer.data > threshold
+        self.threshold_layer.refresh()
+
+    def update_current_layer( self ):
+        """ When change the layer to threshold, change the display and the threshold slider """
+        self.current_layer = self.viewer.layers[self.layer_choice.currentText()]
+        ## update the threshold slider
+        vmin = np.min( self.current_layer.data )
+        vmax = np.max( self.current_layer.data )
+        vmean = np.mean( self.current_layer.data )
+        self.threshold.setMinimum(int(vmin))
+        self.threshold.setMaximum(int(vmax))
+        self.threshold.setValue(int(vmean))
+        binimg = self.current_layer.data > vmean 
+        for layer in self.viewer.layers:
+            layer.visible = False
+        self.viewer.layers[self.layer_choice.currentText()].visible = True
+        self.threshold_layer = self.viewer.add_image( binimg, name="Threshold"+str(self.layer_choice.currentText()), blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), opacity=0.5 )
+        ut.set_active_layer( self.viewer, self.layer_choice.currentText() )
+        
+                                  
+
+
 class CropImage( QWidget ):
     """ Crop the image and the associated files """
     

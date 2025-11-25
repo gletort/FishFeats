@@ -10,7 +10,7 @@ from fish_feats.NapaRNA import NapaRNA, OverlapRNA
 from fish_feats.NapaCells import MainCells, Position3D, EndCells 
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget, PreprocessNuclei 
 from fish_feats.FishGrid import FishGrid
-from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure
+from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure, ThresholdChannel
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
 from fish_feats._button_grid import ButtonGrid
@@ -378,6 +378,7 @@ class FishFeats:
         choices['Misc:Touching labels'] = self.touching_labels
         choices['Misc:Add grid'] = self.addGrid 
         choices['Misc:Crop image'] = self.crop_image 
+        choices['Misc:Threshold channel'] = self.threshold_channel 
 
         choice_wid = GetChoices( default_action, choices, self.cfg )
         ut.remove_widget( self.viewer, "Main" )
@@ -395,6 +396,11 @@ class FishFeats:
         """ Interface to crop the image and associated segmentations/results """
         crop = CropImage(self)
         self.viewer.window.add_dock_widget( crop, name="CropImage" )
+
+    def threshold_channel(self):
+        """ Interface to threshold a chosen channel """
+        thres = ThresholdChannel( self )
+        self.viewer.window.add_dock_widget( thres, name="ThresholdChannel" )
 
     def load_all_previous_files(self):
         """ Load all the previous files with default name that it can find and init the objects accordingly """

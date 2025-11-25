@@ -113,7 +113,7 @@ class GetRNA(QWidget):
         ## Choose segmentation/loading method
         self.method = QComboBox()
         layout.addWidget(self.method)
-        methods = ["Load segmented file", "Segment with BigFish"]
+        methods = ["Load segmented file", "Segment with BigFish", "Load Imaris surfaces"]
         for i in range(len(methods)):
             self.method.addItem(methods[i])
         self.method.setCurrentIndex(methods.index(defmethod))
@@ -241,12 +241,29 @@ class GetRNA(QWidget):
             self.segment_rna(thresh)
             pbar.update(1)
         else:
-            self.main.add_cell_contours()
-            pbar.update(1)
-            print("-------- Loading segmented/assigned RNA "+str(self.rnachannel)+" from file -------")
-            self.load_segmentationfile_rna()
+            if self.method.currentText() == "Load Imaris surfaces":
+                self.load_imaris_surface( pbar )
+            else:
+                ## loading previous file
+                self.main.add_cell_contours()
+                pbar.update(1)
+                print("-------- Loading segmented/assigned RNA "+str(self.rnachannel)+" from file -------")
+                self.load_segmentationfile_rna()
         ut.close_progress( self.viewer, pbar )
         ut.show_duration( start_time, "RNAs loaded/segmented in " )
+
+    def load_imaris_surface( self, pbar ):
+        """ Load points from Imaris surface Statistics files """
+        position_file = os.path.join( self.mig.imagedir, self.mig.imagename+"_Statistics", self.mig.imagename+"_Position.csv" )
+        if not os.path.exists( position_file ):
+            ut.show_error( "No Imaris Position file found: "+position_file+" not found. Create it before" )
+            return
+        self.main.add_cell_contours()
+        pbar.update(1)
+        print("-------- Loading Imaris files for channel "+str(self.rnachannel)+" -------")
+        #self.mig.load_imaris_surface_file( position_file, self.filename.text(), self.rnachannel, topop=True )
+        self.mig.load_imaris_surface_file( position_file, self.rnachannel, topop=True )
+        self.end_segmented_rna()
 
     def channel_choice(self):
         """ Update the parameters in the interface for the selected channel """
@@ -291,6 +308,11 @@ class GetRNA(QWidget):
         unassigned = (labels==-1) + (labels==1)
         labels[unassigned] = 1
         point_properties = { 'label': labels, 'score':scores, 'unassigned': unassigned, 'intensity': np.array([0.0]*len(labs)) }
+        measures = self.mig.get_spots_measure(nchan, measure_name=None)
+        if measures is not None:
+            for key in measures.keys():
+                if measures[key] != []:
+                    point_properties[key] = measures[key]
         fcolor = []
         if "CellContours" in self.viewer.layers:
             for lab in labels:

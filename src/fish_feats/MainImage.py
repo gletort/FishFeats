@@ -708,6 +708,32 @@ class MainImage:
             rnaspot.update_spotsFromDict(rnaspotDict, methodName="Load", pop=pop)
         ut.show_info("RNA spots loaded from file "+str(rnafilename))
     
+    def load_imaris_surface_file( self, imaris_filename, rnac, topop=True ):
+        """ Load RNA spots for given channel from file """
+        pop = None
+        if topop:
+            pop = self.pop
+        rnaspot = RNASpots( rnac, verbose=self.verbose )
+        self.rnas[rnac] = rnaspot
+        
+        # load from a table file
+        rnaspotDict = ut.load_dictlist( imaris_filename, skip=3, verbose=self.verbose )
+        #print(rnaspotDict)
+        rnaspot.update_spotsFromImarisDict(rnaspotDict, scaleXY=self.scaleXY, scaleZ=self.scaleZ, methodName="LoadImaris", pop=pop)
+
+        ## Add spot volume if Imaris Volume file is there
+        self.add_imaris_file( imaris_filename, rnaspot, name="Volume", feature="Volume", feature_name="ImarisVolume" )
+        ut.show_info("RNA spots loaded from Imaris file(s) "+str(imaris_filename))
+
+    def add_imaris_file( self, imaris_filename, rnaspot, name, feature, feature_name ):
+        """ Add values from Imaris statistics file to spots """
+        im_file = imaris_filename.replace("Position", name) 
+        if os.path.exists(im_file):
+            print("Adding "+feature+" to spots from Imaris file")
+            featDict = ut.load_dictlist( im_file, skip=3, verbose=self.verbose )
+            rnaspot.add_imaris_measure( featDict, feature=feature, feature_name=feature_name )
+
+    
     def get_rna_threshold(self, rnachan):
         if self.rnas.get(rnachan) is not None:
             if self.rnas[rnachan].threshold is None:
@@ -833,11 +859,15 @@ class MainImage:
         self.rnas[rnachan].measures[measure_name] = np.greater_equal(measures, threshold).astype(float).tolist()
 
 
-    def get_spots_measure( self, rnachan, measure_name ):
+    def get_spots_measure( self, rnachan, measure_name=None ):
         """ Returns the measure if it exists """
         if self.rnas.get(rnachan) is None:
             print("RNA "+str(rnachan)+" not found")
             return None
+        if measure_name is None:
+            ## return all measures
+            return self.rnas[rnachan].measures
+        ## Or just asked measure
         if self.rnas[rnachan].measures.get(measure_name) is None:
             print("Measure "+str(measure_name)+" not found for RNA "+str(rnachan))
             return None

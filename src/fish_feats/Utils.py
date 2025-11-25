@@ -684,10 +684,14 @@ def load_table(filepath, column_names, verbose=True):
     #print(res)
     return res
 
-def load_dictlist(filepath, verbose=True):
+def load_dictlist(filepath, skip=0, verbose=True):
     """ Load a list of dict results from a .csv file """
     res  = []
     with open(filepath, 'r') as infile:
+        if skip > 0:
+            ## if must skip some rows before to have the table (Imaris statistics files)
+            for i in range(skip):
+                next(infile)
         csvreader = csv.DictReader(infile)
         for row in csvreader:
             res.append(row)

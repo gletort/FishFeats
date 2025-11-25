@@ -276,6 +276,11 @@ class RNASpots:
                 if j != -1:
                     cell.addCount(countName, 1)
 
+    def list_remove( self, li, el):
+        """ Remove element el from li if present """
+        if el in li:
+            li.remove(el)
+
     def update_spotsFromDict( self, spotdict, methodName="", pop=None):
         """ Load all the spots from the given dict """
         self.countName = "nbRNA_C"+str(self.channel)+"_"+methodName
@@ -284,8 +289,24 @@ class RNASpots:
         self.scores = []
         if pop is not None:
             pop.resetCellCounts(self.countName)
-        
+
+        measures = None ## to load other measures saved in the RNA file    
         for row in spotdict:
+
+            ## Check if there are other measures to load from the saved file
+            if measures is None:
+                measures = list(row.keys())
+                self.list_remove(measures, "Z")
+                self.list_remove(measures, "Y")
+                self.list_remove(measures, "X")
+                self.list_remove(measures, "Label")
+                self.list_remove(measures, "Score")
+                self.list_remove(measures, "score")
+                self.list_remove(measures, "unassigned")
+                for meas in measures:
+                    self.measures[meas] = []
+
+            # fishfeats file
             self.spots.append( [int(float(row["Z"])), int(float(row["X"])), int(float(row["Y"]))] )
             lab = int(float(row["Label"])) 
             self.labels.append(lab)
@@ -295,10 +316,58 @@ class RNASpots:
             else:
                 score = 0
             self.scores.append(score)
+            if measures is not None:
+                ## add the other measures if there are some
+                for meas in measures:
+                    if meas in row:
+                        val = float(row[meas])
+                    else:
+                        val = -999 ## missing value
+                    self.measures[meas].append(val)
             if pop is not None:
                 j, cell = pop.findCellWithLabel(lab)
                 if j != -1:
                     cell.addCount(self.countName, 1)
+    
+    def update_spotsFromImarisDict( self, spotdict, scaleXY=1, scaleZ=1, methodName="", pop=None):
+        """ Load all the spots from the given dict """
+        self.countName = "nbRNA_C"+str(self.channel)+"_"+methodName
+        self.spots = []
+        self.labels = []
+        self.scores = []
+        self.measures["ImarisId"] = []
+        if pop is not None:
+            pop.resetCellCounts(self.countName)
+        
+        for row in spotdict:
+            ## Imaris file are in µm
+            if row["Unit"] == 'µm':
+                zpos = float(row["Position Z"]) * scaleZ
+                ypos = float(row["Position Y"]) * scaleXY
+                xpos = float(row["Position X"]) * scaleXY
+            else:
+                zpos = float(row["Position Z"]) 
+                ypos = float(row["Position Y"]) 
+                xpos = float(row["Position X"]) 
+            self.spots.append( [int(zpos), int(ypos), int(xpos)] )
+            self.labels.append(1) 
+            imaris_id = int(float(row["ID"])) 
+            self.measures["ImarisId"].append( imaris_id )
+            score = 0
+            self.scores.append(score)
+
+    def add_imaris_measure( self, imarisdict, feature, feature_name="ImarisFeature" ):
+        """ Add a value from Imaris statistics file to the spots """
+        self.measures[feature_name] = [0]*len(self.measures["ImarisId"])
+        for row in imarisdict:
+            imaris_id = int(float(row["ID"])) 
+            for ind, spot_id in enumerate(self.measures["ImarisId"]):
+                if spot_id == imaris_id:
+                    ## found the spot in the imaris file and in the current spots
+                    feat_value = float( row[feature] )
+                    self.measures[feature_name][ind] = feat_value
+
+
 
     def update_spotsFromImage(self, img, methodName="", pop=None):
         """ Read a labelled RNA spots image (pixel value=cell label), old version """
