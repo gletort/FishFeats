@@ -334,7 +334,7 @@ class PointEditing(QWidget):
         disp_settings["group2"] = ut.get_color("group2")
         disp_settings["group3"] = ut.get_color("group3")
         ## Assignement options
-        auto_line, auto_cbox, self.group_assign = fwid.checkgroup_help( "Automatic assignement", True, "Show/hide automatic assignement options", "Get-rnas", display_settings=disp_settings, groupnb="auto" )
+        auto_line, auto_cbox, self.group_assign = fwid.checkgroup_help( "Automatic assignment", True, "Show/hide automatic assignment options", "Get-rnas", display_settings=disp_settings, groupnb="auto" )
         self.point_editing(paras)
         layout.addLayout( auto_line )
         auto_cbox.setChecked(False)
@@ -427,7 +427,7 @@ class PointEditing(QWidget):
         self.display_mode.addItem("None (all same size)")
         
         ## Choose range of scores to display
-        self.display_mode.addItem("assignement score")
+        self.display_mode.addItem("assignment score")
         self.display_score_layout()
         disp_layout.addWidget(self.score_range_group)
         
@@ -448,7 +448,7 @@ class PointEditing(QWidget):
 
     def display_mode_selected(self):
         """ Set visibility of display mode interfaces from current selection """
-        self.score_range_group.setVisible( self.display_mode.currentText() == "assignement score")
+        self.score_range_group.setVisible( self.display_mode.currentText() == "assignment score")
         self.intensity_range_group.setVisible( self.display_mode.currentText() == "point intensity")
 
     def display_intensity_layout(self):
@@ -504,7 +504,7 @@ class PointEditing(QWidget):
 
     def display_score_layout(self):
         """ Interface for display point range from score """
-        self.score_range_group = QGroupBox("Assignement score")
+        self.score_range_group = QGroupBox("Assignment score")
         score_range_layout = QVBoxLayout() 
         
         ## min value
@@ -848,7 +848,7 @@ class PointEditing(QWidget):
         ## Assignment method choice
         meth_line = QHBoxLayout()
         meth_lab = QLabel()
-        meth_lab.setText("Assignement method:")
+        meth_lab.setText("Assignment method:")
         meth_line.addWidget(meth_lab)
         self.method = QComboBox()
         meth_line.addWidget(self.method)
@@ -1000,7 +1000,7 @@ class PointEditing(QWidget):
         self.end_one_rna( method )
 
     def assign_rna(self):
-        """ Automatic assignement of RNA to cell with chosen parameters """
+        """ Automatic assignment of RNA to cell with chosen parameters """
         self.main.add_cell_contours()
         self.mig.set_spots(self.channel, self.layerrna.data)
         self.layerrna.face_color = "white"
