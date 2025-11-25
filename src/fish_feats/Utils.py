@@ -323,7 +323,15 @@ def has_widget( viewer, widname ):
         return widname in viewer.window._dock_widgets
     return widname in viewer.window.dock_widgets
 
-def remove_widget(viewer, widname):
+def remove_widget( viewer, widname ):
+    """ Remove a widget from the viewer """
+    try:
+        ## catch eventual problems
+        remove_wid( viewer, widname )
+    except:
+        pass
+
+def remove_wid(viewer, widname):
     """ Remove a widget from the viewer """
     if not version_napari_above("0.6.1"):
         ## functions changed in recent version

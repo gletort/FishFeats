@@ -352,7 +352,7 @@ class FishFeats:
         self.main_wid = wid
 
     #### Action choice
-    def getChoices( self, default_action='Get cells'):
+    def getChoices( self, default_action='Cells:Segment'):
         """ Launch the interface of Main step """
         choices = {}
 
@@ -618,6 +618,7 @@ class FishFeats:
     def correction_junctions( self ):
         """ Manual correction of segmentation step """
         ut.removeOverlayText( self.viewer )
+        ut.remove_widget( self.viewer, "Get cells" )
         maskview = self.viewer.add_labels( self.mig.junmask, blending='additive', scale=(self.mig.scaleXY, self.mig.scaleXY), name="Junctions" )
         maskview.contour = 3
         maskview.selected_label = 2
