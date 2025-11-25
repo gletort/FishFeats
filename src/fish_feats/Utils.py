@@ -347,18 +347,7 @@ def remove_wid(viewer, widname):
             wid.destroyOnClose()
     else:
         if widname in viewer.window.dock_widgets:
-            if not version_napari_above("0.6.2"):
-                wid = viewer.window.dock_widgets[widname]
-                wid.setDisabled(True)
-                try:
-                    wid.disconnect()
-                except:
-                    #print("Widget "+widname+" deleted but not disconnected (pyside2)")
-                    pass
-                del viewer.window._dock_widgets[widname]
-                #wid.destroyOnClose()
-            else:
-                viewer.window.remove_dock_widget( viewer.window.dock_widgets[widname] )
+            viewer.window.remove_dock_widget( viewer.window.dock_widgets[widname] )
 
 def hide_color_layers(viewer, mig):
     """ Hide all the originalChannel layers """
