@@ -27,6 +27,7 @@ nav:
         - Touching labels: Touching-labels.md
         - Hierarchical clustering: Hierarchical-clustering.md
         - Add grid: Add-grid.md
+        - Threshold channel: Threshold-channel.md
     - Step by step example: Step-by-step.md
     - Troubleshooting: Known-errors-and-solutions.md
 
