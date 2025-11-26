@@ -159,7 +159,7 @@ class ThresholdChannel( QWidget ):
         vmin = np.min( self.current_layer.data )
         vmax = np.max( self.current_layer.data )
         vmean = np.mean( self.current_layer.data )
-        thres_line, self.threshold = fwid.slider_line( "Threshold:", vmin, vmax, 1, vmean, show_value=False, slidefunc=None, descr="Choose threshold value", div=1 )
+        thres_line, self.threshold = fwid.slider_line( "Threshold:", vmin, vmax, 1, vmean, show_value=True, slidefunc=None, descr="Choose threshold value", div=1 )
         layout.addLayout( thres_line )
 
         self.update_current_layer()
