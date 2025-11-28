@@ -13,6 +13,11 @@ If you are not familiar with the procedure, here are two options for installatio
 [**Easier installation**](#easier-installation): If you have no python virtual environment experience and want to avoid it, you can install napari through the "bundle" distribution. 
 The bundles come with an installer program for Windows and MacOS systemso this allow for an easy installation (everything will be done through graphical interfaces), but allows for less control/flexibility. 
 
+The table below summarizes the installation options that you have and their compatibility (in **November 2025**). 
+For more details for each step, goes to the corresponding paragraph: [**Standard installation**](#standard-installation) for a python management package based installation, and [**Easier installation**](#easier-installation) for the bundle app based installation.
+
+![installation_table](./imgs/installtable.png)
+
 ## Standard installation
 To install FishFeat you need to install napari first. 
 Napari is Python based and you need to install Python management package if you don't have one already. 
