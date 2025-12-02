@@ -31,6 +31,7 @@ You could have version issues between the different modules installed in your en
 
 **Step 1 : install a Python management package (if you don't have one already).** 
 You have different options, but you have to choose one:  
+
 - Miniforge (**recommended**): fast, free but no interface. Follow the detailled steps here to [install miniforge](https://kirenz.github.io/codelabs/codelabs/miniforge-setup/#0)
 - venv: fast and simple install in general, no interface. See [tutorial here](https://www.geeksforgeeks.org/create-virtual-environment-using-venv-python/)
 - Mamba: fast, free but no interface. See [here](https://informatics.fas.harvard.edu/resources/tutorials/installing-command-line-software-conda-mamba/)
