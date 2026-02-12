@@ -958,6 +958,8 @@ class MainImage:
     def measure_nuclear_intensity( self, channel ):
         """ Measure intensity in segmented nuclei """
         img = self.image[channel]
+        if not self.pop.has_nuclei():
+            self.pop.createNucleiFromMask(associate=False, verbose=False, scaleXY=self.scaleXY, scaleZ=self.scaleZ)
         results = self.pop.measureNuclearStaining( img, channel )
         return results
 

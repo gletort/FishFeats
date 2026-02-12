@@ -196,7 +196,7 @@ class NucleiWidget(QWidget):
         self.paras["Stardist_nuclei_overlap"] = 0.1
         self.paras["Stardist_association_distance_limit_micron"] = 0.3
         self.paras["Stardist_threshold_overlap"] = 0.2
-        self.paras["Cellpose_cell_diameter"] = 8
+        self.paras["Cellpose_cell_diameter"] = 30
         self.paras["Cellpose_detection_threshold"] =0.0
         self.paras["Cellpose_resample"] = True 
         self.paras["Cellpose_in3D"] = True
