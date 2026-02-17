@@ -556,6 +556,7 @@ class Nucleus:
         results["NucleusMeanIntensity_C"+str(chan)] = np.mean( intensities )
         results["NucleusStdIntensity_C"+str(chan)] = np.std( intensities )
         results["NucleusMedianIntensity_C"+str(chan)] = np.median( intensities )
+        results["NucleusTotalIntensity_C"+str(chan)] = np.sum( intensities )
         return results 
 
     def measureNuclear( self, nuclearchannels, image, meanbgints, result ):
