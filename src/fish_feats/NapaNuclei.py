@@ -437,6 +437,7 @@ class FinishNuclei( QWidget ):
         if 'segmentedNuclei' in self.viewer.layers:
             outname = self.mig.nuclei_filename(ifexist=False)
             self.mig.save_image( self.viewer.layers["segmentedNuclei"].data, outname, hasZ=True )
+            self.mig.update_nuclei_pop()
 
     def nuclei_done( self ):
         """ Finish the nuclei editing step, close everything """

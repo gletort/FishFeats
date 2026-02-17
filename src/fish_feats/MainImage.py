@@ -955,6 +955,11 @@ class MainImage:
         meanz = self.pop.getMeanCellsZ()
         return int(meanz)
 
+    def update_nuclei_pop(self):
+        """ Update the nuclei pop objects to match the nuclei mask """
+        if self.pop is not None:
+            self.pop.createNucleiFromMask(associate=False, verbose=False, scaleXY=self.scaleXY, scaleZ=self.scaleZ)
+
     def measure_nuclear_intensity( self, channel ):
         """ Measure intensity in segmented nuclei """
         img = self.image[channel]
