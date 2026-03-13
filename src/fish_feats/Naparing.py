@@ -704,6 +704,12 @@ class TouchingLabels( QWidget):
         self.cfg = cfg
 
         layout = QVBoxLayout()
+        ## regenerate with higher label expansion
+        exp_line, self.expansion_value = fwid.value_line( "Cell expansion", 3, descr="Amount of cell expansion to make them touch" )
+        layout.addLayout( exp_line )
+        exp_btn = fwid.add_button( "Update touching labels image", self.update_touching_labels_image, descr="Update the image of expanded cell labels" )  
+        layout.addWidget( exp_btn )
+        
         ## save the image
         save_btn = fwid.add_button( "Save touching labels image", self.save_touching_labels_image, descr="Save the resulting image of expanded cell labels", color=ut.get_color("save") )  
         layout.addWidget( save_btn )
@@ -712,6 +718,32 @@ class TouchingLabels( QWidget):
         scale_btn = fwid.add_button( "Scale Griottes image", self.scale_griottes, descr="Scale the images resulting from Griottes computing to the main image scale" )  
         layout.addWidget( scale_btn )
         self.setLayout(layout)
+    
+    def update_touching_labels_image( self ):
+        """ Update touching cells image by recalculating the cell expansion """
+        from skimage.morphology import binary_opening
+        from skimage.segmentation import expand_labels
+        print("**Update touching labels image ")
+        ut.remove_layer( self.viewer, "TouchingCells" )
+    
+        ## get junctions img
+        if "Cells" not in self.viewer.layers:
+            if self.mig.pop is None or self.mig.pop.imgcell is None:
+                ut.show_info("Load segmentation before!")
+                return
+            labimg = self.viewer.add_labels(self.mig.pop.imgcell, name="Cells", scale=(self.mig.scaleXY, self.mig.scaleXY), opacity=1, blending="additive")
+            labimg.contour = 0
+
+        ## skeletonize it
+        distance = int(self.expansion_value.text())
+        img = self.viewer.layers["Cells"].data
+        ext = np.zeros(img.shape, dtype="uint8")
+        ext[img==0] = 1
+        ext = binary_opening(ext, footprint=np.ones((distance,distance)))
+        newimg = expand_labels(img, distance=distance+2)
+        newimg[ext>0] = 0
+        newlay = self.viewer.add_labels(newimg, name="TouchingCells", scale=(self.mig.scaleXY, self.mig.scaleXY), opacity=1, blending="additive")
+        newlay.contour = 0
     
     def save_touching_labels_image( self ):
         """ Save the touching labels image """
