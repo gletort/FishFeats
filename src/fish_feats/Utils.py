@@ -130,6 +130,7 @@ def main_shortcuts(viewer):
     text = "-------------------------- Fish&Feats -------------------------- \n"
     text += view_shortcuts()
     text += labels_shortcuts( level = 1 )
+    text += edit_shortcuts( level = 1)
     text += association_shortcuts()
     text += rnas_shortcuts()
     text += pos3d_shortcuts()
@@ -196,6 +197,12 @@ def pos3d_shortcuts():
     text = " ---------- 3D positionning shortcuts, active on CellContours layer \n"
     text = text + help_shortcut("pos3d")
     text += "\n"
+    return text
+
+def edits_shortcuts( level=1 ):
+    text = ""
+    text += "  <Alt+left click> from one point to another point in a nuclei to split it in two nuclei  \n"
+    text += "  <Alt+right-click> on a missing nuclei to segment it \n" 
     return text
 
 def labels_shortcuts( level=1 ):
@@ -968,6 +975,31 @@ def make_bbox2D(bbox_extents, mig):
     )
     bbox_rect = np.moveaxis(bbox_rect, 2, 0)
     return bbox_rect
+
+def get_neighbor_center( labimg, position, radius=10 ):
+    """ Get the center position of the neighbor labels of position """
+    # Crop the image around position with given radius
+    x_min = max(0, int(position[2] - radius))
+    x_max = min(labimg.shape[2], int(position[2] + radius))
+    y_min = max(0, int(position[1] - radius))
+    y_max = min(labimg.shape[1], int(position[1] + radius))
+    z_min = max(0, int(position[0] - radius))
+    z_max = min(labimg.shape[0], int(position[0] + radius))
+    cropped = labimg[z_min:z_max, y_min:y_max, x_min:x_max]
+
+    # Get regionprops from cropped image
+    bbox = regionprops_table(cropped, properties=('label', 'bbox'))
+    centers = []
+    # Process each label and shift coordinates back to main image
+    for i, label in enumerate(bbox['label']):
+        if label == 0:
+            continue
+        bbox_coords = [bbox[f'bbox-{j}'][i] for j in range(6)]
+        center = [(bbox_coords[0] + bbox_coords[3]) / 2 + z_min,
+              (bbox_coords[1] + bbox_coords[4]) / 2 + y_min,
+              (bbox_coords[2] + bbox_coords[5]) / 2 + x_min]
+        centers.append(center) 
+    return centers
 
 
 def get_bblayer(lablayer, name, dim, viewer, mig):

@@ -561,6 +561,11 @@ class MainImage:
         radZ = floor(self.scaleZ/self.scaleXY*radius)
         self.nucstain = preprocessRemoveBg(self.nucstain, radXY, radZ)
 
+    def get_nuclei_staining( self ):
+        """ Returns the (separated if needed) nuclei staining """
+        self.prepare_nuclei()
+        return self.nucstain
+
     def prepare_nuclei(self):
         if self.nucstain is None:
             self.prepare_segmentation_nuclei()

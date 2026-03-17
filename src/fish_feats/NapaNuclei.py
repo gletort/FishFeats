@@ -317,7 +317,7 @@ class NucleiWidget(QWidget):
         else:
             if self.mig.should_separate():
                 ut.show_info("Junctions and nuclei staining in the same channel, separate them first")
-                separation = Separation( self.viewer, self.mig, self.cfg ) 
+                separation = Separation( self.ffeats ) 
                 self.viewer.window.add_dock_widget(separation, name="Separate")
             else:
                 if self.method_choice.currentText() == "CellPose3D":
@@ -346,8 +346,167 @@ class NucleiWidget(QWidget):
         filter_nuclei = FilterNuclei( self.viewer, self.mig, self.cfg )
         self.viewer.window.add_dock_widget( filter_nuclei, name="Filtering" )
         self.ffeats.showCellsWidget("segmentedNuclei", shapeName="NucleiName", dim=3)
+        self.add_edition()
+        help_text = ut.labels_shortcuts( level = 0 )
+        header = ut.helpHeader(self.viewer, "segmentedNuclei")
+        edit_text = ut.edits_shortcuts( level=0 )
+        ut.showOverlayText(self.viewer, header+help_text+edit_text)
         finish_nuc = FinishNuclei( self.viewer, self.mig, self.cfg )
         self.viewer.window.add_dock_widget( finish_nuc, name="End nuclei" )
+
+    def add_edition( self ):
+        """ Add options to edit the segmentation """
+        ed = EditNuclei( self.viewer, self.mig )
+        layer = self.viewer.layers[ "segmentedNuclei" ]
+        
+        @layer.mouse_drag_callbacks.append
+        def clicks_label(layer, event):
+            if event.type == "mouse_press":
+                if len(event.modifiers) == 0:
+                    return
+        
+                if 'Alt' in event.modifiers:
+                    if event.button == 1:
+                        ## Split one nuclei in 2 
+                        start_position = layer.world_to_data(event.position)
+                        start_label = layer.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
+                        yield
+                        while event.type == 'mouse_move':
+                            yield
+                        end_position = layer.world_to_data(event.position)
+                        end_label = layer.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
+                        #frame = None
+                        #if layer.ndim == 3:
+                        #    frame = int(self.viewer.dims.current_step[0])
+                        if start_label != end_label:
+                            ut.show_warning( "Already different cells, don't split" )
+                            return
+                        ## erase the label
+                        layer.data[layer.data==start_label] = 0
+                        layer.refresh()
+                        nucimg = self.mig.get_nuclei_staining()
+                        ed.split_cells( layer, nucimg, start_label, start_position, end_position )
+                        return
+                    if event.button == 2:
+                        ## Create a new nuclei from a seed point
+                        position = layer.world_to_data(event.position)
+                        label = layer.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
+                        if label > 0:
+                            ut.show_warning("There is already a nuclei under the click. Cannot add a new one")
+                            return
+                        nucimg = self.mig.get_nuclei_staining()
+                        ed.new_cell( layer, nucimg, position )
+                        return
+        return ed
+
+class EditNuclei():
+    """ Edition of nuclei segmentation """
+
+    def __init__( self, viewer, mig ):
+        """ prepare edition """
+        self.viewer = viewer
+        self.mig = mig
+        self.session = None
+        self.image_ready = False
+
+    def initialize_nn( self ):
+        """ Initialize nn-Interactive """
+        from huggingface_hub import snapshot_download
+        from nnInteractive.inference.inference_session import nnInteractiveInferenceSession
+        import torch
+        import os
+
+        REPO_ID = "nnInteractive/nnInteractive"
+        MODEL_NAME = "nnInteractive_v1.0" 
+
+        download_path = snapshot_download(
+            repo_id=REPO_ID,
+            allow_patterns=[f"{MODEL_NAME}/*"],
+            force_download=False,
+        )
+
+        # --- Initialize Inference Session ---
+        self.session = nnInteractiveInferenceSession(
+            device=torch.device("cuda:0"),  # Set inference device
+            use_torch_compile=False,  # Experimental: Not tested yet
+            verbose=False,
+            torch_n_threads=int(os.cpu_count()*0.75),  # Use available CPU cores
+            do_autozoom=True,  # Enables AutoZoom for better patching
+            use_pinned_memory=True,  # Optimizes GPU memory transfers
+        )
+
+        # Load the trained model
+        model_path = os.path.join(download_path, MODEL_NAME)
+        self.session.initialize_from_trained_model_folder(model_path)
+
+    def set_image_nn( self, img ):
+        """ Set the current image in the nnInteractive session """
+        import torch
+        if self.session is None:
+            self.initialize_nn()
+        self.session.set_image( img[np.newaxis,...] ) # img in nn must be 4d
+        shape = img.shape
+        if len(shape) > 3:
+            shape = shape[1:]
+        target_tensor = torch.zeros( shape, dtype=torch.uint8)
+        self.session.set_target_buffer( target_tensor )
+        self.image_ready = True
+
+    def new_cell( self, layer, nucimg, position ):
+        """ Segment a new nuclei around the click """
+        if not self.image_ready:
+            self.set_image_nn( nucimg )
+        points = [position]
+        positives = [True]
+        points, positives = self.append_negative_neighbors( layer, position, 60, points, positives )
+        lab = self.run_nn_point( points, positives )
+        new_label = np.max( layer.data ) + 1
+        layer.data[(layer.data==0)&(lab>0)] = new_label
+        print( "Added nuclei "+str(new_label) )
+        layer.refresh()
+
+    def append_negative_neighbors( self, layer, position, radius, points, positives ):
+        """ Add eventual label neighbors as negative points """
+        # get eventual labels around the point, and put them as negative points if there are
+        neighbor_centers = ut.get_neighbor_center( layer.data, position, radius=radius )
+        for nei in neighbor_centers:
+            points.append(nei)
+            positives.append(False)
+        return points, positives
+
+    def split_cells( self, layer, nucimg, label, start_position, end_position ):
+        """ split one cell in two cells, resegment each """
+        if not self.image_ready:
+            self.set_image_nn( nucimg )
+        points = [start_position, end_position]
+        positives = [ True, False ]
+        points, positives = self.append_negative_neighbors( layer, start_position, 60, points, positives )
+        lab = self.run_nn_point( points, positives )
+        ## put label on the first cell
+        layer.data[(layer.data==0)&(lab>0)] = label
+        positives = [ False, True ]
+        points, positives = self.append_negative_neighbors( layer, end_position, 60, points, positives )
+        lab = self.run_nn_point( points, positives )
+        ## second cell, new label
+        layer.data[(layer.data==0)&(lab>0)] = np.max(layer.data)+1
+        layer.refresh()
+
+    def run_nn_point( self, points, positives ):
+        """ Run nn-interactive inference with pos/neg points """
+        for pt, pos in zip(points, positives):
+            self.nn_add_point( pt, pos )
+        ## compute
+        result = self.session.target_buffer.clone()
+        res = result.detach().cpu().numpy()
+        self.session.reset_interactions()  ## clear it
+        return res
+
+    def nn_add_point( self, point, positive ):
+        """ Add input point to nn-Interactive, as positive or negative """
+        self.session.add_point_interaction( point, include_interaction=positive ) 
+
+
+
 
 class FilterNuclei( QWidget ):
     """ Filter to remove/correct nuclei segmentation """
