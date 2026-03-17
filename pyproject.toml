@@ -33,7 +33,7 @@ dependencies = [
     "big-fish>=0.6.2",
     "napari<0.6.4; python_version < '3.11'",
     "napari; python_version >= '3.11'",
-	"nninteractive"
+	"nninteractive",
 	"torch<=2.6",
     "numpy<=1.26.4; python_version < '3.11'",
     "numpy; python_version >= '3.11'",
