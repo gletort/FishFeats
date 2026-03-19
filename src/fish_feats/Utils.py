@@ -203,6 +203,7 @@ def edits_shortcuts( level=1 ):
     text = ""
     text += "  <Alt+left click> from one point to another point in a nuclei to split it in two nuclei  \n"
     text += "  <Alt+right-click> on a missing nuclei to segment it \n" 
+    text += "  <Shift+left-click> on the diagonal of bounding box of a nuclei to segment it \n" 
     return text
 
 def labels_shortcuts( level=1 ):

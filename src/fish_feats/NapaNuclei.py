@@ -397,6 +397,19 @@ class NucleiWidget(QWidget):
                         nucimg = self.mig.get_nuclei_staining()
                         ed.new_cell( layer, nucimg, position )
                         return
+                
+                if 'Shift' in event.modifiers:
+                    if event.button == 1:
+                        ## segment a new nuclei from a bounding box created from first to last points
+                        start_position = layer.world_to_data(event.position)
+                        yield
+                        while event.type == 'mouse_move':
+                            yield
+                        end_position = layer.world_to_data(event.position)
+                        nucimg = self.mig.get_nuclei_staining()
+                        ed.new_cell_from_bbox( layer, nucimg, start_position, end_position )
+                        return
+
         return ed
 
 class EditNuclei():
@@ -427,7 +440,8 @@ class EditNuclei():
 
         # --- Initialize Inference Session ---
         device = ( torch.device("cuda") if torch.cuda.is_available()
-            else torch.device("mps") if torch.backends.mps.is_available()
+            ## did not work on mps
+            #else torch.device("mps") if torch.backends.mps.is_available()
             else torch.device("cpu")
         )
         self.session = nnInteractiveInferenceSession(
@@ -466,6 +480,26 @@ class EditNuclei():
         lab = self.run_nn_point( points, positives )
         new_label = np.max( layer.data ) + 1
         layer.data[(layer.data==0)&(lab>0)] = new_label
+        print( "Added nuclei "+str(new_label) )
+        layer.refresh()
+
+
+    def new_cell_from_bbox( self, layer, nucimg, start_position, end_position ):
+        """ Creates a bbox around the start and end position and segment with NNInteractive """
+        if not self.image_ready:
+            self.set_image_nn( nucimg )
+        bbox_coordinates = [
+        [min(start_position[0], end_position[0]), max(start_position[0], end_position[0])+1],  # X
+        [min(start_position[1], end_position[1]), max(start_position[1], end_position[1])+1],  # Y
+        [min(start_position[2], end_position[2]), max(start_position[2], end_position[2])+1],  # Z
+        ]
+        self.session.add_bbox_interaction(bbox_coordinates, include_interaction=True)
+        ## compute
+        result = self.session.target_buffer.clone()
+        res = result.detach().cpu().numpy()
+        self.session.reset_interactions()  ## clear it
+        new_label = np.max( layer.data )+1
+        layer.data[(layer.data==0)&(res>0)] = new_label
         print( "Added nuclei "+str(new_label) )
         layer.refresh()
 
