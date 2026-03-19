@@ -426,8 +426,12 @@ class EditNuclei():
         )
 
         # --- Initialize Inference Session ---
+        device = ( torch.device("cuda") if torch.cuda.is_available()
+            else torch.device("mps") if torch.backends.mps.is_available()
+            else torch.device("cpu")
+        )
         self.session = nnInteractiveInferenceSession(
-            device=torch.device("cuda:0"),  # Set inference device
+            device=device,  # Set inference device
             use_torch_compile=False,  # Experimental: Not tested yet
             verbose=False,
             torch_n_threads=int(os.cpu_count()*0.75),  # Use available CPU cores
