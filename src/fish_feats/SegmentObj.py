@@ -9,93 +9,53 @@ import fish_feats.Utils as ut
 from fish_feats.Association import associateNucleus, associateNucleusOverlap
 from skimage.filters import sato
 from skimage.morphology import skeletonize, binary_closing
-from skimage.segmentation import find_boundaries
-from skimage.segmentation import clear_border
+from skimage.segmentation import find_boundaries, clear_border
 from skimage.measure import label
 from skimage.exposure import adjust_gamma
 import time
 import tempfile
+from importlib import resources
+import appose
 
 """
     Functions to segment junctions or nuclei
 """
 
-def run_epyseg(input_folder):
-    import tensorflow as tf
-
-    # libraries loaded checking epyseg to see if everything is functional
+def run_epyseg( input_folder ):
+    """ Run epyseg on a separate virtual environement through appose """
     try:
-        from epyseg.img import Img
-        from epyseg.deeplearning.deepl import EZDeepLearning
-        from epyseg.deeplearning.augmentation.meta import MetaAugmenter
-        from epyseg.deeplearning.augmentation.generators.data import DataGenerator
-        deepTA = EZDeepLearning()
-    except:
-        print('EPySeg failed to load.')
-    
-    # Load a pre-trained model
-    pretrained_model_name = 'Linknet-vgg16-sigmoid-v2'
-    pretrained_model_parameters = deepTA.pretrained_models[pretrained_model_name]
+        pixi_file = resources.files("fish_feats.resources").joinpath("pixi.toml")
+        ut.show_info("Build/Load tensorflow environment")
+        env = appose.pixi( pixi_file ).log_debug()
+        env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
+        #env = env.subscribe_error( lambda line: print("ERR:", line, end="") )
+        env = env.build()
+        ut.show_info(f"Environment built at: {env.base()}")
+        python = env.python().init("import numpy as np; import tensorflow as tf;")
+        #python.debug(lambda msg: print("[DBG]", msg))
+        
+        def log_listener(event):
+            """ Transfer appose task message to the main logger """
+            if event.message:
+               print( f"[task] {event.message}" )
 
-    deepTA.load_or_build(model=None, model_weights=None,
-                             architecture=pretrained_model_parameters['architecture'], backbone=pretrained_model_parameters['backbone'],
-                             activation=pretrained_model_parameters['activation'], classes=pretrained_model_parameters['classes'],
-                             input_width=pretrained_model_parameters['input_width'], input_height=pretrained_model_parameters['input_height'],
-                             input_channels=pretrained_model_parameters['input_channels'],pretraining=pretrained_model_name)
-    #epydir = os.path.join(os.path.abspath(".."), "epyseg_net")
-    #deepTA.load_weights( os.path.join(epydir,'Linknet-vgg16-sigmoid-v2.h5') )
-
-    input_val_width = 256
-    input_val_height = 256
-    
-    input_shape = deepTA.get_inputs_shape()
-    output_shape = deepTA.get_outputs_shape()
-    if input_shape[0][-2] is not None:
-        input_val_width=input_shape[0][-2]
-    if input_shape[0][-3] is not None:
-        input_val_height=input_shape[0][-3]
-    #print(input_shape)
-    deepTA.compile(optimizer='adam', loss='bce_jaccard_loss', metrics=['iou_score'])
-      
-    range_input = [0,1]
-    input_normalization = {'method': 'Rescaling (min-max normalization)',
-                        'individual_channels': True, 'range': range_input, 'clip': True} 
-
-    predict_generator = deepTA.get_predict_generator(
-            inputs=[input_folder], input_shape=input_shape,
-            output_shape=output_shape, 
-            default_input_tile_width=input_val_width, 
-            default_input_tile_height=input_val_height,
-            tile_width_overlap=32,
-            tile_height_overlap=32, 
-            input_normalization=input_normalization, 
-            clip_by_frequency={'lower_cutoff': None, 'upper_cutoff': None, 'channel_mode': True} )
-
-    post_process_parameters={}
-    post_process_parameters['filter'] = None
-    post_process_parameters['correction_factor'] = 1
-    post_process_parameters['restore_safe_cells'] = False ## no eff
-    post_process_parameters['cutoff_cell_fusion'] = None
-    post_proc_method = 'Rescaling (min-max normalization)'
-    post_process_parameters['post_process_algorithm'] = post_proc_method
-    post_process_parameters['threshold'] = None  # None means autothrehsold # maybe add more options some day
-
-    predict_output_folder = os.path.join(input_folder, 'predict')
-    print("Starting segmentation with EpySeg.....")
-    deepTA.predict(predict_generator, 
-                output_shape, 
-                predict_output_folder=predict_output_folder,
-                batch_size=1, **post_process_parameters)
-    
-    deepTA.clear_mem()
-    if not os.access(predict_output_folder, os.W_OK):
-        os.chmod(predict_output_folder, stat.S_IWUSR)
-    #deepTA = None
-    del deepTA
+        try:
+            epyseg_script = resources.files("fish_feats.resources").joinpath("run_epyseg.py")
+            epyseg_script = epyseg_script.read_text()
+            task = python.task( epyseg_script )
+            task.listen( log_listener )
+            task.inputs["input_folder"] = input_folder 
+            print("launch script")
+            task.wait_for()
+        except Exception as e:
+            raise RuntimeError("Running epyseg in separated environement failed") from e
+        finally:
+            python.close()
+    except Exception as e:
+        raise RuntimeError("Epyseg in separated environement failed") from e
 
 def run_epyseg_onimage(img, filedir, filename, verbose=True):
     from PIL import Image
-    import os
 
     binimg = None
     tmpdir_path = None
@@ -132,7 +92,6 @@ def run_epyseg_onimage(img, filedir, filename, verbose=True):
 
 def run_epyseg_onimage_fold(img, filedir, filename, verbose=True):
     from PIL import Image
-    import os
     import shutil
     import stat
     
@@ -332,36 +291,72 @@ def prepNuclei(img):
     img = (img-quants[0])/(quants[1]-quants[0])
     return img
 
-def stardist2D(img, prob, over):
+def share_as_ndarray(img: np.ndarray) -> appose.NDArray:
+    """Copies a NumPy array into a same-sized newly allocated block of shared memory."""
+    shared = appose.NDArray(str(img.dtype), img.shape)
+    shared.ndarray()[:] = img
+    return shared
+
+def stardist2D( img, prob, over, progress_bar=None ):
     """ run stardist model, segment nuclei in 2D """
     try:
-        from csbdeep.utils import Path, normalize
-        from stardist.models import StarDist2D
-    except ModuleNotFoundError:
-        ut.show_error("Stardist2D not installed, please install stardist with pip install stardist")
-        return None
-    
-    model = StarDist2D.from_pretrained('2D_paper_dsb2018')  ## 2D_versatile_fluo, find more nuclei than paper_dsb2018
-    axis_norm = None ## normalize jointly
-    labs = []
-    tiling = (int(img.shape[1]/2000)+1, int(img.shape[2]/2000)+1)
-    nuclei = np.zeros(img.shape, "uint16")
-    for ind, im in enumerate(img):
-        #if np.mean(im)<0.1:    ## nearly empty slice, makes it bug
-        #    labels = np.zeros(im.shape)
-        #else:
-        #    im = normalize(im, 1, 99.8, axis=axis_norm)
-        labels, details = model.predict_instances(im, n_tiles=tiling, prob_thresh=prob, nms_thresh=over, show_tile_progress=True)
-        nuclei[ind,] = labels
-    return nuclei
+        pixi_file = resources.files("fish_feats.resources").joinpath("pixi.toml")
+        ut.show_info("Build/Load tensorflow environment")
+        env = appose.pixi( pixi_file ).log_debug()
+        env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
+        #env = env.subscribe_error( lambda line: print("ERR:", line, end="") )
+        env = env.build()
+        ut.show_info(f"Environment built at: {env.base()}")
+        python = env.python().init("import numpy as np; import tensorflow as tf;")
+        #python.debug(lambda msg: print("[DBG]", msg))
+        if progress_bar is None:
+            progress_bar = ut.start_progress( None, total=1, descr="Stardist segmentation" )
+            toclose = True
+        else:
+            progress_bar.set_description( "Stardist segmentation" )
+            toclose = False
+        
+        def log_listener(event):
+            """ Transfer appose task message to the main logger """
+            if event.current and event.maximum:
+                print( f"Segmenting slice {event.current}/{event.maximum}" )
+                ut.show_info( f"Segmenting slice {event.current}/{event.maximum}" )
+                #progress_bar.update( cur )
+                #progress_bar.total = total 
+            else:
+                if event.message:
+                    print( f"[task] {event.message} " )
 
-def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMode="Munkres", assolim=3, threshold_overlap=0.25, verbose=True):
+        try:
+            stardist_script = resources.files("fish_feats.resources").joinpath("run_stardist.py")
+            stardist_script = stardist_script.read_text()
+            with share_as_ndarray(img) as image:
+                task = python.task( stardist_script )
+                task.listen( log_listener )
+                task.inputs["img"] = image 
+                task.inputs["stardist_probability"] = prob
+                task.inputs["stardist_overlap"] = over
+                task.wait_for()
+                result = image.ndarray()
+                return np.uint16( result )
+        except Exception as e:
+            raise RuntimeError("Running epyseg in separated environement failed") from e
+        finally:
+            python.close()
+            if toclose:
+                ut.close_progress( None, progress_bar=progress_bar )
+    except Exception as e:
+        raise RuntimeError("Epyseg in separated environement failed") from e
+
+def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMode="Munkres", assolim=3, threshold_overlap=0.25, verbose=True, progress_bar=None):
     """ Segment nuclei with Stardist2D and reconstruct in 3D - return the nuclei list """
     
     ## segment 2D
-    labnuc = stardist2D(nucimg, prob=proba, over=overlap)
+    labnuc = stardist2D(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
     if labnuc is None:
         return None
+    if progress_bar is not None:
+        progress_bar.set_description( "Reconstructing now in 3D..." ) 
     ## reconstruct 3D
     if assoMode == "Munkres":
         labels = associateNucleus(labnuc, dlimit=assolim, scaleXY=scaleXY)  ## distance 2D in micrcons  -2.5

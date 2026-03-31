@@ -606,7 +606,7 @@ class MainImage:
             self.pop.setNucleiImage(self.nucmask)
     
     # stardist2D+association 3D
-    def do_segmentation_stardist(self, threshold, overlap, assoMethod, associationlim, threshold_overlap):
+    def do_segmentation_stardist(self, threshold, overlap, assoMethod, associationlim, threshold_overlap, progress_bar=None):
         ut.show_info("Segmenting nuclei with Stardist2D+association3D")
         from fish_feats.SegmentObj import prepNuclei, getNuclei_stardist2DAsso3D
         treatedNuclei = prepNuclei(self.nucstain)  ## normalize the image
@@ -616,7 +616,7 @@ class MainImage:
                             assoMode = assoMethod,
                             assolim=associationlim,
                             threshold_overlap=threshold_overlap,
-                            verbose=self.verbose )
+                            verbose=self.verbose, progress_bar=progress_bar )
         if self.nucmask is None:
             return
         self.nucmask[self.nucmask>0] = self.nucmask[self.nucmask>0] + 1

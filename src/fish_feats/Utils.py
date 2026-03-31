@@ -44,6 +44,8 @@ def show_debug(message):
 
 def show_progress( viewer, show ):
     """ Show.hide the napari activity bar to see processing progress """
+    if viewer is None:
+        viewer = napari.current_viewer()
     viewer.window._status_bar._toggle_activity_dock( show )
 
 def start_progress( viewer, total, descr=None ):
