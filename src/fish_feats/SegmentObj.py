@@ -320,7 +320,7 @@ def stardist2D( img, prob, over, progress_bar=None ):
             """ Transfer appose task message to the main logger """
             if event.current and event.maximum:
                 print( f"Segmenting slice {event.current}/{event.maximum}" )
-                ut.show_info( f"Segmenting slice {event.current}/{event.maximum}" )
+                #ut.show_info( f"Segmenting slice {event.current}/{event.maximum}" )
                 #progress_bar.update( cur )
                 #progress_bar.total = total 
             else:
@@ -340,13 +340,13 @@ def stardist2D( img, prob, over, progress_bar=None ):
                 result = image.ndarray()
                 return np.uint16( result )
         except Exception as e:
-            raise RuntimeError("Running epyseg in separated environement failed") from e
+            raise RuntimeError("Running stardist in separated environement failed") from e
         finally:
             python.close()
             if toclose:
                 ut.close_progress( None, progress_bar=progress_bar )
     except Exception as e:
-        raise RuntimeError("Epyseg in separated environement failed") from e
+        raise RuntimeError("Stardist in separated environement failed") from e
 
 def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMode="Munkres", assolim=3, threshold_overlap=0.25, verbose=True, progress_bar=None):
     """ Segment nuclei with Stardist2D and reconstruct in 3D - return the nuclei list """

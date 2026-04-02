@@ -2,108 +2,67 @@ import numpy as np
 import cv2
 import scipy.ndimage as ndimage
 from napari.utils.notifications import show_info
-from math import floor
 import time
+import fish_feats.Utils as ut
 from napari.utils import progress
+from importlib import resources
+import appose
+
+def share_as_ndarray(img: np.ndarray) -> appose.NDArray:
+    """Copies a NumPy array into a same-sized newly allocated block of shared memory."""
+    shared = appose.NDArray(str(img.dtype), img.shape)
+    shared.ndarray()[:] = img
+    return shared
 
 def sepanet( img, sepdir, patchsize=256 ):
     """ Separate junctions and nuclei with trained DL """
     print("sepaNet with models in "+str(sepdir))
+    try:
+        pixi_file = resources.files("fish_feats.resources").joinpath("pixi.toml")
+        ut.show_info("Build/Load tensorflow environment")
+        env = appose.pixi( pixi_file ).log_debug()
+        env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
+        env = env.build()
+        ut.show_info(f"Environment built at: {env.base()}")
+        python = env.python().init("import numpy as np; import tensorflow as tf;")
+        #python.debug(lambda msg: print("[DBG]", msg))
+        progress_bar = ut.start_progress( None, total=1, descr="SepaNet separation" )
+        
+        def log_listener(event):
+            """ Transfer appose task message to the main logger """
+            if event.current and event.maximum:
+                print( f"Separating slice {event.current}/{event.maximum}" )
+                #ut.show_info( f"Separiting slice {event.current}/{event.maximum}" )
+                #progress_bar.update( cur )
+                #progress_bar.total = total 
+            else:
+                if event.message:
+                    print( f"[task] {event.message} " )
 
-    ## to allocate more gpus, try
-    import tensorflow as tf
-    print(tf.test.is_built_with_cuda())
-    print(tf.__version__)
-    print("Num GPUs Available: ", len(tf.config.list_physical_devices('GPU')))
-    ###config = tf.compat.v1.ConfigProto(
-      #device_count = {'GPU': 0}
-    ####)
-    ####sess = tf.compat.v1.Session(config=config)
-    ####tf.compat.v1.keras.backend.set_session(sess)
-
-    # load model
-    model_path = sepdir
-    model = tf.keras.models.load_model(model_path, custom_objects={"mse_two":mse_two, "both_MSE":both_MSE, "both_MSE_percent_0":both_MSE_percent_0, "both_MSE_percent_1":both_MSE_percent_1})
-    res = run_on_image( img, model, patchsize, step=50 )
-    return res[:,:,:,0], res[:,:,:,1]
-
-def run_on_image(imgtest, model, patchsize, step=50):
-    imgtest.astype(float)
-    imgtest = normalise(imgtest)
-    imgtest = smooth(imgtest)
-
-    ## handle case of very small image, smaller than the patchsize
-    smallimg = None
-    if (imgtest.shape[1] < patchsize) or (imgtest.shape[2] < patchsize):
-        smallimg = np.copy(imgtest)
-        imgtest = np.zeros((imgtest.shape[0], patchsize, patchsize)) 
-        imgtest[:,:smallimg.shape[1], :smallimg.shape[2] ] = smallimg
-
-    ## split in patches
-    imshape = imgtest.shape
-    shapey = imshape[1]
-    shapex = imshape[2]
-    resimg = np.zeros(imshape+(2,), dtype="float")
-
-    #for z, zimg in enumerate(imgtest):
-    for z in progress(range(imgtest.shape[0])):
-        zimg = imgtest[z]
-        patchs = []
-        nimg = np.zeros(imshape[1:3]+(2,), dtype="uint8")
-        inds = []
-        for y in range(floor(shapey/step)):
-            ey = min(y*step+patchsize, shapey)
-            sy = ey - patchsize
-            for x in range(floor(shapex/step)):
-                ex = x*step+patchsize
-                ex = min(ex, shapex)
-                sx = ex - patchsize
-                patch = zimg[sy:ey, sx:ex]
-                nimg[sy:ey, sx:ex,0] = nimg[sy:ey, sx:ex,0] + 1
-                nimg[sy:ey, sx:ex,1] = nimg[sy:ey, sx:ex,1] + 1
-                patchs.append(patch)
-                inds.append((sy, ey, sx, ex))
-        patchs = np.array(patchs)
-        res = model.predict(patchs)
-        for ind, (sy, ey, sx, ex) in enumerate(inds):
-            resimg[z,sy:ey, sx:ex,:] += res[ind]/nimg[sy:ey,sx:ex]
-
-    ## get back the original image if it was too small
-    if smallimg is not None:
-        resimg = resimg[:, :smallimg.shape[1], :smallimg.shape[2]]
-    resimg = np.uint8(resimg*255)
-    return resimg
+        try:
+            sepanet_script = resources.files("fish_feats.resources").joinpath("run_sepanet.py")
+            sepanet_script = sepanet_script.read_text()
+            result_junc = None
+            result_nuc = None
+            with share_as_ndarray(img) as image:
+                task = python.task( sepanet_script )
+                task.listen( log_listener )
+                task.inputs["img"] = image 
+                task.inputs["patchsize"] = patchsize
+                task.inputs["model_directory"] = sepdir
+                task.wait_for()
+                result_junc = np.uint8( task.outputs["junctions"].ndarray().copy() )
+                result_nuc = np.uint8( task.outputs["nuclei"].ndarray().copy() )
+            return result_junc, result_nuc 
+        except Exception as e:
+            raise RuntimeError("Running SepaNet in separated environement failed") from e
+        finally:
+            python.close()
+            ut.close_progress( None, progress_bar=progress_bar )
+    except Exception as e:
+        raise RuntimeError("SepaNet in separated environement failed") from e
 
 
-def normalise(img):
-    quants = np.quantile(img, [0.1, 0.99])
-    img = (img - quants[0]) / (quants[1]-quants[0])
-    img = np.clip(img, 0, 1)
-    return img
-
-def smooth(img):
-    for z in range(img.shape[0]):
-        img[z,] = ndimage.gaussian_filter(img[z,], 1)
-    return img
-
-def both_MSE( y_true, y_pred ):
-    acc0 = keras.metrics.mean_squared_error(y_true[:,:,:,0], y_pred[:,:,:,0])
-    acc1 = keras.metrics.mean_squared_error(y_true[:,:,:,1], y_pred[:,:,:,1])
-    return acc0 + acc1
-
-def both_MSE_percent_0( y_true, y_pred ):
-    acc0 = keras.metrics.mean_absolute_percentage_error(y_true[:,:,:,0], y_pred[:,:,:,0])
-    return acc0
-def both_MSE_percent_1( y_true, y_pred ):
-    acc0 = keras.metrics.mean_absolute_percentage_error(y_true[:,:,:,1], y_pred[:,:,:,1])
-    return acc0
-
-
-def mse_two(y_true, y_pred):
-    y_true = tf.reshape(y_true, [-1])
-    y_pred = tf.reshape(y_pred, [-1])
-    mse = tf.keras.losses.MeanSquaredError()
-    return mse(y_true, y_pred)
 
 ### Separation based on filterings
 def junctionsCoherence(img, medblur=3, quant=0.98, dsig=3, cornersig=5, ratio=0.5, niter=4):
