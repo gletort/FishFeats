@@ -313,12 +313,19 @@ class GetRNA(QWidget):
             for key in measures.keys():
                 if measures[key] != []:
                     point_properties[key] = measures[key]
+
         fcolor = []
+        ## if there are cell, color labels in the same color
         if "CellContours" in self.viewer.layers:
             for lab in labels:
                 fcolor.append( self.viewer.layers["CellContours"].get_color(lab) )
         else:
-            fcolor = "white"
+            ## or if it's nuclei, color the same
+            if "NucleiContours" in self.viewer.layers:
+                for lab in labels:
+                    fcolor.append( self.viewer.layers["NucleiContours"].get_color(lab) )
+            else:
+                fcolor = "white"
 
         size = self.main.spot_disp_size
         ut.add_point_layer( self.viewer, points, fcolor, layer_name="assignedRNA"+str(nchan), mig=self.mig, size=size, pts_properties=point_properties ) 
@@ -396,7 +403,7 @@ class PointEditing(QWidget):
         ## parameters of cell to assign to
         tocell_line = QHBoxLayout()
         tocell_lab = QLabel()
-        tocell_lab.setText("Assign selected points to cell:")
+        tocell_lab.setText("Assign selected points to cell/nuclei:")
         tocell_line.addWidget(tocell_lab)
         self.assign_tocell = QLineEdit()
         self.assign_tocell.setText("2")
@@ -647,12 +654,7 @@ class PointEditing(QWidget):
             ut.show_warning("No count image created yet. Click on Draw RNA counts before" )
             return
         layer = self.viewer.layers["CountRNA"+str(self.channel)]
-        #outname = self.mig.build_filename( endname="_RNA"+str(self.channel)+"Counts.png" )
-        #actlayer = self.viewer.layers.selection.active.name
-        #ut.set_active_layer( self.viewer, "CountRNA"+str(self.channel) )
-        #self.viewer.export_figure( outname )
-        #ut.set_active_layer( self.viewer, actlayer)
-        self.mig.save_image( layer.data, endname="_CountRNA"+str(self.channel)+".tif" )
+        self.mig.save_image( layer.data, hasZ=len(layer.data.shape)>2, endname="_CountRNA"+str(self.channel)+".tif" )
 
     
     def draw_rna_counts( self ):
@@ -665,8 +667,10 @@ class PointEditing(QWidget):
             layer = self.viewer.layers["originalChannel"+str(self.channel)]
             cmap = layer.colormap
         ut.remove_layer(self.viewer, "CountRNA"+str(self.channel))
-        self.viewer.add_image( countimg, name="CountRNA"+str(self.channel), blending="additive", scale=(self.mig.scaleXY, self.mig.scaleXY), colormap=cmap )
-
+        if len(countimg.shape) == 2:
+            self.viewer.add_image( countimg, name="CountRNA"+str(self.channel), blending="additive", scale=(self.mig.scaleXY, self.mig.scaleXY), colormap=cmap )
+        else:
+            self.viewer.add_image( countimg, name="CountRNA"+str(self.channel), blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY), colormap=cmap )
 
     
     def finish_rna(self):
@@ -718,7 +722,13 @@ class PointEditing(QWidget):
         """ Assign all selected points to the current cell value """
         selection = self.layerrna.selected_data
         assignement = int(self.assign_tocell.text())
-        col = self.viewer.layers["CellContours"].get_color( assignement )
+        if "CellContours" in self.viewer.layers:
+            col = self.viewer.layers["CellContours"].get_color( assignement )
+        else:
+            if "NucleiContours" in self.viewer.layers:
+                col = self.viewer.layers["NucleiContours"].get_color( assignement )
+            else:
+                col = "white"
         for ind in selection:
             self.layerrna.properties['label'][ind] = assignement 
             self.layerrna.properties['score'][ind] = 2 ## manually assigned = sure
@@ -748,6 +758,9 @@ class PointEditing(QWidget):
             if "CellContours" in self.viewer.layers:
                 contlay = self.viewer.layers["CellContours"]
                 contlay.visible = not contlay.visible
+            elif "NucleiContours" in self.viewer.layers:
+                contlay = self.viewer.layers["NucleiContours"]
+                contlay.visible = not contlay.visible
         
         @self.layerrna.bind_key('f', overwrite=True)
         def show_points(layerrna):
@@ -768,7 +781,12 @@ class PointEditing(QWidget):
         
         @self.layerrna.bind_key('l', overwrite=True)
         def show_only_selected_cell(layer):
-            contlay = self.viewer.layers["CellContours"]
+            if "CellContours" in self.viewer.layers:
+                contlay = self.viewer.layers["CellContours"]
+            elif "NucleiContours" in self.viewer.layers:
+                contlay = self.viewer.layers["NucleiContours"]
+            else:
+                return
             contlay.selected_label = int(self.assign_tocell.text())
             contlay.show_selected_label = not contlay.show_selected_label
         
@@ -791,13 +809,19 @@ class PointEditing(QWidget):
             if event.type == "mouse_press":
                 if (event.button == 2) and (len(event.modifiers) <= 0):
                     # right click pur
-                    if "CellContours" not in self.viewer.layers:
+                    if "CellContours" not in self.viewer.layers and "NucleiContours" not in self.viewer.layers:
                         self.main.add_cell_contours()
-                    if "Cells" not in self.viewer.layers:
+                    if "Cells" not in self.viewer.layers and "Nuclei" not in self.viewer.layers:
                         self.main.add_cell_contours()
                     ut.set_active_layer( self.viewer, self.layerrna.name )
 
-                    contlay = self.viewer.layers["Cells"]
+                    if "Cells" in self.viewer.layers:
+                        contlay = self.viewer.layers["Cells"]
+                    elif "Nuclei" in self.viewer.layers:
+                        contlay = self.viewer.layers["Nuclei"]
+                    else:
+                        ut.show_error( "No Cells nor Nuclei layer" )
+                        return
                     contlay.visible = True
                     value = contlay.get_value(position=event.position, view_direction = event.view_direction, dims_displayed=event.dims_displayed, world=True)
                     self.assign_tocell.setText(str(value))
@@ -844,8 +868,14 @@ class PointEditing(QWidget):
         
         @self.layerrna.bind_key('Shift-s', overwrite=True)
         def shuffle_colors(layer):
-            contlay = self.viewer.layers["CellContours"]
-            contlay.new_colormap()
+            if "CellContours" in self.viewer.layers:
+                contlay = self.viewer.layers["CellContours"]
+                contlay.new_colormap()
+            elif "NucleiContours" in self.viewer.layers:
+                contlay = self.viewer.layers["NucleiContours"]
+                contlay.new_colormap()
+            else:
+                return
 
             fcolor = []
             for ind, lab in enumerate(self.layerrna.properties["label"]):
@@ -874,12 +904,24 @@ class PointEditing(QWidget):
         meth_line.addWidget(meth_lab)
         self.method = QComboBox()
         meth_line.addWidget(self.method)
-        methods = ["Projection", "ClosestNucleus", "MixProjClosest", "FromNClosest", "Hull"]
+        ## propose assignment methods depending on the image content
+        methods = []
+        if self.mig.has_cell():
+            methods.append( "Projection" )
+        if self.mig.has_nuclei():
+            methods.append( "ClosestNucleus" )
+        methods.append( "FromNClosest" )
+        if self.mig.has_cell() and self.mig.has_nuclei():
+            methods.append( "MixProjClosest" )
+            methods.append( "Hull" )
         for i in range(len(methods)):
             self.method.addItem(methods[i])
+
         ## default method 
         if (paras is not None) and ("assignement_method" in paras):
-            self.method.setCurrentIndex(methods.index(paras["assignement_method"]))
+            meth = paras["assignement_method"]
+            if meth in methods:
+                self.method.setCurrentIndex( methods.index(meth) )
         layout.addLayout(meth_line)
         ## assignemnet with nclosest specific parameters
         self.parameters_nclosest(paras)
@@ -1053,7 +1095,10 @@ class PointEditing(QWidget):
         labels[unassigned] = 1
         fcolor = []
         for ind, lab in enumerate(labels):
-            fcolor.append( self.viewer.layers["CellContours"].get_color(lab) )
+            if self.mig.has_cell():
+                fcolor.append( self.viewer.layers["CellContours"].get_color(lab) )
+            else:
+                fcolor.append( self.viewer.layers["Nuclei"].get_color(lab) )
             self.layerrna.properties['unassigned'][ind] = unassigned[ind]
             self.layerrna.properties["label"][ind] = lab
             self.layerrna.properties["score"][ind] = scores[ind]
@@ -1148,6 +1193,13 @@ class MainRNA(QWidget):
         self.tabs.addTab(self.measure_intensity[chanel], "MeasureIntensity"+str(chanel))
 
     def add_cell_contours( self ):
+        """ Add cell or nuclei contours depending if there are cell staining or not """
+        if self.mig.has_cell():
+            self.add_junction_contours()
+        else:
+            self.add_nuclei_contours()
+
+    def add_junction_contours( self ):
         """ Add cell contours and cells layer if not already present """
         if (self.mig.pop is None) or (self.mig.pop.imgcell is None):
             print("No cells found, will not be able to assign.")
@@ -1158,6 +1210,20 @@ class MainRNA(QWidget):
             celllab.editable = False
         if "Cells" not in self.viewer.layers:
             cells = self.viewer.add_labels(self.mig.getJunctionsImage3D(), name="Cells", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY))
+            cells.opacity = 0
+            cells.editable = False
+    
+    def add_nuclei_contours( self ):
+        """ Add nuclei contours and nuclei layer if not already present """
+        if (self.mig.pop is None) or (self.mig.pop.imgnuc is None):
+            print("No nuclei found, will not be able to assign.")
+            return
+        if "NucleiContours" not in self.viewer.layers:
+            celllab = self.viewer.add_labels( self.mig.getNucleiImage3D(full=False, thick=2), name="NucleiContours", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY) )
+            celllab.opacity = 0.6
+            celllab.editable = False
+        if "Nuclei" not in self.viewer.layers:
+            cells = self.viewer.add_labels( self.mig.getNucleiImage3D(), name="Nuclei", blending="additive", scale=(self.mig.scaleZ, self.mig.scaleXY, self.mig.scaleXY))
             cells.opacity = 0
             cells.editable = False
     
@@ -1202,7 +1268,9 @@ class MainRNA(QWidget):
                 self.viewer.layers.remove("assignedRNA"+str(rnac))
         ut.remove_widget(self.viewer, "RNAs")
         ut.remove_layer(self.viewer,"CellContours")
+        ut.remove_layer(self.viewer,"NucleiContours")
         ut.remove_layer(self.viewer,"Cells")
+        ut.remove_layer(self.viewer,"Nuclei")
         ut.removeOverlayText(self.viewer)
         self.cfg.removeTmpText()
     

@@ -251,16 +251,17 @@ class RNASpots:
         
         return noverlap
 
-    def kept_fromoverlap(self, keptspots, rnaimg, pop, method="Projection", distanceLimit=50, above=1, size=1, angular_step=0):
+    def kept_fromoverlap(self, hascell, keptspots, rnaimg, pop, method="Projection", distanceLimit=50, above=1, size=1, angular_step=0):
+        """ Unused anymore """
         for spot, over in zip(self.spots, self.labels):
             pt = (int(spot[0]), int(spot[1]), int(spot[2]))
             if keptspots[pt] > 0:
-                icell, dist, score = self.assign_onespot( pop, spot, method=method, distanceLim=distanceLimit, above=above, angular_step=angular_step )   ## add the spot to the corresponding cell
+                icell, dist, score = self.assign_onespot( hascell, pop, spot, method=method, distanceLim=distanceLimit, above=above, angular_step=angular_step )   ## add the spot to the corresponding cell
                 if icell > 0:
                     lab = pop.labels["Cell_"+str(icell)]
                 self.drawPoint(rnaimg, spot, col=lab, rad=size)
 
-    def update_spotsFromPoints(self, spots, labels, scores, pop=None):
+    def update_spotsFromPoints(self, hascell, spots, labels, scores, pop=None):
         """ Load all the spots from the given points coordinates and labels """
         self.reset_spots()
         self.labels = labels.astype(int)
@@ -269,30 +270,28 @@ class RNASpots:
         countName = self.countName
 
         if pop is not None:
-            pop.resetCellCounts(countName)
-        
+            pop.resetCellCounts( hascell, countName, zero=True )
             for lab in self.labels:
-                j, cell = pop.findCellWithLabel(lab)
+                j, obj = pop.findObjectWithLabel( lab, hascell )
                 if j != -1:
-                    cell.addCount(countName, 1)
+                    obj.addCount(countName, 1)
 
     def list_remove( self, li, el):
         """ Remove element el from li if present """
         if el in li:
             li.remove(el)
 
-    def update_spotsFromDict( self, spotdict, methodName="", pop=None):
+    def update_spotsFromDict( self, hascell, spotdict, methodName="", pop=None):
         """ Load all the spots from the given dict """
         self.countName = "nbRNA_C"+str(self.channel)+"_"+methodName
         self.spots = []
         self.labels = []
         self.scores = []
         if pop is not None:
-            pop.resetCellCounts(self.countName)
+            pop.resetCellCounts( hascell, self.countName, zero=True )
 
         measures = None ## to load other measures saved in the RNA file    
         for row in spotdict:
-
             ## Check if there are other measures to load from the saved file
             if measures is None:
                 measures = list(row.keys())
@@ -325,11 +324,11 @@ class RNASpots:
                         val = -999 ## missing value
                     self.measures[meas].append(val)
             if pop is not None:
-                j, cell = pop.findCellWithLabel(lab)
+                j, obj = pop.findObjectWithLabel( lab, hascell )
                 if j != -1:
-                    cell.addCount(self.countName, 1)
+                    obj.addCount(self.countName, 1)
     
-    def update_spotsFromImarisDict( self, spotdict, scaleXY=1, scaleZ=1, methodName="", pop=None):
+    def update_spotsFromImarisDict( self, hascell, spotdict, scaleXY=1, scaleZ=1, methodName="", pop=None):
         """ Load all the spots from the given dict """
         self.countName = "nbRNA_C"+str(self.channel)+"_"+methodName
         self.spots = []
@@ -337,7 +336,7 @@ class RNASpots:
         self.scores = []
         self.measures["ImarisId"] = []
         if pop is not None:
-            pop.resetCellCounts(self.countName)
+            pop.resetCellCounts( hascell, self.countName, zero=True )
         
         for row in spotdict:
             ## Imaris file are in µm
@@ -369,7 +368,7 @@ class RNASpots:
 
 
 
-    def update_spotsFromImage(self, img, methodName="", pop=None):
+    def update_spotsFromImage(self, hascell, img, methodName="", pop=None):
         """ Read a labelled RNA spots image (pixel value=cell label), old version """
         self.countName = "nbRNA_C"+str(self.channel)+"_"+methodName
         points, nf = label(img)
@@ -386,7 +385,7 @@ class RNASpots:
         
         self.spots = []
         if pop is not None:
-            pop.resetCellCounts(self.countName)
+            pop.resetCellCounts( hascell, self.countName, zero=True )
         
         for pt, lab, cind in zip(coords, labels, range(len(self.labels))):
             self.spots.append([int(pt[0]), int(pt[1]), int(pt[2])] )
@@ -396,47 +395,65 @@ class RNASpots:
                 self.labels[cind] = -1
             else:
                 if pop is not None:
-                    j, cell = pop.findCellWithLabel(lab)
+                    j, obj = pop.findObjectWithLabel( lab, hascell )
                     if j != -1:
-                        pop.cells[j].addCount(self.countName, 1)
+                        obj.addCount(self.countName, 1)
                     else:
                         self.labels[cind] = -1
                 
     
-    def assign_spots(self, pop, method="Projection", distanceLimit=15, above=1, angular_step=0, scaleXY=1, scaleZ=1):
+    def assign_spots(self, hascell, pop, method="Projection", distanceLimit=15, above=1, angular_step=0, scaleXY=1, scaleZ=1):
+        """ Assign all the spots to cell if hascell, else to nuclei with the selected method """
         self.countName = "nbRNA_C"+str(self.channel)+"_"+method
-        pop.resetCellCounts( self.countName, zero=True )
+        pop.resetCellCounts( hascell, self.countName, zero=True )
 
         for i, spot in enumerate(self.spots):
-            cell, dist, score = pop.assign_onespot( spot, method=method, distanceLim=distanceLimit, above=above, angular_step=angular_step, nchannel=self.channel, countName = self.countName, scaleXY=scaleXY, scaleZ=scaleZ, prejuge=-1 )
+            cell, dist, score = pop.assign_onespot( hascell, spot, method=method, distanceLim=distanceLimit, above=above, angular_step=angular_step, nchannel=self.channel, countName = self.countName, scaleXY=scaleXY, scaleZ=scaleZ, prejuge=-1 )
             if cell is not None:
                 self.labels[i] = cell.label
                 self.scores[i] = score
             else: 
-                self.labels[i] = -1  ## no cell.
+                self.labels[i] = -1  ## no cell/nucleus
                 self.scores[i] = 0
     
     def assignSpotToCell( self, pop, ispot, icell, method ):
+        """ Assign a spot to given cell ID """
         if icell > 0:
             self.labels[ispot] = pop.cells[icell].label
             pop.cells[icell].addCount(self.countName,1)
         else: 
             self.labels[ispot] = -1  ## no cell.
+    
+    def assignSpotToNucleus( self, pop, ispot, inuc, method ):
+        """ Assign a spot to given nucleus ID """
+        if inuc > 0:
+            self.labels[ispot] = pop.nuclei[inuc].label
+            pop.nuclei[inuc].addCount(self.countName,1)
+        else: 
+            self.labels[ispot] = -1 ## no nucleus
 
-    def assign_from_volume( self, pop, imgVol, method ):
+    def assign_from_volume( self, hascell, pop, imgVol, method ):
         self.countName = "nbRNA_C"+str(self.channel)+"_"+method
-        pop.resetCellCounts( self.countName )
+        pop.resetCellCounts( hascell, self.countName, zero=True )
         for i, spot in enumerate(self.spots):
             icell = imgVol[spot[0], spot[1], spot[2]]
-            self.assignSpotToCell( pop, i, icell, method )
+            if hascell:
+                self.assignSpotToCell( pop, i, icell, method )
+            else:
+                self.assignSpotToNucleus( pop, i, icell, method )
 
-    def assign_fromcloud(self, pop, clouds, scaleXY, scaleZ, distanceLimit=15, nclosest=5, method="ClosestPoints"):
+    def assign_fromcloud(self, hascell, pop, clouds, scaleXY, scaleZ, distanceLimit=15, nclosest=5, method="ClosestPoints"):
+        """ Assign RNA based on closest assigned points """
         self.countName = "nbRNA_C"+str(self.channel)+"_"+method
-        pop.resetCellCounts( self.countName )
+        pop.resetCellCounts( hascell, self.countName, zero=True )
         for i, spot in enumerate(self.spots):
             labcell, dist = self.fromClosestCloud(spot, clouds, method=method, distanceLim=distanceLimit, scaleXY=scaleXY, scaleZ=scaleZ, nclosest=nclosest)
-            icell, cell = pop.findCellWithLabel(labcell)
-            self.assignSpotToCell( pop, i, icell, method )
+            if hascell:
+                icell, cell = pop.findCellWithLabel(labcell)
+                self.assignSpotToCell( pop, i, icell, method )
+            else:
+                inucleus, nucleus = pop.getNucleus( labcell )
+                self.assignSpotToNucleus( pop, i, inucleus, method )
     
     def fromClosestCloud(self, pt, clouds, method, distanceLim, scaleXY, scaleZ, nclosest):
         """ assign rna from cloud of points """

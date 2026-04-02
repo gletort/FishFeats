@@ -435,6 +435,41 @@ class Nucleus:
         self.zpos = center[0]
         self.bbox = bbox
         self.projAnglePoints = None   ## points of projected contour by angle
+        self.counter = {}
+        self.measures = {}  ## save measures of the nucleus 
+    
+    def resetCounts(self):
+        self.counter = {}
+    
+    def resetCount(self, name, zero=False):
+        if self.counter.get(name) is not None:
+            self.counter[name] = 0 
+        elif zero:
+            self.counter[name] = 0
+
+    def addCount(self, name, val=1):
+        if self.counter.get(name) is None:
+            self.counter[name] = val
+        else:
+            self.counter[name] += val
+    
+    def getCount(self, name):
+        if self.counter.get(name) is None:
+            return 0
+        return self.counter[name]
+
+    def getCounts( self ):
+        """ Returns all RNA counts """
+        return self.counter
+
+    def addCountResults( self, rnachannels, methods ):
+        """ Get the counts of the cell """
+        for ir, rnac in enumerate(rnachannels):
+            if type(methods) == list:
+                cmethod = methods[ir]
+            else:
+                cmethod = methods
+            self.measures[cmethod] = self.getCount(cmethod)
     
     def center2D(self):
         return (self.center[1], self.center[2])
@@ -456,6 +491,12 @@ class Nucleus:
                 self.cellind = -1
             else:
                 self.cellind = imglab[cent]
+    
+    def get_maskBB( self, img ):
+        """ Get the nuclei mask from img, cropped by the bounding box """
+        cropimg = img[self.bbox[0]:self.bbox[3], self.bbox[1]:self.bbox[4], self.bbox[2]:self.bbox[5]]
+        cellmask = (cropimg==self.label)
+        return cellmask, self.bbox
 
     def insideBorderCenter(self, border):
         """ test if center is whithin border """
@@ -557,6 +598,8 @@ class Nucleus:
         results["NucleusStdIntensity_C"+str(chan)] = np.std( intensities )
         results["NucleusMedianIntensity_C"+str(chan)] = np.median( intensities )
         results["NucleusTotalIntensity_C"+str(chan)] = np.sum( intensities )
+        for key, val in results.items():
+            self.measures[key] = val
         return results 
 
     def measureNuclear( self, nuclearchannels, image, meanbgints, result ):
@@ -584,6 +627,8 @@ class Nucleus:
         result["NucleusZPositionInPixels"] = self.center[0]
         result["NucleusXPosInPixels"] = self.center[2]
         result["NucleusYPosInPixels"] = self.center[1]
+        for measure_name, measure_value in self.measures.items():
+            result[measure_name] = measure_value
         return result
     
 
@@ -639,6 +684,7 @@ class Population:
         return -1
     
     def getNucleusId(self, lab):
+        """ From a label, get the nucleus ID (usually the same) """
         nuc = self.nuclei.get(lab)
         if nuc is not None and nuc.label==lab:
             return lab
@@ -646,6 +692,23 @@ class Population:
             if nuc.label == lab:
                 return nucid
         return -1
+
+    def findObjectWithLabel( self, lab, iscell ):
+        """ Find either cell or nuclei with given label """
+        if iscell:
+            return self.findCellWithLabel( lab )
+        return self.findNucleusWithLabel( lab )
+    
+    def findNucleusWithLabel(self, lab):
+        """ Find the nucleus that has the corresponding label """
+        cell = self.nuclei.get(lab) 
+        # first try if nucleus of key lab has the same label (usually)
+        if cell is not None and cell.label == lab:
+            return lab, cell
+        for cellid, cell in self.nuclei.items():
+            if cell.label == lab:
+                return cellid, cell
+        return -1, None
     
     def findCellWithLabel(self, lab):
         """ Find the cell that has the corresponding label """
@@ -668,6 +731,7 @@ class Population:
         self.labels = {}
 
     def getNucleus(self, nucK):
+        """ Get nucleus from given ID """
         if self.nuclei.get(nucK) is None:
             return None
         return self.nuclei[nucK]
@@ -933,6 +997,21 @@ class Population:
             if thick > 1:
                 imgJun = expand_labels( imgJun, distance=thick )
         return imgJun
+    
+    def drawNuclei3D( self, zo1, full=True, thick=1 ):
+        """ Draw 3D image of segmented nuclei, only as contour or full """
+        imgNuc = np.zeros(self.imshape, dtype="uint16") 
+        if full:
+            return self.imgnuc
+        if not full:
+            for z, zslice in enumerate( self.imgnuc ):
+                ## do each z of the nuclei stack
+                bound = find_boundaries( zslice, mode="inner" )
+                imgNuc[z] = zslice * bound
+        
+            if thick > 1:
+                imgNuc = expand_labels( imgNuc, distance=thick )
+        return imgNuc
 
 
     def drawCellsHull(self):
@@ -943,15 +1022,21 @@ class Population:
                 bbox = ut.mergeBoundingBox( cell.bbox, cell.zjunc, nuc.bbox )
                 imgHull[bbox[0]:bbox[3],bbox[1]:bbox[4], bbox[2]:bbox[5]] = imgHull[bbox[0]:bbox[3],bbox[1]:bbox[4],bbox[2]:bbox[5]] + cell.label*self.drawHull(cell, nuc, bbox)
         return imgHull
-
     
-    def resetCellCounts(self, name=None, zero=False):
+    def resetCellCounts(self, docell=True, name=None, zero=False):
         """ reset the cell counts """
-        for cell in self.cells.values():
-            if name is None:
-                cell.resetCounts()
-            else:
-                cell.resetCount(name, zero)
+        if docell:
+            for cell in self.cells.values():
+                if name is None:
+                    cell.resetCounts()
+                else:
+                    cell.resetCount(name, zero)
+        else:
+            for nuc in self.nuclei.values():
+                if name is None:
+                    nuc.resetCounts()
+                else:
+                    nuc.resetCount(name, zero)
 
     def getMeasureEmptyNucleus( self ):
         result = {}
@@ -986,7 +1071,35 @@ class Population:
             result["Cyto"+str(cyt)+"_SumIntensity"] = []
             result["Cyto"+str(cyt)+"_SumNormalisedIntensity"] = []
     
-    def getResults( self, scaleXY, scaleZ ):
+    def getResults( self, hascell, scaleXY, scaleZ ):
+        """ Return all the measure on cells/nuclei """
+        if hascell:
+            return self.getCellResults( scaleXY, scaleZ )
+        else:
+            return self.getNucleiResults( scaleXY, scaleZ )
+    
+    def getNucleiResults( self, scaleXY, scaleZ ):
+        """ Return all the measures on Nuclei """
+        results = []
+        for nucid, nucleus in self.nuclei.items():
+            nucres = nucleus.getMeasures( scaleXY, scaleZ )
+            nucres["NucleusID"] = nucid
+
+            ## add measures of RNA counts
+            nucrna = nucleus.getCounts()
+            for key, val in nucrna.items():    
+                if key != "NucleusLabel":
+                    nucres[key] = val
+            
+            ## add features value 
+            #nucfeat = nucleus.getFeatures()
+            #for key, val in cellfeat.items():
+            #    cellres[key] = val  
+            results.append(nucres)
+        return results
+
+    def getCellResults( self, scaleXY, scaleZ ):
+        """ Return all the measures on Cells """
         results = []
         for cellid, cell in self.cells.items():
             cell.measureCell( cellid, scaleXY, scaleZ )
@@ -1121,6 +1234,15 @@ class Population:
             if value is not None:
                 cellmask, bbox = cell.get_maskBB( self.imgcell )
                 countimg[bbox[0]:bbox[2],bbox[1]:bbox[3]][cellmask] = value
+    
+    def drawCountsInNuclei(self, countimg, countname):
+        """ Draw in the countimg the nuclei with the RNA counts values """
+        for nucid, nucleus in self.nuclei.items():
+            value = nucleus.getCount(countname)
+            if value is not None:
+                nucmask, bbox = nucleus.get_maskBB( self.imgnuc )
+                countimg[bbox[0]:bbox[3],bbox[1]:bbox[4], bbox[2]:bbox[5]][nucmask] = value
+
 
     def classifyCellsFromBoundaries( self, featname, border=0, boundary=2 ):
         """ Classificy cells according to their position on border/edge """
@@ -1268,6 +1390,7 @@ class Population:
         return sqrt( pow(pta[0]-ptb[0],2)*scaleZ*scaleZ + pow(pta[1]-ptb[1],2)*scaleXY*scaleXY + pow(pta[2]-ptb[2],2)*scaleXY*scaleXY )
    
     def add_onespot(self, cell, name):
+        """ Add the assignement of a spot to a cell (default) or a nucleus """
         if cell is not None:
             if name is not None:
                 cell.addCount(name,1)
@@ -1313,17 +1436,22 @@ class Population:
         return lims
 
     ### Method closest nuclei
-    def rna2closestNuclei(self, pt, dlim, scaleXY, scaleZ, above=1, prejuge=-1):
+    def rna2closestNuclei(self, hascell, pt, dlim, scaleXY, scaleZ, above=1, prejuge=-1):
         """ 
             Find closest nuclei (surface) and add rna to the corresponding cell
             Don't add if distance too big compared to threshold dlim
+            hascell: there are no cell in the image, assign directly to nuclei instead
         """
         ## if inside a nucleus, direct
         hope = self.imgnuc[pt]
         if hope > 1:
-            icell = self.getAssociatedCellId( hope )
-            cell = self.getCell(icell)
-            return (cell, 0, 0, 1)
+            ## positive label under the point
+            if hascell:
+                icell = self.getAssociatedCellId( hope )
+                cell = self.getCell(icell)
+                return (cell, 0, 0, 1)
+            nucid = self.getNucleusId( hope )
+            return (self.getNucleus( nucid ), 0, 0, 1) ## return the nuclei 
         
         margins = (dlim/scaleZ+1, dlim/scaleXY+1, dlim/scaleXY+1)
         crop = self.getCropBox(pt, margins, self.imgnuc)
@@ -1338,23 +1466,30 @@ class Population:
                 ## distance_transform is distance to closest background, so inverse
                 dist2lab, nearest_coord = distance_transform_edt(zcrop==0, return_indices=True)
                 nearest_pt = [ nearest_coord[dim][ptcrop] for dim in range(2) ]
-                best_dist = dist2lab[ptcrop]
+                #best_dist = dist2lab[ptcrop]
                 bestnuclei = zcrop[tuple(nearest_pt)]
                 npt = (z, nearest_pt[0]+crop[2], nearest_pt[1]+crop[4])
                 curdist = self.distance3D( npt, pt, scaleXY, scaleZ )
                 if curdist < dist:
                     dist = curdist
                     distinz = abs(pt[0]-z)*scaleZ
-                    best_nuclei = best_nuclei
+                    best_nuclei = bestnuclei
         
         if best_nuclei > 1:
             ibestcell = -1
             bestcell = None
             if dist < dlim:
-                ## found match, add the RNA to this cell if associated
-                ibestcell = self.getAssociatedCellId( best_nuclei )
-                bestcell = self.getCell(ibestcell)
+                ## found match, add the RNA to this cell/nuclei if associated
+                if hascell:
+                    ibestcell = self.getAssociatedCellId( best_nuclei )
+                    bestcell = self.getCell(ibestcell)
+                else:
+                    ## directly get the nucleus with the found best ID
+                    bestcell = self.getNucleus( best_nuclei )
+                    score = 1 - dist/dlim  # the closest the best score
+                    return ( bestcell, distinz, dist, score )
 
+            ## if assign to a cell, check also that it's not above
             if bestcell is not None and not bestcell.aboveCell(pt, dz=above):          
                 meanrad = sqrt(bestcell.area/pi)
                 score = 1-dist/meanrad
@@ -1411,8 +1546,14 @@ class Population:
         return (mean*1.0/n)
 
     def measureCellsCount(self, rnachannels, methods):
+        """ Be sure to update all the counts for each cell """
         for cellid, cell in self.cells.items():
             cell.addCountResults( rnachannels, methods )
+    
+    def measureNucleiCount(self, rnachannels, methods):
+        """ Be sure to update all the counts for each nucleus """
+        for nucid, nucleus in self.nuclei.items():
+            nucleus.addCountResults( rnachannels, methods )
 
     def getCounts( self ):
         """ Get the counts of the cells """
@@ -1572,7 +1713,7 @@ class Population:
         return None, dis2hull, bestind, bestscore
     
 
-    def assign_onespot(self, spot, method, distanceLim, above=1, angular_step=0, nchannel=0, countName="", scaleXY=1, scaleZ=1, prejuge=-1):
+    def assign_onespot(self, hascell, spot, method, distanceLim, above=1, angular_step=0, nchannel=0, countName="", scaleXY=1, scaleZ=1, prejuge=-1):
         """ Assing one RNA spot with the given method, and returns the corresponding cell and score of assignement """
         pt = (int(spot[0]), int(spot[1]), int(spot[2]))
     
@@ -1586,7 +1727,7 @@ class Population:
             if self.imgnuc is None:
                 ut.show_warning("No nuclei loaded, cannot use this method")
                 return
-            cell, closdisz, dist, score = self.rna2closestNuclei( pt, dlim=distanceLim, scaleXY=scaleXY, scaleZ=scaleZ, above=above, prejuge=prejuge)
+            cell, closdisz, dist, score = self.rna2closestNuclei( hascell, pt, dlim=distanceLim, scaleXY=scaleXY, scaleZ=scaleZ, above=above, prejuge=prejuge)
             ## add the spot to the corresponding cell
             self.add_onespot(cell, countName)
             return cell, None, score 
@@ -1599,7 +1740,7 @@ class Population:
         if method == "MixProjClosest":
             ## Mix method: near junctions, projection, below closest nuclei
             cell, dist, score = self.rna2projection(pt, distanceLim, scaleXY=scaleXY, scaleZ=scaleZ, above=above, prejuge=prejuge)
-            closcell, closdisz, closdist, score = self.rna2closestNuclei( pt, dlim=distanceLim, scaleXY=scaleXY, scaleZ=scaleZ, above=above, prejuge=prejuge)
+            closcell, closdisz, closdist, score = self.rna2closestNuclei( true, pt, dlim=distanceLim, scaleXY=scaleXY, scaleZ=scaleZ, above=above, prejuge=prejuge)
             score = dist
             #print("MixPrjClose score to define")
             if cell is None and closcell is None:
