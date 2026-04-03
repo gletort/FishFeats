@@ -1,13 +1,15 @@
-!!! abstract "Segment RNAs and assign them to their cell"
+!!! abstract "Segment RNAs and assign them to their cell/nucleus"
 	_Choose <span style="background-color:#0b8300">RNA:segment&assign</span> in the main interface to run it_
 
 !!! example "See the typical workflow of this step [here](./FishFeatsFlowchartv5.pdf#page=4)"
 
-This step will first propose you to [segment](#rna-segmentation) the RNA from one of the channels then to [assign](#rna-assignement) it to its corresponding cell. 
-The cells **must have been created before** to do this assignment step, either with the [Cells segmentation](Get-cells.md) step, or loaded from previous file (by default the cells should be reloaded).
+This step will first propose you to [segment](#rna-segmentation) the RNA from one of the channels then to [assign](#rna-assignement) it to its corresponding cell/nucleus. 
+The cells or the nuclei **must have been created before** to do this assignment step, either with the [Cells segmentation](Get-cells.md) step, or loaded from previous file (by default the cells should be reloaded), or with the [Nuclei segmentation](Get-nuclei.md) step.
 
 Since version 1.1.23, there is also an option to [measure the intensity](#measure-intensity) of a given layer/channel in the segmented spots (e.g. to measure if the segmented spots are inside nuclei, or correlates with some immuno-staining).
 
+Since version 1.4.0, RNA dots can be assigned to a nuclei and not onyl to a cell: if there is no cell/junction staining to determine the cell limits but only nuclear staining, it can be used as the reference instead.
+Less assignment methods will be available as they don't make sense in the case where there is no apical cell.
 
 ## RNA segmentation
 
@@ -37,13 +39,18 @@ You also have an option to load a previous segmentation if you already segmented
 
 Assigning RNAs corresponds to attributing to each dot the same label as the cell we consider that it belongs to. Several methods can be used for an automatic selection, and manual assignment or correction can also be done.
 
+Since version 1.4.0, if there is no cellular staining but only nuclear staining, RNAs can be associated to their most likely nucleus in that case.
+
 ## Assignment methods:
 
 * `Projection`: assign each RNA to a cell by projection in Z. Thus, the assignment depends only on the X,Y position of the dot and on the junction segmentation. 
+This option is only proposed if there is a cellular staining.
 
 *  `ClosestNucleus`: assign each RNA to the cell of which the nucleus is the closest to the dot in 3D. The distance is calculated from the closest point of each nuclei to the RNA spot. 
+This option is only proposed if there is a nuclear staining.
 
 * `MixProjClosest`: assign each RNA either to the closest nuclei if the RNA spot is deep in z (closer to the nuclei) or by projecting it to the apical cells if the spot is close to the surface. 
+This option is only proposed if there is a cellular and nuclear staining.
 
 * `Hull`: to update
 
@@ -67,7 +74,7 @@ Click on `apply assignment` to launch the assignment method on the segmented dot
 
 ## RNA manual correction
 
-To correct RNA assignment, select the point(s) to change the assignment value, put the value (label) of the cell to assign it to in the `assign points to cell` parameter field and click on `assign selected points`. 
+To correct RNA assignment, select the point(s) to change the assignment value, put the value (label) of the cell/nucleus to assign it to in the `assign points to cell` parameter field and click on `assign selected points`. 
 
 ![assigning](imgs/assigning.png)
 
@@ -84,14 +91,14 @@ Options/shortcuts to correct the RNA assignment:
 		| <kbd>F1,F2,F3</kbd>... | Show/Hide the first, 2nd, 3th.. layer (ordered in the bottom left panel from bottom to top) |
 		| <kbd>v</kbd> | Show/Hide cell contours layer |
 		| <kbd>d</kbd> | Increase/Decrease the RNA layer opacity |
-		| <kbd>l</kbd> | Show only the currently selected cell contour (or reset to show all cells). The layer "CellContours" must be visible |
+		| <kbd>l</kbd> | Show only the currently selected cell/nucleus contour (or reset to show all cells). The layer "CellContours" must be visible |
 		| <kbd>o</kbd> | Show only the selected points. Move the Display point size bar to reset it |
 	
 	=== "Point (RNA) editing"
 
 		|   |     |	
 		| ---------- | ------------------------------------ |
-		|:material-mouse-right-click-outline:|Get the label of the cell under the click and set the current assignment value ot it|
+		|:material-mouse-right-click-outline:|Get the label of the cell/nucleus under the click and set the current assignment value ot it|
 		| <kbd>u</kbd> | Select all unassigned points |
 		| <kbd>s</kbd> | Select all points with current assignment value |
 		| <kbd>a</kbd> | Select all visible points |
@@ -125,7 +132,7 @@ Click on `Reset point display` to display all the spots with the same size again
 
 When you click on `save and quit RNA*`, it will save the current point layer in a `.csv` file saved in the `results` folder called _imagename_`_RNA*.csv` (here * is the number of the corresponding channel). 
 The file contains the position of each spot and its assignment.
-The counts of the RNA of this channel in each cell will be added to the _results_ file in a new column.
+The counts of the RNA of this channel in each cell/nucleus will be added to the _results_ file in a new column.
 The editing interface of the current RNA will be closed so that you can go to the next RNA.
 
 To reload/continue the assignment later on, you can load this file in the segmenting RNA step by choosing `load file` in the segmentation method choice parameter.
@@ -138,14 +145,14 @@ You can click this button at any time during the manual correction process, with
 
 ## Draw RNA counts
 
-This option, at the bottom of the  `Edit RNA*` interface, allows the cells to be visualized, colored by their number of assigned RNAs. 
+This option, at the bottom of the  `Edit RNA*` interface, allows the cells/nuclei to be visualized, colored by their number of assigned RNAs. 
 
-Click on `Draw RNA* counts` to add a new (2D) layer containing the cells ans their number of RNAs.
-In each cell the intensity reflects the number of RNA assigned. 
+Click on `Draw RNA* counts` to add a new (2D/3D) layer containing the cells ans their number of RNAs.
+In each cell/nucleus the intensity reflects the number of RNA assigned. 
 
 ![rna counts](./imgs/rna_counts.png)
 
-You can also save this image as a 2D file by clicking `Save drawn RNA* counts`.
+You can also save this image as a 2D/3D file by clicking `Save drawn RNA* counts`.
 
 The RNA counts can also be found in the _results_ file, in the corresponding `nbRNA_C*_MethodName` column.
 MethodName will be the name of the method used for the initial assigment.
