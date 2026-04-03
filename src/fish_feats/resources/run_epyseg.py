@@ -27,6 +27,7 @@ logger.info("Starting segmentation")
 
 # libraries loaded checking epyseg to see if everything is functional
 try:
+    import epyseg
     logger.info("Initializing deepl")
     import epyseg.deeplearning.deepl as deepl
     logger.info("Initializing logger")
@@ -37,7 +38,7 @@ try:
     deepTA = EZDeepLearning()
     logger.info("Initialized all")
 except Exception as e:
-    logger.info( 'EPySeg failed to load. '+e )
+    logger.info( 'EPySeg failed to load. '+str(e) )
     
 # Load a pre-trained model
 pretrained_model_name = 'Linknet-vgg16-sigmoid-v2'
