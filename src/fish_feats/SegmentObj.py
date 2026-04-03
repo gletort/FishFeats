@@ -56,6 +56,7 @@ def run_epyseg( input_folder ):
         raise RuntimeError("Epyseg in separated environement failed") from e
 
 def run_epyseg_onimage(img, filedir, filename, verbose=True):
+    """ Run epyseg on an image: create temp dir because of epyseg requirements """
     from PIL import Image
 
     binimg = None
