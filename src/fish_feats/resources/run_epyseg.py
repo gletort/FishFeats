@@ -28,9 +28,13 @@ import sys
 
 logger.info("Python interpreter path:")
 logger.info(sys.executable)
-
+import platform
 logger.info("\nBase environment path:")
 logger.info(os.path.dirname(sys.executable))
+logger.info("Version complete de Python :", sys.version)
+logger.info("Version courte :", platform.python_version())
+logger.info("Compilateur :", platform.python_compiler())
+logger.info("Systeme d'exploitation :", platform.system())
 
 # libraries loaded checking epyseg to see if everything is functional
 try:
