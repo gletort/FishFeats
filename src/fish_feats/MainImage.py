@@ -9,9 +9,12 @@ from fish_feats.CellObjects import Population
 
 try:
     from fish_feats.SegmentObj import local_max_proj, prepJunctions, segmentJunctions
+except ImportError as e:
+    print( "Module missing in seg "+e )
+try:
     from fish_feats.RNASpots import RNASpots
-except ImportError:
-    print("Module missing")
+except ImportError as e:
+    print( "Module missing in RNASpots "+e )
     
 ####### Z map functions
 def score_each_z( img3d, projimg ):

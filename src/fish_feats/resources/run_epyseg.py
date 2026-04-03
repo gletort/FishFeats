@@ -17,7 +17,7 @@ def setup_logger( name="" ):
     formatter = logging.Formatter('[FishFeats-Epyseg]-%(message)s')
     handler.setFormatter( formatter )
     logger.addHandler(handler)
-    logger.setLevel( 1 )
+    logger.setLevel( 20 )
     return logger
 
 
