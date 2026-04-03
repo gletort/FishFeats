@@ -1,4 +1,5 @@
 import logging
+import os
 appose_mode = 'task' in globals()
 
 if not appose_mode:
@@ -24,15 +25,18 @@ def setup_logger( name="" ):
 logger = setup_logger()    
 logger.info("Starting segmentation")
 
-import os
 # libraries loaded checking epyseg to see if everything is functional
 try:
+    logger.info("Initializing deepl")
     import epyseg.deeplearning.deepl as deepl
     deepl.logger = logger 
+    logger.info("Initializing EZ")
     from epyseg.deeplearning.deepl import EZDeepLearning
+    logger.info("Initialized")
     deepTA = EZDeepLearning()
+    logger.info("Initialized all")
 except Exception as e:
-    print( 'EPySeg failed to load. '+e )
+    logger.info( 'EPySeg failed to load. '+e )
     
 # Load a pre-trained model
 pretrained_model_name = 'Linknet-vgg16-sigmoid-v2'
