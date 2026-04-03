@@ -24,6 +24,13 @@ def setup_logger( name="" ):
 
 logger = setup_logger()    
 logger.info("Starting segmentation")
+import sys
+
+logger.info("Python interpreter path:")
+logger.info(sys.executable)
+
+logger.info("\nBase environment path:")
+logger.info(os.path.dirname(sys.executable))
 
 # libraries loaded checking epyseg to see if everything is functional
 try:
