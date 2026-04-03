@@ -29,6 +29,7 @@ logger.info("Starting segmentation")
 try:
     logger.info("Initializing deepl")
     import epyseg.deeplearning.deepl as deepl
+    logger.info("Initializing logger")
     deepl.logger = logger 
     logger.info("Initializing EZ")
     from epyseg.deeplearning.deepl import EZDeepLearning
