@@ -308,7 +308,7 @@ def stardist2D( img, prob, over, progress_bar=None ):
         env = env.build()
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;")
-        #python.debug(lambda msg: print("[DBG]", msg))
+        python.debug(lambda msg: print("[DBG]", msg))
         if progress_bar is None:
             progress_bar = ut.start_progress( None, total=1, descr="Stardist segmentation" )
             toclose = True
