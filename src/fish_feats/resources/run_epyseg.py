@@ -28,15 +28,10 @@ logger.info("Starting segmentation")
 # libraries loaded checking epyseg to see if everything is functional
 try:
     import epyseg
-    logger.info("Initializing deepl")
     import epyseg.deeplearning.deepl as deepl
-    logger.info("Initializing logger")
     deepl.logger = logger 
-    logger.info("Initializing EZ")
     from epyseg.deeplearning.deepl import EZDeepLearning
-    logger.info("Initialized")
     deepTA = EZDeepLearning()
-    logger.info("Initialized all")
 except Exception as e:
     logger.info( 'EPySeg failed to load. '+str(e) )
     
