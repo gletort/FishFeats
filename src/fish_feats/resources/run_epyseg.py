@@ -31,10 +31,10 @@ logger.info(sys.executable)
 import platform
 logger.info("\nBase environment path:")
 logger.info(os.path.dirname(sys.executable))
-logger.info("Version complete de Python :", sys.version)
-logger.info("Version courte :", platform.python_version())
-logger.info("Compilateur :", platform.python_compiler())
-logger.info("Systeme d'exploitation :", platform.system())
+logger.info("Version complete de Python :"+str(sys.version))
+logger.info("Version courte :"+str( platform.python_version()))
+logger.info("Compilateur :"+str(platform.python_compiler()))
+logger.info("Systeme d'exploitation :"+str(platform.system()))
 
 # libraries loaded checking epyseg to see if everything is functional
 try:
