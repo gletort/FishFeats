@@ -13,7 +13,7 @@ from fish_feats.FishGrid import FishGrid
 from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure, ThresholdChannel
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
-from fish_feats._button_grid import ButtonGrid
+#from fish_feats._button_grid import ButtonGrid
 
 """
     Handle the UI through napari plugin
@@ -646,6 +646,9 @@ class FishFeats:
     ############ measure cyto
     def cytoplasmicStaining(self):
         """ Measure the cytoplasmic signal close to the apical surface """
+        if not self.mig.has_cell():
+            ut.show_warning( "No cell staining to define cytoplasm. Use measure nuclei instead" )
+            return
         cytoMeas = CytoplasmMeasure( self.viewer, self.mig, self.cfg )
         self.viewer.window.add_dock_widget(cytoMeas, name="Measure cytos")
 
