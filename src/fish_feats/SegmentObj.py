@@ -31,8 +31,9 @@ def run_epyseg( input_folder ):
         #env = env.subscribe_error( lambda line: print("ERR:", line, end="") )
         env = env.build()
         ut.show_info(f"Environment built at: {env.base()}")
-        python = env.python().init("import numpy as np; import tensorflow as tf;")
-        #python.debug(lambda msg: print("[DBG]", msg))
+        python = env.python().init("import numpy as np; import tensorflow as tf;"\
+        "from epyseg.deeplearning.deepl import EZDeepLearning; import epyseg.deeplearning.deepl as deepl;")
+        python.debug(lambda msg: print("[DBG]", msg))
         
         def log_listener(event):
             """ Transfer appose task message to the main logger """
@@ -307,8 +308,9 @@ def stardist2D( img, prob, over, progress_bar=None ):
         #env = env.subscribe_error( lambda line: print("ERR:", line, end="") )
         env = env.build()
         ut.show_info(f"Environment built at: {env.base()}")
-        python = env.python().init("import numpy as np; import tensorflow as tf;")
-        python.debug(lambda msg: print("[DBG]", msg))
+        python = env.python().init("import numpy as np; import tensorflow as tf;" \
+        "from stardist.models import StarDist2D")
+        #python.debug(lambda msg: print("[DBG]", msg))
         if progress_bar is None:
             progress_bar = ut.start_progress( None, total=1, descr="Stardist segmentation" )
             toclose = True

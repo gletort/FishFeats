@@ -24,7 +24,8 @@ def sepanet( img, sepdir, patchsize=256 ):
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
         env = env.build()
         ut.show_info(f"Environment built at: {env.base()}")
-        python = env.python().init("import numpy as np; import tensorflow as tf;")
+        python = env.python().init("import numpy as np; import tensorflow as tf;"\
+        "import keras; import scipy.ndimage as ndimage")
         #python.debug(lambda msg: print("[DBG]", msg))
         progress_bar = ut.start_progress( None, total=1, descr="SepaNet separation" )
         
