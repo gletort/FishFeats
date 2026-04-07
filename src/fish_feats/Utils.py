@@ -792,6 +792,14 @@ def normalize_img(img, newmax=1):
     resimg = (resimg*1.0-quantiles[0])/(quantiles[1]-quantiles[0])*newmax
     return resimg
 
+## Handle multi-platform to choose cuda/defautl appose env
+def get_env_name():
+    """ Pick the environment by platform capability """
+    import platform
+    is_gpu_platform = platform.system() in ("Linux", "Windows")
+    env_name = "cuda" if is_gpu_platform else "default"
+    return env_name
+
 #### Handle versions of napari
 def version_napari_above( compare_version ):
     """ Get the current version of napari """

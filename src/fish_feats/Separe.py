@@ -22,7 +22,8 @@ def sepanet( img, sepdir, patchsize=256 ):
         ut.show_info("Build/Load tensorflow environment")
         env = appose.pixi( pixi_file ).log_debug()
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
-        env = env.build()
+        env_name = ut.get_env_name()
+        env = env.environment(env_name).build()
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;"\
         "import keras; import scipy.ndimage as ndimage")
