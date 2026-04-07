@@ -30,9 +30,13 @@ def run_epyseg( input_folder ):
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
         env = env.subscribe_error( lambda line: print("DBG:", line, end="") )
         env = env.build()
+        explicit = env.env_vars()
+        print(f"explicit from env.env_vars: {explicit}")
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;"\
         "from epyseg.deeplearning.deepl import EZDeepLearning; import epyseg.deeplearning.deepl as deepl;")
+        explicit = env.env_vars()
+        print(f"explicit from env.env_vars after doing python init: {explicit}")
         python.debug(lambda msg: print("[DBG]", msg))
         
         def log_listener(event):
@@ -44,6 +48,7 @@ def run_epyseg( input_folder ):
             epyseg_script = resources.files("fish_feats.resources").joinpath("run_epyseg.py")
             epyseg_script = epyseg_script.read_text()
             task = python.task( epyseg_script )
+            
             task.listen( log_listener )
             task.inputs["input_folder"] = input_folder 
             print("launch script")
