@@ -10,12 +10,13 @@ platforms = ["osx-arm64", "osx-64", "linux-64", "win-64"]
 python = "==3.10"
 numpy = "<2"
 pip = "*"
+appose-python = { git = "https://github.com/apposed/appose-python.git", rev = "0dfc8bd3922b406a985c8ab75559dd6f9663c87e" }
 
 [pypi-dependencies]
 stardist = "*"
 epyseg = "*"
 tifffile = "<= 2024.12.12"
-appose = ">=0.10.1, <=0.11"
+#appose = ">=0.10.1, <=0.11"
 scipy = "*"
 
 [target.osx-64.dependencies]
