@@ -38,6 +38,7 @@ def run_epyseg( input_folder ):
         explicit = env.env_vars()
         print(f"explicit from env.env_vars after doing python init: {explicit}")
         python.debug(lambda msg: print("[DBG]", msg))
+        print( f"Env vars in the service: {python.env()._env_vars}" )
         
         def log_listener(event):
             """ Transfer appose task message to the main logger """
