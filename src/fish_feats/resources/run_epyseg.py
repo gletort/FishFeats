@@ -29,6 +29,9 @@ def show_infos( logger ):
     import platform
     logger.info("\nBase environment path:")
     logger.info(os.path.dirname(sys.executable))
+    logger.info(os.environ.get('PATH'))
+    logger.info(os.environ.get('PYTHONPATH'))
+    logger.info(os.environ.get('CONDA_PREFIX'))
     logger.info("Python complete version:"+str(sys.version))
     logger.info("Compilateur:"+str(platform.python_compiler()))
     logger.info("OS:"+str(platform.system()))
