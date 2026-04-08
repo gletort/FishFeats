@@ -15,9 +15,9 @@ pip = "*"
 stardist = "*"
 epyseg = "*"
 tifffile = "<= 2024.12.12"
-#appose = ">=0.10.1, <=0.11"
+appose = ">=0.10.1, <=0.12"
 scipy = "*"
-appose = { git = "https://github.com/apposed/appose-python.git", rev = "0dfc8bd3922b406a985c8ab75559dd6f9663c87e" }
+#appose = { git = "https://github.com/apposed/appose-python.git", rev = "0dfc8bd3922b406a985c8ab75559dd6f9663c87e" }
 
 [target.osx-64.dependencies]
 python = "==3.10"

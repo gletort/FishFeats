@@ -33,19 +33,10 @@ def run_epyseg( input_folder ):
         env = env.subscribe_error( lambda line: print("DBG:", line, end="") )
         env_name = ut.get_env_name()
         env = env.environment(env_name).build()
-        explicit = env.env_vars()
-        launch_args = env.launch_args()
-        print(f"Launch args: {launch_args}" )
-        bin_paths = env.bin_paths()
-        print(f"Bin paths: {bin_paths}" )
-        print(f"explicit from env.env_vars: {explicit}")
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;"\
         "from epyseg.deeplearning.deepl import EZDeepLearning; import epyseg.deeplearning.deepl as deepl;")
-        explicit = env.env_vars()
-        print(f"explicit from env.env_vars after doing python init: {explicit}")
         python.debug(lambda msg: print("[DBG]", msg))
-        print( f"Env vars in the service: {python.env()._env_vars}" )
         
         def log_listener(event):
             """ Transfer appose task message to the main logger """
@@ -54,10 +45,8 @@ def run_epyseg( input_folder ):
 
         try:
             task = python.task( epyseg_script )
-            
             task.listen( log_listener )
             task.inputs["input_folder"] = input_folder 
-            print("launch script")
             task.wait_for()
         except Exception as e:
             raise RuntimeError("Running epyseg in separated environement failed") from e
