@@ -40,7 +40,7 @@ def show_infos( logger ):
 logger = setup_logger()    
 logger.info("Starting segmentation")
 
-show_infos( logger )
+#show_infos( logger )
 
 
 # libraries loaded checking epyseg to see if everything is functional
