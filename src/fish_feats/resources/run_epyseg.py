@@ -26,6 +26,7 @@ def show_infos( logger ):
     import sys
     logger.info("Python interpreter path:")
     logger.info(sys.executable)
+    logger.info(sys.path)
     import platform
     logger.info("\nBase environment path:")
     logger.info(os.path.dirname(sys.executable))
