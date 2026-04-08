@@ -32,6 +32,10 @@ def run_epyseg( input_folder ):
         env_name = ut.get_env_name()
         env = env.environment(env_name).build()
         explicit = env.env_vars()
+        launch_args = env.launch_args()
+        print(f"Launch args: {launch_args}" )
+        bin_paths = env.bin_paths()
+        print(f"Bin paths: {bin_paths}" )
         print(f"explicit from env.env_vars: {explicit}")
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;"\
