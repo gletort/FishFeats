@@ -25,6 +25,8 @@ def run_epyseg( input_folder ):
     """ Run epyseg on a separate virtual environement through appose """
     try:
         pixi_file = resources.files("fish_feats.resources").joinpath("pixi.toml")
+        epyseg_script = resources.files("fish_feats.resources").joinpath("run_epyseg.py")
+        epyseg_script = epyseg_script.read_text()
         ut.show_info("Build/Load tensorflow environment")
         env = appose.pixi( pixi_file ).log_debug()
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
@@ -51,8 +53,6 @@ def run_epyseg( input_folder ):
                print( f"[task] {event.message}" )
 
         try:
-            epyseg_script = resources.files("fish_feats.resources").joinpath("run_epyseg.py")
-            epyseg_script = epyseg_script.read_text()
             task = python.task( epyseg_script )
             
             task.listen( log_listener )
