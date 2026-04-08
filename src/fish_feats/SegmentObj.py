@@ -307,7 +307,7 @@ def stardist2D( img, prob, over, progress_bar=None ):
         ut.show_info("Build/Load tensorflow environment")
         env = appose.pixi( pixi_file ).log_debug()
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
-        #env = env.subscribe_error( lambda line: print("ERR:", line, end="") )
+        env = env.subscribe_error( lambda line: print("DBG:", line, end="") )
         env_name = ut.get_env_name()
         env = env.environment(env_name).build()
         ut.show_info(f"Environment built at: {env.base()}")
