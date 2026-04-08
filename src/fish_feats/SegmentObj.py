@@ -64,6 +64,7 @@ def run_epyseg( input_folder ):
         finally:
             python.close()
     except Exception as e:
+        print(e)
         raise RuntimeError("Epyseg in separated environement failed") from e
 
 def run_epyseg_onimage(img, filedir, filename, verbose=True):
