@@ -32,7 +32,7 @@ dependencies = [
     "napari;python_version >= '3.11'",
 	"appose",
 	"nninteractive",
-	"torch<=2.6",
+	"torch<=2.7",
     "numpy==1.26.4; python_version < '3.11'",
     "numpy; python_version >= '3.11'",
 	"pyqt5",
