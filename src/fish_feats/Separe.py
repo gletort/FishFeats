@@ -2,11 +2,69 @@ import numpy as np
 import cv2
 import scipy.ndimage as ndimage
 from napari.utils.notifications import show_info
-from math import floor
 import time
+import fish_feats.Utils as ut
 from napari.utils import progress
+from importlib import resources
+import appose
 
-def sepanet( img, sepdir, patchsize=256 ):
+def share_as_ndarray(img: np.ndarray) -> appose.NDArray:
+    """Copies a NumPy array into a same-sized newly allocated block of shared memory."""
+    shared = appose.NDArray(str(img.dtype), img.shape)
+    shared.ndarray()[:] = img
+    return shared
+
+def sepanet_appose( img, sepdir, patchsize=256 ):
+    """ Separate junctions and nuclei with trained DL """
+    print("sepaNet with models in "+str(sepdir))
+    try:
+        pixi_file = resources.files("fish_feats.resources").joinpath("pixi.toml")
+        ut.show_info("Build/Load tensorflow environment")
+        env = appose.pixi( pixi_file ).log_debug()
+        env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
+        env_name = ut.get_env_name()
+        env = env.environment(env_name).build()
+        ut.show_info(f"Environment built at: {env.base()}")
+        python = env.python().init("import numpy as np; import tensorflow as tf;"\
+        "import keras; import scipy.ndimage as ndimage")
+        #python.debug(lambda msg: print("[DBG]", msg))
+        progress_bar = ut.start_progress( None, total=1, descr="SepaNet separation" )
+        
+        def log_listener(event):
+            """ Transfer appose task message to the main logger """
+            if event.current and event.maximum:
+                print( f"Separating slice {event.current}/{event.maximum}" )
+                #ut.show_info( f"Separiting slice {event.current}/{event.maximum}" )
+                #progress_bar.update( cur )
+                #progress_bar.total = total 
+            else:
+                if event.message:
+                    print( f"[task] {event.message} " )
+
+        try:
+            sepanet_script = resources.files("fish_feats.resources").joinpath("run_sepanet.py")
+            sepanet_script = sepanet_script.read_text()
+            result_junc = None
+            result_nuc = None
+            with share_as_ndarray(img) as image:
+                task = python.task( sepanet_script )
+                task.listen( log_listener )
+                task.inputs["img"] = image 
+                task.inputs["patchsize"] = patchsize
+                task.inputs["model_directory"] = sepdir
+                task.wait_for()
+                result_junc = np.uint8( task.outputs["junctions"].ndarray().copy() )
+                result_nuc = np.uint8( task.outputs["nuclei"].ndarray().copy() )
+            return result_junc, result_nuc 
+        except Exception as e:
+            raise RuntimeError("Running SepaNet in separated environement failed") from e
+        finally:
+            python.close()
+            ut.close_progress( None, progress_bar=progress_bar )
+    except Exception as e:
+        raise RuntimeError("SepaNet in separated environement failed") from e
+
+def sepanet_local( img, sepdir, patchsize=256 ):
     """ Separate junctions and nuclei with trained DL """
     print("sepaNet with models in "+str(sepdir))
 
@@ -28,6 +86,7 @@ def sepanet( img, sepdir, patchsize=256 ):
     return res[:,:,:,0], res[:,:,:,1]
 
 def run_on_image(imgtest, model, patchsize, step=50):
+    from math import floor
     imgtest.astype(float)
     imgtest = normalise(imgtest)
     imgtest = smooth(imgtest)
@@ -74,7 +133,6 @@ def run_on_image(imgtest, model, patchsize, step=50):
     resimg = np.uint8(resimg*255)
     return resimg
 
-
 def normalise(img):
     quants = np.quantile(img, [0.1, 0.99])
     img = (img - quants[0]) / (quants[1]-quants[0])
@@ -98,12 +156,22 @@ def both_MSE_percent_1( y_true, y_pred ):
     acc0 = keras.metrics.mean_absolute_percentage_error(y_true[:,:,:,1], y_pred[:,:,:,1])
     return acc0
 
-
 def mse_two(y_true, y_pred):
     y_true = tf.reshape(y_true, [-1])
     y_pred = tf.reshape(y_pred, [-1])
     mse = tf.keras.losses.MeanSquaredError()
     return mse(y_true, y_pred)
+
+### Separation based on filterings
+def junctionsCoherence(img, medblur=3, quant=0.98, dsig=3, cornersig=5, ratio=0.5, niter=4):
+    ## Coherence enhancing diffusion, Weickert et al.
+    #from skimage import exposure
+    height, width = img.shape[:2]
+    qmax = np.quantile(img, quant)
+    qmin = np.min(img)
+    img = np.uint8( (img-qmax)/(qmax-qmin)*255 )
+    #img = cv2.normalize(src=img, dst=None, alpha=0, beta=255, norm_type=cv2.NORM_MINMAX, dtype=cv2.CV_8U)
+
 
 ### Separation based on filterings
 def junctionsCoherence(img, medblur=3, quant=0.98, dsig=3, cornersig=5, ratio=0.5, niter=4):

@@ -13,7 +13,7 @@ from fish_feats.FishGrid import FishGrid
 from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure, ThresholdChannel
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
-from fish_feats._button_grid import ButtonGrid
+#from fish_feats._button_grid import ButtonGrid
 
 """
     Handle the UI through napari plugin

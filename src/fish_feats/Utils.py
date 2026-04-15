@@ -44,6 +44,8 @@ def show_debug(message):
 
 def show_progress( viewer, show ):
     """ Show.hide the napari activity bar to see processing progress """
+    if viewer is None:
+        viewer = napari.current_viewer()
     viewer.window._status_bar._toggle_activity_dock( show )
 
 def start_progress( viewer, total, descr=None ):
@@ -790,10 +792,33 @@ def normalize_img(img, newmax=1):
     resimg = (resimg*1.0-quantiles[0])/(quantiles[1]-quantiles[0])*newmax
     return resimg
 
+## Handle multi-platform to choose cuda/defautl appose env
+def get_env_name():
+    """ Pick the environment by platform capability """
+    import platform
+    is_gpu_platform = platform.system() in ("Linux", "Windows")
+    env_name = "cuda" if is_gpu_platform else "default"
+    return env_name
+
 #### Handle versions of napari
 def version_napari_above( compare_version ):
     """ Get the current version of napari """
     return Version(napari.__version__) > Version(compare_version)
+
+def has_dependency( depname ):
+    """ Check if installation was done with full mode or appose mode """
+    try: 
+        if depname == "stardist":
+            import stardist 
+            return True
+        elif depname == "epyseg":
+            import epyseg
+            return True
+        elif depname == "tensorflow":
+            import tensorflow as tf
+            return True
+    except:
+        return False
 
 def add_point_layer( viewer, pts, colors, layer_name, mig, size=7, pts_properties=None ):
     """ Add a points layer to the viewer """
