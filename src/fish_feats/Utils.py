@@ -805,6 +805,14 @@ def version_napari_above( compare_version ):
     """ Get the current version of napari """
     return Version(napari.__version__) > Version(compare_version)
 
+def full_fishfeats():
+    """ Check if installation was done with full mode or appose mode """
+    try: 
+        import stardist 
+        return False
+    except:
+        return True
+
 def add_point_layer( viewer, pts, colors, layer_name, mig, size=7, pts_properties=None ):
     """ Add a points layer to the viewer """
     if not version_napari_above("0.4.19"):
