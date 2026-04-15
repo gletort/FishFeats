@@ -361,9 +361,13 @@ class MainImage:
         self.nucstain = smoothNuclei(self.nucstain, radxy=smoothnucxy, radz=smoothnucz)
     
     def separate_with_sepanet( self, model_dir ):
-        from fish_feats.Separe import sepanet
         bothimage = np.copy(self.image[self.nucchan,])
-        self.junstain, self.nucstain = sepanet( bothimage, model_dir )
+        if ut.full_fishfeats:
+            from fish_feats.Separe import sepanet_local
+            self.junstain, self.nucstain = sepanet_local( bothimage, model_dir )
+        else:
+            from fish_feats.Separe import sepanet_appose
+            self.junstain, self.nucstain = sepanet_appose( bothimage, model_dir )
 
     def should_separate( self ):
         if self.junchan==self.nucchan:

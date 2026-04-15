@@ -21,7 +21,7 @@ import appose
     Functions to segment junctions or nuclei
 """
 
-def run_epyseg( input_folder ):
+def run_epyseg_appose( input_folder ):
     """ Run epyseg on a separate virtual environement through appose """
     try:
         pixi_file = resources.files("fish_feats.resources").joinpath("pixi.toml")
@@ -56,12 +56,87 @@ def run_epyseg( input_folder ):
         print(e)
         raise RuntimeError("Epyseg in separated environement failed") from e
 
+def run_epyseg_local(input_folder):
+    import tensorflow as tf
+
+    # libraries loaded checking epyseg to see if everything is functional
+    try:
+        from epyseg.img import Img
+        from epyseg.deeplearning.deepl import EZDeepLearning
+        from epyseg.deeplearning.augmentation.meta import MetaAugmenter
+        from epyseg.deeplearning.augmentation.generators.data import DataGenerator
+        deepTA = EZDeepLearning()
+    except:
+        print('EPySeg failed to load.')
+    
+    # Load a pre-trained model
+    pretrained_model_name = 'Linknet-vgg16-sigmoid-v2'
+    pretrained_model_parameters = deepTA.pretrained_models[pretrained_model_name]
+
+    deepTA.load_or_build(model=None, model_weights=None,
+                             architecture=pretrained_model_parameters['architecture'], backbone=pretrained_model_parameters['backbone'],
+                             activation=pretrained_model_parameters['activation'], classes=pretrained_model_parameters['classes'],
+                             input_width=pretrained_model_parameters['input_width'], input_height=pretrained_model_parameters['input_height'],
+                             input_channels=pretrained_model_parameters['input_channels'],pretraining=pretrained_model_name)
+    #epydir = os.path.join(os.path.abspath(".."), "epyseg_net")
+    #deepTA.load_weights( os.path.join(epydir,'Linknet-vgg16-sigmoid-v2.h5') )
+
+    input_val_width = 256
+    input_val_height = 256
+    
+    input_shape = deepTA.get_inputs_shape()
+    output_shape = deepTA.get_outputs_shape()
+    if input_shape[0][-2] is not None:
+        input_val_width=input_shape[0][-2]
+    if input_shape[0][-3] is not None:
+        input_val_height=input_shape[0][-3]
+    #print(input_shape)
+    deepTA.compile(optimizer='adam', loss='bce_jaccard_loss', metrics=['iou_score'])
+      
+    range_input = [0,1]
+    input_normalization = {'method': 'Rescaling (min-max normalization)',
+                        'individual_channels': True, 'range': range_input, 'clip': True} 
+
+    predict_generator = deepTA.get_predict_generator(
+            inputs=[input_folder], input_shape=input_shape,
+            output_shape=output_shape, 
+            default_input_tile_width=input_val_width, 
+            default_input_tile_height=input_val_height,
+            tile_width_overlap=32,
+            tile_height_overlap=32, 
+            input_normalization=input_normalization, 
+            clip_by_frequency={'lower_cutoff': None, 'upper_cutoff': None, 'channel_mode': True} )
+
+    post_process_parameters={}
+    post_process_parameters['filter'] = None
+    post_process_parameters['correction_factor'] = 1
+    post_process_parameters['restore_safe_cells'] = False ## no eff
+    post_process_parameters['cutoff_cell_fusion'] = None
+    post_proc_method = 'Rescaling (min-max normalization)'
+    post_process_parameters['post_process_algorithm'] = post_proc_method
+    post_process_parameters['threshold'] = None  # None means autothrehsold # maybe add more options some day
+
+    predict_output_folder = os.path.join(input_folder, 'predict')
+    print("Starting segmentation with EpySeg.....")
+    deepTA.predict(predict_generator, 
+                output_shape, 
+                predict_output_folder=predict_output_folder,
+                batch_size=1, **post_process_parameters)
+    
+    deepTA.clear_mem()
+    if not os.access(predict_output_folder, os.W_OK):
+        os.chmod(predict_output_folder, stat.S_IWUSR)
+    #deepTA = None
+    del deepTA
+
+
 def run_epyseg_onimage(img, filedir, filename, verbose=True):
     """ Run epyseg on an image: create temp dir because of epyseg requirements """
     from PIL import Image
 
     binimg = None
     tmpdir_path = None
+    appose = not ut.full_fishfeats()
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
             print("tmp dir "+str(tmpdir))
@@ -77,7 +152,10 @@ def run_epyseg_onimage(img, filedir, filename, verbose=True):
                 print("Warning, issue in creating "+predict_output_folder+" folder")
     
             ## run Epyseg on tmp directory (contains current image)
-            run_epyseg(tmpdir)
+            if appose:
+                run_epyseg_appose( tmpdir )
+            else:
+                run_epyseg_local(tmpdir)
     
             ## return result and delete files
             im = Image.open(os.path.join(tmpdir,"predict",inputname)) 
@@ -300,7 +378,30 @@ def share_as_ndarray(img: np.ndarray) -> appose.NDArray:
     shared.ndarray()[:] = img
     return shared
 
-def stardist2D( img, prob, over, progress_bar=None ):
+def stardist2D_local(img, prob, over):
+    """ run stardist model, segment nuclei in 2D """
+    try:
+        from csbdeep.utils import Path, normalize
+        from stardist.models import StarDist2D
+    except ModuleNotFoundError:
+        ut.show_error("Stardist2D not installed, please install stardist with pip install stardist")
+        return None
+    
+    model = StarDist2D.from_pretrained('2D_paper_dsb2018')  ## 2D_versatile_fluo, find more nuclei than paper_dsb2018
+    axis_norm = None ## normalize jointly
+    labs = []
+    tiling = (int(img.shape[1]/2000)+1, int(img.shape[2]/2000)+1)
+    nuclei = np.zeros(img.shape, "uint16")
+    for ind, im in enumerate(img):
+        #if np.mean(im)<0.1:    ## nearly empty slice, makes it bug
+        #    labels = np.zeros(im.shape)
+        #else:
+        #    im = normalize(im, 1, 99.8, axis=axis_norm)
+        labels, details = model.predict_instances(im, n_tiles=tiling, prob_thresh=prob, nms_thresh=over, show_tile_progress=True)
+        nuclei[ind,] = labels
+    return nuclei
+
+def stardist2D_appose( img, prob, over, progress_bar=None ):
     """ run stardist model, segment nuclei in 2D """
     try:
         pixi_file = resources.files("fish_feats.resources").joinpath("pixi.toml")
@@ -357,7 +458,12 @@ def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMod
     """ Segment nuclei with Stardist2D and reconstruct in 3D - return the nuclei list """
     
     ## segment 2D
-    labnuc = stardist2D(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
+    appose = not ut.full_fishfeats()
+    if appose:
+        labnuc = stardist2D_appose(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
+    else:
+        labnuc = stardist2D_local(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
+
     if labnuc is None:
         return None
     if progress_bar is not None:
