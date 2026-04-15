@@ -251,7 +251,7 @@ class NucleiWidget(QWidget):
             float(self.stardist_nuclei_overlap.text()),
             self.stardist_association_method.currentText(), 
             float(self.stardist_association_distance_limit_micron.text()),
-            float(self.stardist_threshold_overlap.text()) )
+            float(self.stardist_threshold_overlap.text()), pbar )
         if self.mig.nucmask is None:
             ut.close_progress( self.viewer, pbar )
             return

@@ -9,9 +9,12 @@ from fish_feats.CellObjects import Population
 
 try:
     from fish_feats.SegmentObj import local_max_proj, prepJunctions, segmentJunctions
+except ImportError as e:
+    print( "Module missing in seg "+e )
+try:
     from fish_feats.RNASpots import RNASpots
-except ImportError:
-    print("Module missing")
+except ImportError as e:
+    print( "Module missing in RNASpots "+e )
     
 ####### Z map functions
 def score_each_z( img3d, projimg ):
@@ -366,9 +369,13 @@ class MainImage:
         self.nucstain = smoothNuclei(self.nucstain, radxy=smoothnucxy, radz=smoothnucz)
     
     def separate_with_sepanet( self, model_dir ):
-        from fish_feats.Separe import sepanet
         bothimage = np.copy(self.image[self.nucchan,])
-        self.junstain, self.nucstain = sepanet( bothimage, model_dir )
+        if ut.has_dependency( "tensorflow" ):
+            from fish_feats.Separe import sepanet_local
+            self.junstain, self.nucstain = sepanet_local( bothimage, model_dir )
+        else:
+            from fish_feats.Separe import sepanet_appose
+            self.junstain, self.nucstain = sepanet_appose( bothimage, model_dir )
 
     def should_separate( self ):
         if self.junchan==self.nucchan:
@@ -614,7 +621,7 @@ class MainImage:
             self.pop.setNucleiImage(self.nucmask)
     
     # stardist2D+association 3D
-    def do_segmentation_stardist(self, threshold, overlap, assoMethod, associationlim, threshold_overlap):
+    def do_segmentation_stardist(self, threshold, overlap, assoMethod, associationlim, threshold_overlap, progress_bar=None):
         ut.show_info("Segmenting nuclei with Stardist2D+association3D")
         from fish_feats.SegmentObj import prepNuclei, getNuclei_stardist2DAsso3D
         treatedNuclei = prepNuclei(self.nucstain)  ## normalize the image
@@ -624,7 +631,7 @@ class MainImage:
                             assoMode = assoMethod,
                             assolim=associationlim,
                             threshold_overlap=threshold_overlap,
-                            verbose=self.verbose )
+                            verbose=self.verbose, progress_bar=progress_bar )
         if self.nucmask is None:
             return
         self.nucmask[self.nucmask>0] = self.nucmask[self.nucmask>0] + 1
