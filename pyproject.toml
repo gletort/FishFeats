@@ -46,6 +46,15 @@ dependencies = [
     "packaging",
     "cellpose[distributed]",
 ]
+
+[project.optional-dependencies]
+
+full = [
+    "epyseg; python_version < '3.11'",
+	"tensorflow<2.15; python_version < '3.11'",
+	"tensorflow; python_version >= '3.11'",
+    "stardist",
+]
 #dynamic = ["version"]
 
 [project.urls]
