@@ -638,6 +638,7 @@ class FinishNuclei( QWidget ):
 
     def nuclei_done( self ):
         """ Finish the nuclei editing step, close everything """
+        self.mig.update_nuclei_pop()
         ut.remove_layer( self.viewer,"nucleiStaining" )
         ut.remove_layer( self.viewer,"segmentedNuclei" )
         ut.remove_layer( self.viewer,"NucleiName" )
