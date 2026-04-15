@@ -646,6 +646,9 @@ class FishFeats:
     ############ measure cyto
     def cytoplasmicStaining(self):
         """ Measure the cytoplasmic signal close to the apical surface """
+        if not self.mig.has_cell():
+            ut.show_warning( "No cell staining to define cytoplasm. Use measure nuclei instead" )
+            return
         cytoMeas = CytoplasmMeasure( self.viewer, self.mig, self.cfg )
         self.viewer.window.add_dock_widget(cytoMeas, name="Measure cytos")
 

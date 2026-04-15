@@ -126,14 +126,8 @@ class MainImage:
     
     def get_image_shape(self, in2d=True):
         if in2d:
-            if self.junmask is not None:
-                return self.junmask.shape
-            else:
-                if self.junstain is None:
-                    return None
-                return self.junstain.shape[1:]
-        else:
-            return self.junstain.shape
+            return self.imshape[1:]
+        return self.imshape
 
     def get_coordinates(self, pos):
         """ Get pixel coordinates from tuple of position """
@@ -158,6 +152,14 @@ class MainImage:
     def get_channel(self, chan):
         #return zarr.array(self.image[chan])
         return self.image[chan]
+
+    def has_cell( self ):
+        """ Returns if the image as a junction staining (cells) """
+        return self.junchan is not None
+    
+    def has_nuclei( self ):
+        """ Returns if the image as a nuclei staining """
+        return self.nucchan is not None
 
     def build_filename(self, endname):
         return os.path.join(self.resdir, self.imagename+endname)
@@ -212,7 +214,7 @@ class MainImage:
     def save_results( self ):
         """ Save the table of all results to file """
         resfile = self.get_filename( endname="_results.csv", ifexist=False )
-        results = self.pop.getResults( self.scaleXY, self.scaleZ )
+        results = self.pop.getResults( self.has_cell(), self.scaleXY, self.scaleZ )
         if (results is None) or (len(results) == 0):
             return
         ut.write_dict( resfile, results )
@@ -303,6 +305,12 @@ class MainImage:
         if self.junstain is None:
             self.junstain = self.image[self.junchan,]
         return self.pop.drawCellsJunc3D( self.junstain, full, thick )
+    
+    def getNucleiImage3D( self, full=True, thick=1 ):
+        """ Create a 3D image containing the nuclei labels at their 3D position"""
+        if self.nucstain is None:
+            self.nucstain = self.image[self.nucchan,]
+        return self.pop.drawNuclei3D( self.nucstain, full, thick )
 
     def loadCellsFromSegmentation( self, junfilename ):
         """ Load only the segmentation mask """
@@ -454,7 +462,7 @@ class MainImage:
         if self.pop is None:
             self.popFromJunctions()
 
-        results = self.pop.getResults( self.scaleXY, self.scaleZ )
+        results = self.pop.getResults( self.has_cell(), self.scaleXY, self.scaleZ )
         return results
     
     def get_cell_fromcoord( self, coord ):
@@ -660,7 +668,10 @@ class MainImage:
     def measure_counts(self):
         rnachannels = [i for i in self.rnas.keys()]
         methods = [self.rnas[rnac].countName for rnac in rnachannels]
-        self.pop.measureCellsCount( rnachannels, methods )
+        if self.has_cell():
+            self.pop.measureCellsCount( rnachannels, methods )
+        elif self.has_nuclei():
+            self.pop.measureNucleiCount( rnachannels, methods )
 
     def measure_count( self, rnachanel, method ):
         self.pop.measureCellsCount( [rnachanel], [method] )
@@ -677,8 +688,12 @@ class MainImage:
     
     def image_count_from_table(self, countname):
         """ Create the image of cell RNA counts from current table """
-        countimg = np.zeros(self.get_image_shape(in2d=True), np.uint16)
-        self.pop.drawCountsInCells(countimg, countname)
+        if self.has_cell():
+            countimg = np.zeros(self.get_image_shape(in2d=True), np.uint16)
+            self.pop.drawCountsInCells(countimg, countname)
+        else:
+            countimg = np.zeros( self.get_image_shape(in2d=False), np.uint16 )
+            self.pop.drawCountsInNuclei(countimg, countname)
         return countimg
 
     ### RNA hierarchical analysis
@@ -713,11 +728,11 @@ class MainImage:
         # load from an image
         if ext == ".tif":
             rnaspots, scaleXYm, scaleZm, names = ut.open_image(rnafilename, verbose=self.verbose)
-            rnaspot.update_spotsFromImage(rnaspots, methodName="Load", pop=pop)
+            rnaspot.update_spotsFromImage( self.has_cell(), rnaspots, methodName="Load", pop=pop)
         # load from a table file
         elif ext == ".csv":
             rnaspotDict = ut.load_dictlist(rnafilename, verbose=self.verbose)
-            rnaspot.update_spotsFromDict(rnaspotDict, methodName="Load", pop=pop)
+            rnaspot.update_spotsFromDict( self.has_cell(), rnaspotDict, methodName="Load", pop=pop)
         ut.show_info("RNA spots loaded from file "+str(rnafilename))
     
     def load_imaris_surface_file( self, imaris_filename, rnac, topop=True ):
@@ -731,7 +746,7 @@ class MainImage:
         # load from a table file
         rnaspotDict = ut.load_dictlist( imaris_filename, skip=3, verbose=self.verbose )
         #print(rnaspotDict)
-        rnaspot.update_spotsFromImarisDict(rnaspotDict, scaleXY=self.scaleXY, scaleZ=self.scaleZ, methodName="LoadImaris", pop=pop)
+        rnaspot.update_spotsFromImarisDict( self.has_cell(), rnaspotDict, scaleXY=self.scaleXY, scaleZ=self.scaleZ, methodName="LoadImaris", pop=pop)
 
         ## Add spot volume if Imaris Volume file is there
         self.add_imaris_file( imaris_filename, rnaspot, name="Volume", feature="Volume", feature_name="ImarisVolume" )
@@ -791,7 +806,7 @@ class MainImage:
         ut.show_info("Assign RNAs channel "+str(rnachan)+" with method "+method)
         rnaspot = self.rnas[rnachan]
         rnaclouds = [self.rnas[refrna] for refrna in refrnas]
-        rnaspot.assign_fromcloud(self.pop, clouds=rnaclouds, 
+        rnaspot.assign_fromcloud( self.has_cell(), self.pop, clouds=rnaclouds, 
                          scaleXY=self.scaleXY,
                          scaleZ=self.scaleZ,
                          distanceLimit=limDist, 
@@ -803,21 +818,25 @@ class MainImage:
         angular_step = 4
         ut.show_info("Assign RNAs channel "+str(rnachan)+" with method "+method)
         if not self.hasCells():
-            if method == "Projection" or method=="MixProjClosest" or method=="ClosestNucleus" or method== "Hull":
+            if method == "Projection" or method=="MixProjClosest" or method== "Hull":
                 ut.show_info("Cells not segmented yet, segment them before to use "+method+" method")
+                return
+        if not self.hasNuclei():
+            if method == "ClosestNuclei" or method == "MixProjClosest":
+                ut.show_info("Nuclei not segmented yet, segment them before to use "+method+" method")
                 return
         if method == "Hull" and self.pop.hullinited == 0:
             self.pop.initializeHull(angular_step)
         
         rnaspot = self.rnas[rnachan]
-        rnaspot.assign_spots(self.pop, method=method,
+        rnaspot.assign_spots( self.has_cell(), self.pop, method=method,
                          distanceLimit=limitDistAsso, above=nAbove,
                          angular_step = angular_step,
                          scaleXY=self.scaleXY,
                          scaleZ=self.scaleZ)
 
     def draw_spots(self, spots, labels, chan):
-        self.rnas[chan].update_spotsFromPoints(spots, labels, None)
+        self.rnas[chan].update_spotsFromPoints( self.has_cell(), spots, labels, None)
         return self.rnas[chan].draw_spots3D(self.imshape, size=2)
 
     def save_spots(self, spots, props, chan, rnafile=None):
@@ -892,7 +911,7 @@ class MainImage:
         self.rnas[rnachan].set_points(spots)
     
     def update_spotsAndCountFromPoints(self, spots, labels, scores, chan):
-        self.rnas[chan].update_spotsFromPoints(spots, labels, scores, self.pop)
+        self.rnas[chan].update_spotsFromPoints( self.has_cell(), spots, labels, scores, self.pop)
     
     def get_rnalist(self):
         return [i for i in self.rnas.keys()]
