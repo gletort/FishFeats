@@ -136,7 +136,7 @@ def run_epyseg_onimage(img, filedir, filename, verbose=True):
 
     binimg = None
     tmpdir_path = None
-    appose = not ut.full_fishfeats()
+    appose = not ut.has_dependency( "epyseg" )
     try:
         with tempfile.TemporaryDirectory() as tmpdir:
             print("tmp dir "+str(tmpdir))
@@ -458,7 +458,7 @@ def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMod
     """ Segment nuclei with Stardist2D and reconstruct in 3D - return the nuclei list """
     
     ## segment 2D
-    appose = not ut.full_fishfeats()
+    appose = not ut.has_dependency( "stardist" )
     if appose:
         labnuc = stardist2D_appose(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
     else:

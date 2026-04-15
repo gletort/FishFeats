@@ -362,7 +362,7 @@ class MainImage:
     
     def separate_with_sepanet( self, model_dir ):
         bothimage = np.copy(self.image[self.nucchan,])
-        if ut.full_fishfeats:
+        if ut.has_dependency( "tensorflow" ):
             from fish_feats.Separe import sepanet_local
             self.junstain, self.nucstain = sepanet_local( bothimage, model_dir )
         else:
