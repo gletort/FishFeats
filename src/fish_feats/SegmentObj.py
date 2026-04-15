@@ -378,7 +378,7 @@ def share_as_ndarray(img: np.ndarray) -> appose.NDArray:
     shared.ndarray()[:] = img
     return shared
 
-def stardist2D_local(img, prob, over):
+def stardist2D_local(img, prob, over, progress_bar=None ):
     """ run stardist model, segment nuclei in 2D """
     try:
         from csbdeep.utils import Path, normalize
