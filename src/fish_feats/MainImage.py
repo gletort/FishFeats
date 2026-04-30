@@ -501,7 +501,11 @@ class MainImage:
                 print("Calculating the z-map to place cells in 3D")
                 zmap = self.calculate_zmap(proj, step_size=200, window_size=250)
        
-        self.pop.createCellsFromMask(self.junmask, self.junstain, results, find_z=zpos, zmap = zmap, cells_direction=self.zdirection, talkative=self.verbose)
+        if self.junstain is None:
+            junstain = self.img[self.junchan]
+        else:
+            junstain = self.junstain
+        self.pop.createCellsFromMask(self.junmask, junstain, results, find_z=zpos, zmap = zmap, cells_direction=self.zdirection, talkative=self.verbose)
         ut.show_info("Created "+str(len(self.pop.cells))+" cells")
         return 1
 
@@ -1129,14 +1133,17 @@ class MainImage:
 
     def calculate_zmap(self, projimg, step_size, window_size):
         """ Calculate the zmap of the cells position based on the projection """
+        junstain = self.junstain
         if self.junstain is None:
             self.check_separation()
+            junstain = self.junstain
             if self.junstain is None:
+                junstain = self.img[self.junchan]
                 ut.show_warning("Load junction staining (separated if necessary) before")
                 return
         zmap = np.zeros(projimg.shape, "uint8")
         for i, x in enumerate(range(0, projimg.shape[0], step_size)):
-            zmap_cur = process_x( x, step=step_size, projimg=projimg, img=self.junstain, winsize=window_size )
+            zmap_cur = process_x( x, step=step_size, projimg=projimg, img=junstain, winsize=window_size )
             zmap[x:(x+step_size),:] = zmap_cur
         return zmap
 
