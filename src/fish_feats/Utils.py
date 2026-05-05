@@ -800,6 +800,21 @@ def get_env_name():
     env_name = "cuda" if is_gpu_platform else "default"
     return env_name
 
+def get_cuda_feature():
+    """ Get the drivers cuda version through nvidia-smi and build the relevant feature for pixi """
+    import subprocess, re
+    result = subprocess.run(['nvidia-smi'], capture_output=True, text=True)
+    match = re.search(r'CUDA Version:\s+([\d.]+)', result.stdout)
+    if match:
+        cuda_version = match.group(1)
+
+        ## get only major version
+        if cuda_version.split( "." )[0] == "12":
+            return "cu126"
+        if cuda_version.split( "." )[0] == "13":
+            return "cu130"
+    return "cpu"
+
 #### Handle versions of napari
 def version_napari_above( compare_version ):
     """ Get the current version of napari """

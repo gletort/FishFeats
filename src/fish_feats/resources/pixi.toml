@@ -1,5 +1,5 @@
 [workspace]
-name = "tensorflow-env"
+name = "fishfeats-tensorflow-env"
 version = "0.0.0"
 description = "Modules with tensorflow for FishFeats: epyseg, stardist, tensorflow and keras"
 authors = ["Gaelle Letort"]

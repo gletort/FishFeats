@@ -198,7 +198,7 @@ class GetCells( QWidget ):
         super().__init__()
         layout = QVBoxLayout()
 
-        methods = [ "Epyseg", "CellPose", "Load segmented file", "Empty" ]
+        methods = [ "Epyseg", "CellPoseSAM", "CellPose3", "Load segmented file", "Empty" ]
         defmeth = "Epyseg"
         celldiameter = 30
         self.chunksize = 1500
@@ -210,6 +210,9 @@ class GetCells( QWidget ):
                 celldiameter = int(float(self.paras["cell_diameter"]))
             if "method" in self.paras:
                 defmeth = self.paras["method"]
+                ## compatibility with previous version
+                if defmeth == "CellPose":
+                    defmeth = "CellPoseSAM"
         if self.mig.junction_filename(dim=2, ifexist=True) != "":
             defmeth = "Load segmented file"
         self.junction_filename = self.mig.junction_filename(dim=2, ifexist=True)
@@ -253,7 +256,7 @@ class GetCells( QWidget ):
 
     def visibility( self ):
         """ Set the visibility of the parameters according to the method """
-        self.diam_group.setVisible( self.methodsChoice.currentText() in ["CellPose"] )
+        self.diam_group.setVisible( self.methodsChoice.currentText() in ["CellPose", "CellPoseSAM", "CellPose3"] )
         self.file_group.setVisible( self.methodsChoice.currentText() == "Load segmented file" )
 
     def get_junction_filename( self ):

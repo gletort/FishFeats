@@ -214,11 +214,72 @@ def junctions_to_label(img):
 
 def run_cellpose(img, scaleXY, diameter=7, verbose=True):
     from cellpose import models
-    model = models.CellposeModel(gpu=True, model_type='cyto3') 
+    model = models.CellposeModel( gpu=True ) 
     diamet = diameter/scaleXY   ## increase it ?
-    mask, flow, style = model.eval(img, invert=False, diameter=diamet, channels=[0,0], do_3D=False, cellprob_threshold=0.05)
+    mask, flow, style = model.eval(img, invert=False, diameter=diamet, do_3D=False, cellprob_threshold=0.05)
     ## convert cellpose result to label image (cellpose result are not touching border, make it as junctions)
     return fromcellpose_tojunctions(mask)
+
+def run_cellpose_3( img, scaleXY, diameter=7, verbose=True, progress_bar=None ):
+    """ Use CellPose3 instead of main Cellpose(SAM), using Appose environment """
+    feature = "cp3-"+ut.get_cuda_feature()
+    try:
+        pixi_file = resources.files("fish_feats.resources").joinpath("pixi_cp3.toml")
+        ut.show_info("Build/Load tensorflow environment")
+        env = appose.pixi( pixi_file ).log_debug()
+        env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
+        env = env.subscribe_error( lambda line: print("DBG:", line, end="") )
+        env = env.environment( feature ).build()
+        ut.show_info(f"Environment built at: {env.base()}")
+        python = env.python().init("import numpy as np; from cellpose import models" \
+        "")
+        if progress_bar is None:
+            progress_bar = ut.start_progress( None, total=1, descr="Cellpose3 segmentation" )
+            toclose = True
+        else:
+            progress_bar.set_description( "Cellpose3 segmentation" )
+            toclose = False
+        
+        def log_listener(event):
+            """ Transfer appose task message to the main logger """
+            if event.current and event.maximum:
+                print( f"Segmenting slice {event.current}/{event.maximum}" )
+            else:
+                if event.message:
+                    print( f"[task] {event.message} " )
+
+        try:
+            cellpose3_script = resources.files("fish_feats.resources").joinpath("run_cellpose3.py")
+            cellpose3_script = cellpose3_script.read_text()
+            with share_as_ndarray(img) as image:
+                task = python.task( cellpose3_script )
+                task.listen( log_listener )
+                task.inputs["img"] = image 
+                task.inputs["cell_diameter"] = diameter
+                task.inputs["scale_xy"] = scaleXY
+                task.wait_for()
+                result = image.ndarray()
+                mask = np.uint16( result )
+                return fromcellpose_tojunctions(mask)
+        except Exception as e:
+            raise RuntimeError("Running cellpose3 in separated environement failed") from e
+        finally:
+            python.close()
+            if toclose:
+                ut.close_progress( None, progress_bar=progress_bar )
+    except Exception as e:
+        raise RuntimeError("Cellpose3 in separated environement failed") from e
+
+def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMode="Munkres", assolim=3, threshold_overlap=0.25, verbose=True, progress_bar=None):
+    """ Segment nuclei with Stardist2D and reconstruct in 3D - return the nuclei list """
+    
+    ## segment 2D
+    appose = not ut.has_dependency( "stardist" )
+    if appose:
+        labnuc = stardist2D_appose(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
+    else:
+        labnuc = stardist2D_local(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
+
 
 def fromcellpose_tojunctions(mask):
     bined = binary_closing( find_boundaries(mask), footprint=np.ones((10,10)) )
@@ -233,9 +294,13 @@ def segmentJunctions(img, mode, scaleXY, imagedir, imagename, diameter=7, chunki
             if os.path.exists(tmpdir_path):
                 os.chmod(tmpdir_path, stat.S_IRUSR|stat.S_IRGRP|stat.S_IROTH|stat.S_IWUSR|stat.S_IWGRP|stat.S_IWOTH|stat.S_IXUSR)
                 shutil.rmtree(tmpdir_path, ignore_errors=True)
-    if (isinstance(mode, str) and mode.lower() == "cellpose"):
-        show_info("Starting segmentation with CellPose...")
-        seged = run_cellpose(img, scaleXY, diameter=diameter, verbose=verbose)
+    if (isinstance(mode, str) and mode[0:8].lower() == "cellpose"):
+        if mode.lower() == "cellposesam":
+            show_info("Starting segmentation with CellPose-SAM...")
+            seged = run_cellpose(img, scaleXY, diameter=diameter, verbose=verbose)
+        elif mode.lower() == "cellpose3":
+            show_info("Starting segmentation with CellPose3, cyto3 model...")
+            seged = run_cellpose_3(img, scaleXY, diameter=diameter, verbose=verbose)
     if (isinstance(mode, str) and mode.lower() == "epyseg-dask"):
         from fish_feats.DaskedEpyseg import run_dasked_epyseg
         show_info("Starting segmentation with dasked Epyseg...")
