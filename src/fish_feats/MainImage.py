@@ -502,7 +502,7 @@ class MainImage:
                 zmap = self.calculate_zmap(proj, step_size=200, window_size=250)
        
         if self.junstain is None:
-            junstain = self.img[self.junchan]
+            junstain = self.image[self.junchan]
         else:
             junstain = self.junstain
         self.pop.createCellsFromMask(self.junmask, junstain, results, find_z=zpos, zmap = zmap, cells_direction=self.zdirection, talkative=self.verbose)
@@ -1138,7 +1138,7 @@ class MainImage:
             self.check_separation()
             junstain = self.junstain
             if self.junstain is None:
-                junstain = self.img[self.junchan]
+                junstain = self.image[self.junchan]
                 ut.show_warning("Load junction staining (separated if necessary) before")
                 return
         zmap = np.zeros(projimg.shape, "uint8")
