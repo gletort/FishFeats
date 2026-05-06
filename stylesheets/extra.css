@@ -1,0 +1,30 @@
+.md-tabs__link[href*="Installation"] {
+	color : rgba(64, 30, 104, 0.829);
+}
+.md-tabs__link[href*="Open-image"] {
+	color : rgba(64, 30, 104, 0.829);
+}
+
+.md-tabs__link[href*="Get-cells"] {
+	color : #b60c00;
+}
+
+.md-tabs__link[href*="Get-nuclei"] {
+	color : #082cd1;
+}
+
+.md-tabs__link[href*="Get-RNAs"] {
+	color : #0b8300;
+}
+
+.md-tabs__link[href*="Classify-cells"] {
+	color : #bda30f;
+}
+
+.md-tabs__link[href*="Touching-labels"] {
+	color : rgb(95, 94, 88);
+}
+
+.md-tabs__link[href*="Step-by-step"] {
+	color : rgb(0, 0, 0);
+}
