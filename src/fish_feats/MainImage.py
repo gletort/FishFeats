@@ -522,7 +522,7 @@ class MainImage:
         self.pop.updateCellsZPosFromMap(zmap)
         if save:
             filename = self.get_filename( endname="_zmap.tif" )
-            self.save_image( zmap, filename, hasZ=False, imtype="uint8" )
+            self.save_image( zmap, filename, hasZ=False, imtype=zmap.dtype )
         
     def updateCellZPos(self, cell_label, zpos, img=None):
         """ Update the position of the given cell """
@@ -1141,7 +1141,10 @@ class MainImage:
                 junstain = self.image[self.junchan]
                 ut.show_warning("Load junction staining (separated if necessary) before")
                 return
-        zmap = np.zeros(projimg.shape, "uint8")
+        if self.imshape[0] > 255:
+            zmap = np.zeros(projimg.shape, "uint16")
+        else:
+            zmap = np.zeros(projimg.shape, "uint8")
         for i, x in enumerate(range(0, projimg.shape[0], step_size)):
             zmap_cur = process_x( x, step=step_size, projimg=projimg, img=junstain, winsize=window_size )
             zmap[x:(x+step_size),:] = zmap_cur
