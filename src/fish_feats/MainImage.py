@@ -772,7 +772,7 @@ class MainImage:
             return self.rnas[rnachan].threshold
         return 0
 
-    def find_rna(self, rnachan, spotZRadius, spotXYRadius, rmExtremeZ, threshold=None):
+    def find_rna(self, rnachan, spotZRadius, spotXYRadius, rmExtremeZ, threshold=None, tophat_radius=0 ):
         if self.rnas.get(rnachan) is None:
             rnaspot = RNASpots(rnachan, verbose=self.verbose)
             self.rnas[rnachan] = rnaspot
@@ -780,9 +780,9 @@ class MainImage:
             rnaspot = self.rnas[rnachan]
             rnaspot.reset_spots()
         rnaimg = self.image[rnachan,:,:,:]
-        rnaspot.detect_spots_withbigfish(rnaimg, scaleZ=self.scaleZ, scaleXY=self.scaleXY, spotZRadius=spotZRadius, spotXYRadius=spotXYRadius, rmextr=rmExtremeZ, threshold=threshold)
+        rnaspot.detect_spots_withbigfish(rnaimg, scaleZ=self.scaleZ, scaleXY=self.scaleXY, spotZRadius=spotZRadius, spotXYRadius=spotXYRadius, rmextr=rmExtremeZ, threshold=threshold, tophat_radius=tophat_radius )
     
-    def find_rnas_in_image(self, rnaimg, chanlist, spotZRadius, spotXYRadius, threshold=None):
+    def find_rnas_in_image(self, rnaimg, chanlist, spotZRadius, spotXYRadius, threshold=None, tophat_radius=0):
         chanlist = str(chanlist)
         if self.rnas.get(chanlist) is None:
             rnaspot = RNASpots(chanlist, verbose=self.verbose)
@@ -790,7 +790,7 @@ class MainImage:
         else:
             rnaspot = self.rnas[chanlist]
             rnaspot.reset_spots()
-        rnaspot.detect_spots_withbigfish(rnaimg, scaleZ=self.scaleZ, scaleXY=self.scaleXY, spotZRadius=spotZRadius, spotXYRadius=spotXYRadius, rmextr=False, threshold=threshold)
+        rnaspot.detect_spots_withbigfish(rnaimg, scaleZ=self.scaleZ, scaleXY=self.scaleXY, spotZRadius=spotZRadius, spotXYRadius=spotXYRadius, rmextr=False, threshold=threshold, tophat_radius=tophat_radius)
         return rnaspot.get_points()
 
     def find_blobs_in_image(self, rnaimg, chanlist, minSigma, threshold):
