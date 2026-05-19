@@ -50,6 +50,7 @@ class NapaRNA():
         """ default or loaded RNA parameters """
         paras["RNA"+str(channel)+"_spotZRadiusNm"] = 1000
         paras["RNA"+str(channel)+"_spotXYRadiusNm"] = 250
+        paras["RNA"+str(channel)+"_tophatRadius"] = 20
         paras["RNA"+str(channel)+"_removeSpotInExtremeZ"] = True
         #paras["RNA"+str(channel)+"_drawing_spot_size"] = 3
         paras["RNA"+str(channel)+"_threshold"] = self.mig.get_rna_threshold(channel)
@@ -171,6 +172,11 @@ class GetRNA(QWidget):
         threshold_line.addWidget(self.automatic_threshold)
         
         bigfish_layout.addLayout(threshold_line)
+        
+        ## top-hat radius
+        tophat_line, self.tophat_radius = fwid.value_line( "TopHat radius (pixels)", 20, descr="Preprocessing with top-hat. Put 0 to disable" )
+        self.tophat_radius.setText( str(self.paras["RNA"+str(self.rnachannel)+"_tophatRadius"]) )
+        bigfish_layout.addLayout( tophat_line )
 
         self.remove_extrem = QCheckBox("Remove spots in extremes Z")
         self.remove_extrem.setChecked(False)
@@ -215,6 +221,7 @@ class GetRNA(QWidget):
         self.cfg.addParameter("RNA"+str(self.rnachannel), "RNA"+str(self.rnachannel)+"_method", self.method.currentText())
         self.cfg.addParameter( "RNA"+str(self.rnachannel), "RNA"+str(self.rnachannel)+"_spotZRadiusNm", int(self.spotz_radius.text()) )
         self.cfg.addParameter( "RNA"+str(self.rnachannel), "RNA"+str(self.rnachannel)+"_spotXYRadiusNm", int(self.spotxy_radius.text()) )
+        self.cfg.addParameter( "RNA"+str(self.rnachannel), "RNA"+str(self.rnachannel)+"_tophatRadius", int(self.tophat_radius.text()) )
         self.cfg.addParameter( "RNA"+str(self.rnachannel), "RNA"+str(self.rnachannel)+"_threshold", float(self.threshold.text()) )
         self.cfg.addParameter( "RNA"+str(self.rnachannel), "RNA"+str(self.rnachannel)+"_removeSpotInExtremeZ", self.remove_extrem.isChecked() )
         #cfg.addParameter( "RNA"+str(rna_channel), "RNA"+str(rna_channel)+"_drawing_spot_size", drawing_spot_size )
@@ -274,6 +281,7 @@ class GetRNA(QWidget):
         self.filename.setText(rnafilename)
         self.spotz_radius.setText(str(self.paras["RNA"+str(self.rnachannel)+"_spotZRadiusNm"]))
         self.spotxy_radius.setText(str(self.paras["RNA"+str(self.rnachannel)+"_spotXYRadiusNm"]))
+        self.tophat_radius.setText(str(self.paras["RNA"+str(self.rnachannel)+"_tophatRadius"]))
         self.threshold.setText(str(self.paras["RNA"+str(self.rnachannel)+"_threshold"]))
         self.automatic_threshold.setChecked( self.paras["RNA"+str(self.rnachannel)+"_automatic_threshold"] )
         self.remove_extrem.setChecked( self.paras["RNA"+str(self.rnachannel)+"_removeSpotInExtremeZ"] )
@@ -291,9 +299,10 @@ class GetRNA(QWidget):
         self.end_segmented_rna()
 
     def segment_rna(self, threshold):
+        """ Launch the segmentation with selected parameters """
         chanel = self.rnachannel
         start_time = time.time()
-        self.mig.find_rna( self.rnachannel, int(self.spotz_radius.text()), int(self.spotxy_radius.text()), self.remove_extrem.isChecked(), threshold )
+        self.mig.find_rna( self.rnachannel, int(self.spotz_radius.text()), int(self.spotxy_radius.text()), self.remove_extrem.isChecked(), threshold, int(self.tophat_radius.text()) )
         print("RNA big-fish segmentation finished in {:.3f}".format((time.time()-start_time)/60)+" min")
         self.end_segmented_rna()
 
