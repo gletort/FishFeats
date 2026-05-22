@@ -1268,7 +1268,10 @@ class Population:
         for cellid, cell in self.cells.items():
             cellmask, bbox = cell.get_maskBB( self.imgcell )
             cell_values = (labimg[bbox[0]:bbox[2], bbox[1]:bbox[3]][cellmask]).flatten().tolist()
-            label = max(cell_values, key=cell_values.count)
+            if len(np.unique( cell_values ))> 1:
+                label = max(cell_values, key=cell_values.count)
+            else:
+                label = cell_values[0]
             cell.putFeature(featname, label )
             featimg[bbox[0]:bbox[2],bbox[1]:bbox[3]][cellmask] = label
         return featimg
