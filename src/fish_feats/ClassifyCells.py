@@ -498,6 +498,11 @@ class CreateFeature( QWidget ):
         self.prefill.addItem("Boundary cells")
         self.gui_boundary()
         gnewfeat_layout.addWidget(self.gBound)
+        ## classify from a label layer
+        self.prefill.addItem("From label layer")
+        self.gui_init_from_labels()
+        gnewfeat_layout.addWidget(self.gInitFromLabels)
+        ##  watch if the selected option changes
         self.prefill.currentIndexChanged.connect(self.show_initoptions)
 
         ## show projection of a channel
@@ -537,6 +542,10 @@ class CreateFeature( QWidget ):
         """ Set visible parameters """
         self.gProj.setVisible( self.prefill.currentText() == "channel projection+threshold" )
         self.gBound.setVisible( self.prefill.currentText() == "Boundary cells" )
+        self.gInitFromLabels.setVisible( self.prefill.currentText() == "From label layer" )
+        if self.prefill.currentText() == "From label layer":
+            self.update_label_layer_list()
+            self.select_label_layer()
         show_nchan = (self.show_projection.isChecked()) or (self.prefill.currentText()=="channel projection+threshold") 
         self.nchannel.setVisible(show_nchan)
         self.nchan_lab.setVisible(show_nchan)
@@ -561,7 +570,33 @@ class CreateFeature( QWidget ):
         gbound_layout.addWidget( self.border_cells )
         self.gBound.setLayout( gbound_layout )
 
-    
+    def gui_init_from_labels(self):
+        """ GUI for initialization option: create from labels layer """
+        self.gInitFromLabels = QGroupBox( "From label layer" )
+        glabel = QVBoxLayout()
+        layer_line, self.label_choice = fwid.list_line( "Choose layer:", descr="Choose a label layer from which to initialize the cell's classes: 1 label = 1 class" )
+        self.update_label_layer_list()
+        self.label_choice.currentIndexChanged.connect( self.select_label_layer )
+
+        glabel.addLayout( layer_line )
+        self.gInitFromLabels.setLayout( glabel )
+
+    def update_label_layer_list( self ):
+        """ udpate the list of label layers """
+        self.label_choice.clear()
+        for lay in self.cc.viewer.layers:
+            if isinstance( lay, napari.layers.Labels):
+                self.label_choice.addItem( lay.name )
+
+    def select_label_layer( self ):
+        """ Trigered when a label layer is selected: change the number of classes """
+        ## change number of classes
+        label_lay = self.label_choice.currentText()
+        layer = ut.get_layer( self.cc.viewer, label_lay )
+        if layer is not None:
+            nlabels = np.max( layer.data )+1
+            self.nbclass.setValue(nlabels )
+
     def create_projthreshold(self):
         """ GUI of projection initialization """
         self.gProj = QGroupBox("Projection+threshold")
@@ -598,6 +633,9 @@ class CreateFeature( QWidget ):
 
         if self.prefill.currentText() == "Boundary cells":
             prefill_img = self.class_boundary_cells( feature_name )
+
+        if self.prefill.currentText() == "From label layer":
+            prefill_img = self.class_from_label( feature_name )
         
         channel = int(self.nchannel.text())
         if self.show_projection.isChecked():
@@ -624,6 +662,14 @@ class CreateFeature( QWidget ):
         threshold_mean = float(self.thres_mean.text())
         threshold_fill = float(self.area_prop.text()) 
         return self.cc.mig.classifyCells( featname, chan, threshold_mean, threshold_fill )
+
+    def class_from_label( self, featname ):
+        """ Class the cells according to their value in the selected label layer """
+        layname = self.label_choice.currentText()
+        layer = ut.get_layer( self.cc.viewer, layname )
+        if layer is not None:
+            return self.cc.mig.classifyCellsFromLabels( featname, np.max(layer.data, axis=0) )
+        return None
 
     def class_boundary_cells( self, featname ):
         """ Class the cells according to touching boundary/edge or not """

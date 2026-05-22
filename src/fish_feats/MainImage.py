@@ -1107,6 +1107,10 @@ class MainImage:
         """ Perform initial classification based on thresholding """
         projimg = np.mean(self.image[projchan], axis=0)
         return self.pop.classifyCellsFromThreshold( featname, projimg, threshold_mean, threshold_fill )
+    
+    def classifyCellsFromLabels(self, featname, labimg ):
+        """ Perform initial classification based on a labelled image """
+        return self.pop.classifyCellsFromLabels( featname, labimg )
 
     def classifyBoundaryCells( self, featname, border=0, boundary=2 ):
         """ Classify cells if they are on edge/boundary of the tissue """

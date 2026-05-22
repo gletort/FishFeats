@@ -1262,6 +1262,17 @@ class Population:
                 featimg = cell.fillFeature( self.imgcell, featname, featimg, border )
         return featimg
 
+    def classifyCellsFromLabels( self, featname, labimg ):
+        """ Classify cells in groups, based on label image """
+        featimg = np.zeros(self.imgcell.shape, np.uint8)
+        for cellid, cell in self.cells.items():
+            cellmask, bbox = cell.get_maskBB( self.imgcell )
+            cell_values = (labimg[bbox[0]:bbox[2], bbox[1]:bbox[3]][cellmask]).flatten().tolist()
+            label = max(cell_values, key=cell_values.count)
+            cell.putFeature(featname, label )
+            featimg[bbox[0]:bbox[2],bbox[1]:bbox[3]][cellmask] = label
+        return featimg
+
 
     def classifyCellsFromThreshold( self, featname, proj, threshold_mean, threshold_fill ):
         """ Classify cells in two groups, above/below threshold """
