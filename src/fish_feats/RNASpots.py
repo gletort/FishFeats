@@ -53,7 +53,7 @@ class RNASpots:
     def detect_spots_withbigfish(self, img, scaleZ, scaleXY, spotZRadius, spotXYRadius, rmextr=True, threshold=None, tophat_radius=0):
         """ Detect RNA spots with big-fish """
         from fish_feats.SegmentObj import normalizeQuantile
-        if tophat_radius > 0:
+        if floor(tophat_radius) > 0:
             from fish_feats.Separe import topHat
             img = topHat( img, xyrad=floor(tophat_radius) )
         img = normalizeQuantile(img, qmin=0.001, qmax=0.999, vmax=255)

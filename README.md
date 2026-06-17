@@ -43,6 +43,7 @@ Example of analysis you can do with `FishFeats` are detailled step-by-step [here
 ## License
 
 Fishfeats is distributed freely under the BSD-3 license.
+If you use it, please cite our paper: [FishFeats: streamlined quantification of multimodal labeling at the single-cell level in 3D tissues](https://pmc.ncbi.nlm.nih.gov/articles/PMC13003315/).
 
 
 [napari]: https://github.com/napari/napari
