@@ -341,6 +341,7 @@ class RNASpots:
         
         for row in spotdict:
             ## Imaris file are in µm
+            #print( f"Reading row {row["Unit"]} ")
             if row["Unit"] == 'µm':
                 zpos = float(row["Position Z"]) / scaleZ
                 ypos = float(row["Position Y"]) / scaleXY
