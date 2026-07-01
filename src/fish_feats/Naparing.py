@@ -85,8 +85,7 @@ class FishFeats:
         if self.viewer is None:
             self.viewer = napari.current_viewer()
             self.viewer.title = "Fish&Feats"
-
-
+    
     #### Start
     def init_viewer( self ):
         """ Launch the plugin, initialize all """
@@ -101,35 +100,35 @@ class FishFeats:
 
         @self.viewer.bind_key('F1', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 0 )
+            ut.show_hide(viewer, 0 )
 
         @self.viewer.bind_key('F2', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 1 )
+            ut.show_hide(viewer, 1 )
 
         @self.viewer.bind_key('F3', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 2 )
+            ut.show_hide(viewer, 2 )
 
         @self.viewer.bind_key('F4', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 3 )
+            ut.show_hide(viewer, 3 )
 
         @self.viewer.bind_key('F5', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 4 )
+            ut.show_hide(viewer, 4 )
 
         @self.viewer.bind_key('F6', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 5 )
+            ut.show_hide(viewer, 5 )
 
         @self.viewer.bind_key('F7', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 6 )
+            ut.show_hide(viewer, 6 )
 
         @self.viewer.bind_key('F8', overwrite=True)
         def show_layer(viewer):
-            self.show_hide( 7 )
+            ut.show_hide(viewer, 7 )
 
         def show_hide( self, intlayer ):
             """ Show/hide the ith-layer """

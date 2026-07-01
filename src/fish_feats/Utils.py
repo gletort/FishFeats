@@ -305,6 +305,12 @@ def set_active_layer(viewer, layname):
     if layname in viewer.layers:
         viewer.layers.selection.active = viewer.layers[layname]
 
+def show_hide( viewer, intlayer ):
+    """ Show/hide the ith-layer """
+    if 0 <= intlayer < len( viewer.layers ):
+        viewer.layers[intlayer].visible = not viewer.layers[intlayer].visible
+
+
 def view_3D( viewer ):
     """ Put the viewer in 3D mode """
     viewer.dims.ndisplay = 3
