@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fishfeats"
-version = "1.4.7"
+version = "1.4.8"
 description = "Napari plugin for RNA-Fish+cells analysis pipeline"
 license.file = "LICENSE"
 readme = "README.md"
@@ -45,6 +45,7 @@ dependencies = [
     "lxml",
     "packaging",
     "cellpose[distributed]>3",
+    "deprojpy",
 ]
 
 [project.optional-dependencies]

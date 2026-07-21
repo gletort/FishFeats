@@ -312,6 +312,18 @@ class MainImage:
             self.nucstain = self.image[self.nucchan,]
         return self.pop.drawNuclei3D( self.nucstain, full, thick )
 
+    def getCellSegmentation( self ):
+        """ Get the mask of cell segmentation """
+        if self.junmask is not None:
+            return self.junmask
+        ## mask has not been loaded yet, but the segmentation file exists
+        loadfilename = self.junction_filename(dim=2,ifexist=True)
+        if loadfilename != "":
+            self.load_segmentation( loadfilename )
+            return self.junmask
+        return None
+
+
     def loadCellsFromSegmentation( self, junfilename ):
         """ Load only the segmentation mask """
         self.junmask, scaleXYm, scaleZm, names = ut.open_image(junfilename, verbose=self.verbose)
