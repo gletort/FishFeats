@@ -211,6 +211,13 @@ class MainImage:
         ut.write_dict(resfile, results)
         ut.show_info("Measures saved in file "+str(resfile))
 
+    def add_results(self, df_results, to_cell=True):
+        """ 
+        Add a dataframe to the cell/nucleus results
+        """
+        if to_cell:
+            self.pop.addCellResults( df_results )
+
     def save_results( self ):
         """ Save the table of all results to file """
         resfile = self.get_filename( endname="_results.csv", ifexist=False )
@@ -255,7 +262,7 @@ class MainImage:
             for row in csvreader:
                 rows.append( row )
             previous_measures = set(rows[0].keys()) - set(columns)
-            print(previous_measures)
+            #print(previous_measures)
             if len( previous_measures) > 0:
                 print( "Appending previous measures value in the table" )
                 results = self.pop.measureAppendPrevious( results, rows, previous_measures )

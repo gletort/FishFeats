@@ -49,12 +49,11 @@ class NapaDeProject( QWidget ):
             ut.show_error( "Heightmap file "+heightmap_path+" not found. Select the correct heightmap file or generate. See https://github.com/Image-Analysis-Hub/DeProj#the-height-map for more" ) 
             return
         heightmap, _, _, _ = ut.open_image( heightmap_path )
-        import labelimage_tools as lit
-        labels = lit.dilate_labels(labels)
         result = dpp.from_labels( labels, heightmap,
     pixel_size=self.ffeats.mig.scaleXY, voxel_depth=self.ffeats.mig.scaleZ, units="µm",
     invert_z=(self.ffeats.mig.zdirection<0), inpaint_zeros=True, prune_zeros=True, drop_border_cells=False)
         dfresult = result.to_dataframe()
+        dfresult = dfresult.drop(columns="n_neighbors")
         dfresult.rename( columns={"source_label": "CellLabel"}, inplace=True)
         deproj_table = DeProjTable( self.viewer, self.ffeats.mig, dfresult, labels )
         self.viewer.window.add_dock_widget(deproj_table, name="Deproj results")
@@ -80,10 +79,45 @@ class DeProjTable(QWidget):
         self.wid_table.setSortingEnabled(True)
         self.set_table(df)
 
+        ## draw feature map
         featmap, self.show_deproj_features = fwid.list_line( "Draw feature map:", descr="Add a layer with the cells colored by the selected feature value", func=self.show_feature )
         layout.addLayout(featmap)
+
+        ## save results
+        add_btn = fwid.add_button( "Add table to results", self.add_results, descr="Add the deproj results to the main FishFeats results table", color=ut.get_color("save"))
+        layout.addWidget(add_btn)
+
+        ## quit option
+        bye_btn = fwid.add_button( "Done", self.bye_opt, descr="Finish this step, close the table and feature maps", color=ut.get_color("done") )
+        layout.addWidget(bye_btn)
         self.setLayout( layout )
         self.list_deproj_features()
+
+    def bye_opt(self):
+        """ 
+        Close all this option
+        """
+        ## remove all feature map layers
+        self.viewer.layers.selection = []
+        init_layers = [lay.name for lay in self.viewer.layers]
+        for layname in init_layers:
+            if layname.startswith("Deproj"):
+                ut.remove_layer(self.viewer, layname)
+        ## remove widget
+        ut.remove_widget(self.viewer, "DeprojAnalysis")
+        ut.remove_widget(self.viewer, "Deproj results")
+        
+
+    def add_results(self):
+        """ Add the Deproj table results to the main FF results table """
+        if self.df is not None:
+            df = self.df.copy()
+            df = df.drop(columns={"xc", "yc", "id"})
+            df.columns = "deproj_" + df.columns
+            df.rename(columns={"deproj_CellLabel": "CellLabel"}, inplace=True)
+            self.mig.add_results( df, to_cell=True )
+            self.mig.save_results()
+
 
     def list_deproj_features(self):
         """ List all possible features returned by Deproj """
