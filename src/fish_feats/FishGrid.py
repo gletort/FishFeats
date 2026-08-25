@@ -68,4 +68,3 @@ class FishGrid(QWidget):
                 rects.append(rect)
                 rects_names.append(chr(65+x)+"_"+str(y))
         self.viewer.add_shapes(rects, name="FishGrid", text=rects_names, face_color=[1,0,0,0], edge_color=[0.7,0.7,0.7,0.7], edge_width=3, scale=(self.mig.scaleXY, self.mig.scaleXY))
-

@@ -13,6 +13,7 @@ from fish_feats.FishGrid import FishGrid
 from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure, ThresholdChannel
 from fish_feats import ClassifyCells as cc
 import fish_feats.FishWidgets as fwid
+from fish_feats.DeProject import NapaDeProject
 #from fish_feats._button_grid import ButtonGrid
 
 """
@@ -359,6 +360,7 @@ class FishFeats:
         # actions related to cell contour
         choices['Cells:Segment'] = self.goJunctions
         choices['Cells:3D position'] = self.show3DCells
+        choices['Cells:Deproject'] = self.deproject
         # actions related to nuclei
         choices['Nuclei:Segment'] = self.getNuclei
         choices["Nuclei:Associate to cells"] = self.doCellAssociation
@@ -466,6 +468,12 @@ class FishFeats:
         """ Cells in 3D and update Z position of cells """
         cells_3D = Position3D( self )
         self.viewer.window.add_dock_widget(cells_3D, name="Cells in 3D")
+
+    ## Deproj analysis
+    def deproject(self):
+        """ Run analysis with deproj to correct for errors due to 3D->2D projection """
+        deproj = NapaDeProject(self)
+        self.viewer.window.add_dock_widget(deproj, name="DeprojAnalysis")
 
     ##### preprocessing functions
     def preprocNuclei(self):

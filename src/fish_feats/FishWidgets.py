@@ -63,6 +63,10 @@ def group_layout( name, descr="", color=None ):
         group.setStyleSheet( 'QGroupBox {background-color: '+color+'}' )
     layout = QVBoxLayout()
     return group, layout
+    
+def get_layout():
+    """ returns a vertical layout"""
+    return QVBoxLayout()
 
 def add_multiple_list( label, descr="" ):
     """ List interface, with possibility of multiple selection """

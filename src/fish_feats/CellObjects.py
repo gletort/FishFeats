@@ -235,7 +235,6 @@ class Cell:
     def addMeasures( self, measures ):
         """ Add previous measures to the cell """
         for key, val in measures.items():
-            #if self.measures.get(key) is None:
             self.measures[key] = val
             if key == "ZPosPixel":
                 self.zjunc = int( float(val) )
@@ -1182,7 +1181,8 @@ class Population:
         return results
 
     def measureAppendPrevious( self, results, previous_results, columns ):
-        """ Append the previous results (if any) to the current results """
+        """ 
+        Append the previous results (if any) to the current results """
         full_results = []
         for row in results:
             cellid = row["CellId"]
@@ -1194,6 +1194,18 @@ class Population:
                     break
             full_results.append(row)
         return full_results
+
+    def addCellResults( self, df_results ):
+        """ 
+        Append the new results (dataframe) to the cell measures 
+        """
+        def add_row(row):
+            cell_label = row["CellLabel"]
+            cellid, cell = self.findCellWithLabel( cell_label )
+            if cell is not None:
+                r = row.drop(columns="CellLabel")
+                cell.addMeasures(r.to_dict())                                       
+        df_results.apply( add_row, axis=1 )
 
     
     def drawProjectedCyto(self, results, column):
