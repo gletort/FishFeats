@@ -8,20 +8,17 @@ def starting():
     viewer = napari.Viewer( show=False )
     from fish_feats.Naparing import init_viewer
     init_viewer(viewer)
-
-
-mig = mi.MainImage(talkative=True)
     
 def test_load_image():
     test_img = "./_tests/files/imaris0.ims"
+    mig = mi.MainImage(talkative=True)
     mig.open_image(test_img)
     assert mig.image is not None
     assert mig.nbchannels == 4 
     assert mig.free_channel() == 1
     assert mig.build_filename("_end.tif") == os.path.join( ".", "_tests", "files", "results", "imaris0_end.tif" )
 
-def read_config():
-    """ read the configuration file """
+    ### read the configuration file
     import fish_feats.Configuration as cf
     cfg = cf.Configuration( mig.save_filename(), show=False )
     ## check that scale was read from the file metatdata
@@ -40,6 +37,7 @@ def read_config():
 
 
 def test_junctions_separation():
+    mig = mi.MainImage(talkative=True)
     assert mig.should_separate() == True
     mig.separate_junctions_nuclei()
     assert mig.nucstain is not None
@@ -47,6 +45,7 @@ def test_junctions_separation():
 
 def test_load_segfile():
     """ test loading from the segmentation file """
+    mig = mi.MainImage(talkative=True)
     assert mig.hasCells() == False
     segfile = os.path.join( ".", "_tests", "files", "results", "imaris0_cells2D.tif" )
     mig.load_segmentation( segfile )
@@ -56,12 +55,14 @@ def test_load_segfile():
 
 def test_load_nucleifile():
     """ Test loading nuclei segmentation """
+    mig = mi.MainImage(talkative=True)
     nucfile = os.path.join( ".", "_tests", "files", "results", "imaris0_nuclei.tif" )
     mig.load_segmentation_nuclei(nucfile)
     assert mig.nucstain is not None
     assert mig.pop.imgnuc is not None
 
 def test_nuclei_filter():
+    mig = mi.MainImage(talkative=True)
     mig.popNucleiFromMask(associate=False)
     assert mig.hasNuclei() == True 
     assert mig.nbNuclei() == 48
@@ -71,15 +72,18 @@ def test_nuclei_filter():
     assert mig.nbNuclei() == 39
 
 def test_load_rnafile():
+    mig = mi.MainImage(talkative=True)
     rnafile = os.path.join( ".", "_tests", "files", "results", "imaris0_RNA1.csv" )
     mig.load_rnafile( rnafile, 1 )
     assert mig.rnas[1].nspots() >= 1200
 
 def test_association():
+    mig = mi.MainImage(talkative=True)
     mig.go_association( distance = 10 )
     assert len(mig.pop.association.keys()) == 20
 
 def test_rna_segmentation():
+    mig = mi.MainImage(talkative=True)
     mig.find_rna( 2, 1000, 250, True, None )
     assert mig.rnas[2].nspots() >= 1000
     assert mig.rnas[2].nspots() <= 2500
@@ -87,6 +91,7 @@ def test_rna_segmentation():
     assert mig.get_rna_threshold(2) <= 4.5 
 
 def test_rna_assignement():
+    mig = mi.MainImage(talkative=True)
     mig.assign_rna(2, "Projection", 10, 0)
     assert len(np.unique(mig.rnas[2].labels)) >= 40
 
