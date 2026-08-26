@@ -19,6 +19,8 @@ Select the file that contains the z-map and click on `Deproj` to estimate the co
 A table with the measures will be displayed in the right side of the interface when the computation is done.
 See [`Deprojpy`](https://github.com/zen-laboratory/DeProjPy) documentation for the description of the measures.
 
+![deproj_results](./imgs/deproj_results.png)
+
 You can display the value of the deproj measure in each cell by selecting the corresponding feature in the `Draw feature map` option list.
 
 To add these informations to the main `FishFeats`table results that is saved in the `results.csv` file and reloaded everytime, press the button `Add to results` before to close this step.
