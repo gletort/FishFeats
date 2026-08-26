@@ -13,10 +13,14 @@ from napari.utils import progress # type: ignore
 import webbrowser
 from packaging.version import Version
 import napari
-from skimage.segmentation import find_boundaries
+from skimage.segmentation import find_boundaries, expand_labels
 from skimage.morphology import binary_closing, binary_dilation, disk
 from skimage.measure import regionprops_table
 import gc
+try:
+    from skimage.graph import RAG
+except:
+    from skimage.future.graph import RAG  ## older version of scikit-image
 
 """
     Set of common functions for Fish&Feats pipeline
@@ -965,6 +969,43 @@ def get_border_cells( img, margin=2 ):
     while 0 in labels:
         labels.remove(0)
     return labels
+
+## Draw feature map
+
+def draw_map(segdata, labels, values):
+    """ Draw cells colored by their feature value """
+    labels = np.array(labels)
+    values = np.array(values)
+            
+    mapping = np.zeros(segdata.max()+1, dtype="float16")
+    mapping[:] = np.nan
+    mapping[labels] = values 
+    mapfeat = mapping[segdata] 
+    return mapfeat
+
+
+## measure neighborhood 
+
+def touching_labels( img, expand=3 ):
+    """ Extends the labels to make them touch """
+    return expand_labels( img, distance=expand )
+
+def connectivity_graph( img, distance ):
+    """ Returns the region adjancy graph of labels """
+    touchlab = touching_labels( img, expand=distance )
+    return RAG( touchlab, connectivity=2 )
+
+def get_neighbor_graph( img, distance ):
+    """ Returns the adjancy graph without bg, so only neigbor cells """
+    graph = connectivity_graph( img, distance=distance ) # be sure that labels touch and get the graph
+    graph.remove_node(0) if 0 in graph.nodes else None
+    return graph
+
+def get_neighbors( label, graph ):
+    """ Get the list of neighbors of cell 'label' from the graph """
+    if label in graph.nodes:
+        return list(graph.adj[label])
+    return []
 
 ## make bbox and show names
 def make_bbox3D(bbox_extents, mig):

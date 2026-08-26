@@ -4,6 +4,7 @@ import fish_feats.Utils as ut
 import fish_feats.FishWidgets as fwid
 from fish_feats.NapaMix import Separation
 import numpy as np
+import pandas as pand
 from qtpy.QtWidgets import QVBoxLayout, QWidget 
 
 class MainCells( QWidget ):
@@ -598,3 +599,61 @@ def preprocJunctions2D(imgjun):
         viewer.layers["junctionsStaining"].visible = True
     viewer.window.add_dock_widget(preprocess, name="Preprocess2D")
 """
+
+class MeasureNeighbor( QWidget ):
+    """
+    Measure the neighborhood of the cells
+    """
+
+    def __init__( self, viewer, mig, cfg ):
+        """ GUI to measure neighborhood """
+        super().__init__()
+        self.viewer = viewer
+        self.mig = mig
+        self.cfg = cfg
+        self.dfmeasures = None
+
+        for layer in self.viewer.layers:
+            layer.visible = False
+
+        ## calculate the neighborhood map
+        self.viewer.window._status_bar._toggle_activity_dock(True)
+        label_img = self.mig.getCellSegmentation()
+        graph = ut.get_neighbor_graph( label_img, distance=3 )
+        self.dfmeasures = pand.DataFrame(columns=["CellLabel", "NbNeighbors", "Neighbors"])
+        for label in graph.nodes:
+            nei_labels = list(graph.adj[label])
+            if nei_labels is not None and len(nei_labels)>0:
+                nneigh = len(nei_labels)
+                neighs = "&".join(str(x) for x in nei_labels)
+            self.dfmeasures.loc[len(self.dfmeasures)] = [label, nneigh, neighs]
+
+        self.draw_map(label_img, self.dfmeasures["CellLabel"], self.dfmeasures["NbNeighbors"])
+        self.viewer.window._status_bar._toggle_activity_dock(False)
+
+        ## GUI
+        self.table, grid_layout = fwid.add_table( self.dfmeasures )
+        layout = fwid.get_layout()
+        layout.addLayout( grid_layout )
+
+        save_btn = fwid.add_button("Add to main results table", self.save, descr="Add to main results table and save", color=ut.get_color("save") )
+        done_btn = fwid.add_button("Done", self.measure_done, descr="Finish the neighborhood measurement step", color=ut.get_color("done") )
+        layout.addWidget( save_btn )
+        layout.addWidget( done_btn )
+        self.setLayout(layout)
+
+    def draw_map(self, segmentation, labels, values ):
+        """ Add image layer of values by label """
+        mapfeat = ut.draw_map( segmentation, labels, values)
+        ut.remove_layer(self.viewer, "NbNeighbors")
+        self.viewer.add_image(mapfeat, name="NbNeighbors", scale=(self.mig.scaleXY, self.mig.scaleXY), contrast_limits=[0,np.nanmax(mapfeat)] )
+
+    def save(self):
+        """ Add neighboring measures to the main results table """
+        self.mig.add_results(self.dfmeasures, to_cell=True)
+        self.mig.save_results()
+
+    def measure_done(self):
+        """ Finish the step, close all """
+        ut.remove_layer(self.viewer, "NbNeighbors")
+        ut.remove_widget(self.viewer, "MeasureNeighborhood")

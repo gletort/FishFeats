@@ -1,6 +1,7 @@
 import fish_feats.Utils as ut
 import os
 from qtpy.QtWidgets import QPushButton, QCheckBox, QHBoxLayout, QVBoxLayout, QLabel, QLineEdit, QComboBox, QSpinBox, QSlider, QGroupBox, QFileDialog, QListWidget, QAbstractItemView # type: ignore from qtpy.QtCore import Qt # type: ignore
+from qtpy.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QGridLayout
 from qtpy.QtCore import Qt # type: ignore
 
 def help_button( link, description="", display_settings=None ):
@@ -350,3 +351,30 @@ def file_dialog( title, filetypes, directory=None ):
     else:
         filepath = None
     return filepath 
+
+def add_table( df_table ):
+    """ Add a QTable Widget """
+    wid_table = QTableWidget()
+    wid_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
+
+    def set_table(table):
+        wid_table.clear()
+        wid_table.setRowCount(len(table["CellLabel"]))
+        wid_table.setColumnCount(len(table.keys()))
+
+        for c, column in enumerate(table.keys()):
+            column_name = column
+            wid_table.setHorizontalHeaderItem(c, QTableWidgetItem(column_name))
+            for r, value in enumerate(table.get(column)):
+                item = QTableWidgetItem()
+                #if value == "":
+                #    value = "0"
+                #item.setData( Qt.EditRole, float(value))
+                item.setData( Qt.EditRole, value)
+                wid_table.setItem(r, c, item)
+
+    grid_layout = QGridLayout()
+    grid_layout.addWidget(wid_table)
+    wid_table.setSortingEnabled(True)
+    set_table(df_table)
+    return wid_table, grid_layout

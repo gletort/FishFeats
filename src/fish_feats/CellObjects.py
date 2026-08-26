@@ -224,7 +224,10 @@ class Cell:
                         #self.measures[key] = -99999
                         continue
                     else:
-                        self.measures[key] = float(val)
+                        try:
+                            self.measures[key] = float(val)
+                        except:
+                            self.measures[key] = val
                 if key == "ZPosPixel":
                     if (val is None) or (val==""):
                         self.zjunc = -99999
@@ -1182,7 +1185,8 @@ class Population:
 
     def measureAppendPrevious( self, results, previous_results, columns ):
         """ 
-        Append the previous results (if any) to the current results """
+        Append the previous results (if any) to the current results 
+        """
         full_results = []
         for row in results:
             cellid = row["CellId"]

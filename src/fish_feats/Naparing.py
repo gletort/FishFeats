@@ -7,7 +7,7 @@ import fish_feats.MainImage as mi
 import fish_feats.Configuration as cf
 import fish_feats.Utils as ut
 from fish_feats.NapaRNA import NapaRNA, OverlapRNA
-from fish_feats.NapaCells import MainCells, Position3D, EndCells 
+from fish_feats.NapaCells import MainCells, Position3D, EndCells, MeasureNeighbor 
 from fish_feats.NapaNuclei import MeasureNuclei, NucleiWidget, PreprocessNuclei 
 from fish_feats.FishGrid import FishGrid
 from fish_feats.NapaMix import CheckScale, CropImage, Association, Separation, CytoplasmMeasure, ThresholdChannel
@@ -370,6 +370,7 @@ class FishFeats:
         choices['RNA:Segment&assign'] = self.getRNA
         choices['RNA:Get overlaps'] = self.getOverlapRNA
         # Analysis options
+        choices['Measure:Cell neighbors'] = self.measureCellNeighbor
         choices['Measure:Cytoplasmic intensity'] = self.cytoplasmicStaining
         choices['Measure:Nuclear intensity'] = self.measureNuclearIntensity
         choices['Measure:Classify cells'] = self.launch_classify
@@ -649,6 +650,16 @@ class FishFeats:
             return
         meas_nuc = MeasureNuclei( self.viewer, self.mig, self.cfg )
         self.viewer.window.add_dock_widget(meas_nuc, name="Measure nuclei")
+
+    ## measure cell shape
+    def measureCellNeighbor(self):
+        """ Measure the number of neighbors of cell """
+        if not self.mig.has_cell():
+            ut.show_warning( "No cell staining to define neighbors." )
+            return
+        neighMeas = MeasureNeighbor( self.viewer, self.mig, self.cfg )
+        self.viewer.window.add_dock_widget(neighMeas, name="MeasureNeighborhood")
+        
 
     ############ measure cyto
     def cytoplasmicStaining(self):

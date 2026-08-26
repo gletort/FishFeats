@@ -3,7 +3,7 @@ import fish_feats.Utils as ut
 import fish_feats.FishWidgets as fwid
 from qtpy.QtWidgets import QWidget
 import os
-from qtpy.QtWidgets import QPushButton, QHBoxLayout, QVBoxLayout, QWidget, QGroupBox, QLineEdit, QComboBox, QLabel, QSpinBox, QCheckBox, QTabWidget, QFileDialog, QTableWidget, QTableWidgetItem, QGridLayout
+from qtpy.QtWidgets import QWidget, QTableWidget, QTableWidgetItem, QGridLayout
 from qtpy.QtCore import Qt
 import numpy as np
 
@@ -69,15 +69,9 @@ class DeProjTable(QWidget):
         self.labels = labels
         self.df = df
 
-        self.wid_table = QTableWidget()
-        self.wid_table.setEditTriggers(QTableWidget.EditTrigger.NoEditTriggers)
         layout = fwid.get_layout()
-        grid_layout = QGridLayout()
-        grid_layout.addWidget(self.wid_table)
+        self.wid_table, grid_layout = fwid.add_table(self.df)
         layout.addLayout( grid_layout )
-        #self.wid_table.clicked.connect(self.show_label)
-        self.wid_table.setSortingEnabled(True)
-        self.set_table(df)
 
         ## draw feature map
         featmap, self.show_deproj_features = fwid.list_line( "Draw feature map:", descr="Add a layer with the cells colored by the selected feature value", func=self.show_feature )
@@ -149,37 +143,10 @@ class DeProjTable(QWidget):
         """ Return list of measured features """
         return [ self.wid_table.horizontalHeaderItem(ind).text() for ind in range(self.wid_table.columnCount()) ]
 
-    def set_table(self, table=None, header=None):
-        if table is None:
-            table = self.mig.getFeaturesTable()
-            header = self.mig.getFeaturesList()
-        
-        self.wid_table.clear()
-        self.wid_table.setRowCount(len(table["CellLabel"]))
-        self.wid_table.setColumnCount(len(table.keys()))
-
-        for c, column in enumerate(table.keys()):
-            column_name = column
-            self.wid_table.setHorizontalHeaderItem(c, QTableWidgetItem(column_name))
-            for r, value in enumerate(table.get(column)):
-                item = QTableWidgetItem()
-                if value == "" or value < 0:
-                    value = "0"
-                item.setData( Qt.EditRole, float(value))
-                self.wid_table.setItem(r, c, item)
-    
     def draw_map(self, featname, labels, values ):
         """ Add image layer of values by label """
         self.viewer.window._status_bar._toggle_activity_dock(True)
-        labels = np.array(labels)
-        values = np.array(values)
-            
-        segdata = self.labels
-        mapping = np.zeros(segdata.max()+1, dtype="float16")
-        mapping[:] = np.nan
-        mapping[labels] = values 
-        mapfeat = mapping[segdata] 
-        
+        mapfeat = ut.draw_map( self.labels, labels, values)
         ut.remove_layer(self.viewer, "Deproj_"+featname)
         self.viewer.add_image(mapfeat, name="Deproj_"+featname, scale=(self.mig.scaleXY, self.mig.scaleXY) )
         self.viewer.window._status_bar._toggle_activity_dock(False)

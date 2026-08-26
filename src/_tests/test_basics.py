@@ -98,7 +98,6 @@ def test_rna_assignement():
 if __name__ == "__main__":
     starting()
     test_load_image()
-    read_config()
     test_junctions_separation()
     test_load_nucleifile()
     test_load_segfile()
