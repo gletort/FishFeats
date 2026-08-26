@@ -4,5 +4,7 @@ Fish&Feats offers several options to quantify tissue properties at the single ce
 * [Measure cytoplasmic intensity](./Measure-cytoplasmic-staining.md):<span style="background-color:#bda30f"> Measure the intensity of selected staining(s) in each cell cytoplasm </span>
 * [Measure nuclear intensity](./Measure-nuclear-staining.md):<span style="background-color:#bda30f"> Measure the intensity of selected staining(s) in each cell nucleus or all nuclei </span>
 * [Measure RNA intensity](./Get-RNAs.md#measure-intensity):<span style="background-color:#0b8300"> Measure the intensity of selected staining(s) in each segmented RNA </span>
+* [Measure cell neighbors](./Measure-cell-neighbor.md):<span style="background-color:#0b8300"> Measure the number of neighbors of each cell and gives their label </span>
+* [Measure deprojected cells](./Measure-deproj.md):<span style="background-color:#0b8300"> Measure cell properties correcting for 2D projection artifacts </span>
 
 !!! example "See the typical workflow of the measurement steps [here](./FishFeatsFlowchartv5.pdf#page=5)"

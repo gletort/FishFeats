@@ -360,7 +360,6 @@ class FishFeats:
         # actions related to cell contour
         choices['Cells:Segment'] = self.goJunctions
         choices['Cells:3D position'] = self.show3DCells
-        choices['Cells:Deproject'] = self.deproject
         # actions related to nuclei
         choices['Nuclei:Segment'] = self.getNuclei
         choices["Nuclei:Associate to cells"] = self.doCellAssociation
@@ -370,10 +369,11 @@ class FishFeats:
         choices['RNA:Segment&assign'] = self.getRNA
         choices['RNA:Get overlaps'] = self.getOverlapRNA
         # Analysis options
-        choices['Measure:Cell neighbors'] = self.measureCellNeighbor
         choices['Measure:Cytoplasmic intensity'] = self.cytoplasmicStaining
         choices['Measure:Nuclear intensity'] = self.measureNuclearIntensity
         choices['Measure:Classify cells'] = self.launch_classify
+        choices['Measure:Cell neighbors'] = self.measureCellNeighbor
+        choices['Measure:Deprojected cell'] = self.deproject
         # Utilities options
         choices['Misc:Quit plugin'] = self.byebye
         choices['Misc:Image scalings'  ] = self.checkScale
