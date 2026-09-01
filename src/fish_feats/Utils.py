@@ -833,6 +833,10 @@ def version_napari_above( compare_version ):
     """ Get the current version of napari """
     return Version(napari.__version__) > Version(compare_version)
 
+def version_above( module, version ):
+    """ Test if the module is at a more recent version or not """
+    return Version(module.__version__) > Version(version)
+
 def has_dependency( depname ):
     """ Check if installation was done with full mode or appose mode """
     try: 

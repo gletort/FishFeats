@@ -23,7 +23,11 @@ def sepanet_appose( img, sepdir, patchsize=256 ):
         env = appose.pixi( pixi_file ).log_debug()
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
         env_name = ut.get_env_name()
-        env = env.environment(env_name).build()
+        if ut.version_above(appose, '0.11'):
+            env = env.build()
+            env = env.activate(env_name)
+        else:
+            env = env.environment(env_name).build()
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;"\
         "import keras; import scipy.ndimage as ndimage")

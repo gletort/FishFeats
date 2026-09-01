@@ -32,7 +32,11 @@ def run_epyseg_appose( input_folder ):
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
         env = env.subscribe_error( lambda line: print("DBG:", line, end="") )
         env_name = ut.get_env_name()
-        env = env.environment(env_name).build()
+        if ut.version_above(appose, '0.11'):
+            env = env.build()
+            env = env.activate(env_name)
+        else:
+            env = env.environment(env_name).build()
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;"\
         "from epyseg.deeplearning.deepl import EZDeepLearning; import epyseg.deeplearning.deepl as deepl;")
@@ -229,7 +233,11 @@ def run_cellpose_3( img, scaleXY, diameter=7, verbose=True, progress_bar=None ):
         env = appose.pixi( pixi_file ).log_debug()
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
         env = env.subscribe_error( lambda line: print("DBG:", line, end="") )
-        env = env.environment( feature ).build()
+        if ut.version_above(appose, '0.11'):
+            env = env.build()
+            env = env.activate(feature)
+        else:
+            env = env.environment(feature).build()
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; from cellpose import models" \
         "")
@@ -475,7 +483,11 @@ def stardist2D_appose( img, prob, over, progress_bar=None ):
         env = env.subscribe_output( lambda line: print("OUT:", line, end="") )
         env = env.subscribe_error( lambda line: print("DBG:", line, end="") )
         env_name = ut.get_env_name()
-        env = env.environment(env_name).build()
+        if ut.version_above(appose, '0.11'):
+            env = env.build()
+            env = env.activate(env_name)
+        else:
+            env = env.environment(env_name).build()
         ut.show_info(f"Environment built at: {env.base()}")
         python = env.python().init("import numpy as np; import tensorflow as tf;" \
         "from stardist.models import StarDist2D")

@@ -26,16 +26,12 @@ classifiers = [
 dependencies = [
     "opencv_python_headless<4.12; python_version< '3.11' ",
     "opencv_python_headless; python_version >= '3.11'",
-    "pyqt6<6.10; python_version < '3.11'",
     "big-fish>=0.6.2",
-    "napari<0.6.4; python_version < '3.11'",
-    "napari;python_version >= '3.11'",
 	"appose<0.12",
 	"nninteractive",
 	"torch<=2.7",
     "numpy==1.26.4; python_version < '3.11'",
     "numpy; python_version >= '3.11'",
-	"pyqt5",
     "imaris_ims_file_reader",
     "czifile",
     "tifffile",
@@ -50,6 +46,14 @@ dependencies = [
 
 [project.optional-dependencies]
 full = [
+    "napari<0.6.4; python_version < '3.11'",
+    "napari;python_version >= '3.11'",
+    "pyqt6<6.10; python_version < '3.11'",
+    "pyqt6; python_version >= '3.11'",
+	"pyqt5",
+]
+
+noappose = [
     "epyseg; python_version < '3.11'",
 	"tensorflow<2.15; python_version < '3.11'",
 	"tensorflow; python_version >= '3.11'",
