@@ -6,6 +6,12 @@ pip install fishfeats
 ```
 in a virtual environment (python 3.10 recommended).
 
+This installation supposed that you already have installed napari in this environement, with the correct graphical bindings for your computer.
+To install also napari at the same time, type:
+```
+pip install fishfeats[full]
+```
+
 If you are not familiar with the procedure, here are two options for installation with more details:
 
 [**Standard installation**](#standard-installation): You can install napari and `FishFeats` by creating/using a python virtual environment (**recommended**).
@@ -44,8 +50,8 @@ It will install python 3.10 and create an environment called `fishfeats_env`.
 - Then you can install napari and FishFeats and all the depencies they need : `pip install fishfeats`. 
 It takes a bit of time, be patient. Congrats and see you in Step 3 then. 
 
-!!! note "Full installation"
-	To reduce possible dependencies conflict, some more potentially problematic dependencies (typically relying on tensorflow) are not included by default. They will be installed automatatically in a separated environment thanks to [appose](https://apposed.org/). However, if you prefer to install everything in the same environment for more control, you can install fishfeats with `pip install fishfeats[full]`. Note that in that case you have to install a python version <=3.10.
+!!! note "All dependencies installation"
+	To reduce possible dependencies conflict, some more potentially problematic dependencies (typically relying on tensorflow) are not included by default. They will be installed automatatically in a separated environment thanks to [appose](https://apposed.org/). However, if you prefer to install everything in the same environment for more control, you can install fishfeats with `pip install fishfeats[noappose]`. Note that in that case you have to install a python version <=3.10.
 
 **Step 3: Open napari**
 You can open napari by writing `napari` in the terminal. 
