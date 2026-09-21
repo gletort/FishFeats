@@ -531,10 +531,19 @@ def stardist2D_appose( img, prob, over, progress_bar=None ):
     except Exception as e:
         raise RuntimeError("Stardist in separated environement failed") from e
 
-def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMode="Munkres", assolim=3, threshold_overlap=0.25, verbose=True, progress_bar=None):
+def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMode="Munkres", assolim=3, threshold_overlap=0.25, resize_factor=1.0, verbose=True, progress_bar=None):
     """ Segment nuclei with Stardist2D and reconstruct in 3D - return the nuclei list """
     
     ## segment 2D
+    shape = nucimg.shape
+    if (resize_factor < 0.95) or (resize_factor > 1.05):
+        from skimage import transform as sktransform
+        new_shape = [nucimg.shape[0],0,0]
+        new_shape[1] = int(shape[1]*resize_factor)
+        new_shape[2] = int(shape[2]*resize_factor)
+        new_shape = tuple(new_shape)
+        nucimg = sktransform.resize(nucimg, new_shape, order=1, anti_aliasing=True, preserve_range=True).astype(nucimg.dtype)
+
     appose = not ut.has_dependency( "stardist" )
     if appose:
         labnuc = stardist2D_appose(nucimg, prob=proba, over=overlap, progress_bar=progress_bar)
@@ -543,6 +552,12 @@ def getNuclei_stardist2DAsso3D(nucimg, scaleXY, proba=0.55, overlap=0.1, assoMod
 
     if labnuc is None:
         return None
+
+    if (resize_factor < 0.95) or (resize_factor > 1.05):
+        ## resize back to the original image size
+        from skimage import transform as sktransform
+        labnuc = sktransform.resize(labnuc, shape, order=0, anti_aliasing=False, preserve_range=True).astype(labnuc.dtype)
+
     if progress_bar is not None:
         progress_bar.set_description( "Reconstructing now in 3D..." ) 
     ## reconstruct 3D

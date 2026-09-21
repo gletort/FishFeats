@@ -115,6 +115,8 @@ class NucleiWidget(QWidget):
         stardist_layout.addLayout( prob_line )
         overlap_line, self.stardist_nuclei_overlap = fwid.value_line( "Nuclei overlap: ", self.paras["Stardist_nuclei_overlap"], descr="Overlap threshold to consider two nuclei as overlapping (the lower the more/larger nuclei)" )
         stardist_layout.addLayout( overlap_line )
+        resize_line, self.stardist_resize = fwid.value_line( "Resize image: ", self.paras["Stardist_resize"], descr="Resize the image by the given factor to detect smaller/larger nuclei than what is detected" )
+        stardist_layout.addLayout( resize_line )
         ##2D->3D association
         association_line, self.stardist_association_method = fwid.list_line( "3D reconstruction method: ", descr="Method to associate 2D Stardist nuclei into 3D nuclei in consecutive slices" )
         for method in ["Munkres", "Overlap"]:
@@ -194,6 +196,7 @@ class NucleiWidget(QWidget):
         self.paras = {}
         self.paras["Stardist_probability_threshold"] = 0.5
         self.paras["Stardist_nuclei_overlap"] = 0.1
+        self.paras["Stardist_resize"] = 1.0
         self.paras["Stardist_association_distance_limit_micron"] = 0.3
         self.paras["Stardist_threshold_overlap"] = 0.2
         self.paras["Cellpose_cell_diameter"] = 30
@@ -207,7 +210,7 @@ class NucleiWidget(QWidget):
         if load_paras is not None:
             float_paras = ["Cellpose_cell_diameter", 
                            "Cellpose_chunk_size",
-                           "Cellpose_detection_threshold", "Cellpose_stitch_threshold", "Stardist_probability_threshold", "Stardist_threshold_overlap", "Stardist_nuclei_overlap", "Stardist_association_distance_limit_micron"]
+                           "Cellpose_detection_threshold", "Cellpose_stitch_threshold", "Stardist_probability_threshold", "Stardist_threshold_overlap", "Stardist_resize", "Stardist_nuclei_overlap", "Stardist_association_distance_limit_micron"]
             
             for cpara in float_paras:
                 if cpara in load_paras:
@@ -237,6 +240,7 @@ class NucleiWidget(QWidget):
         self.cfg.addText("Segment nuclei with Stardist2D+3D association")
         self.cfg.addTextParameter( "Stardist", "probability_threshold", self.stardist_probability_threshold.text() )
         self.cfg.addTextParameter( "Stardist", "nuclei_overlap", self.stardist_nuclei_overlap.text() )
+        self.cfg.addTextParameter( "Stardist", "resize", self.stardist_resize.text() )
         self.cfg.addTextParameter( "Stardist", "association_distance_limit_micron", self.stardist_association_distance_limit_micron.text() )
         self.cfg.addTextParameter( "Stardist", "threshold_overlap", self.stardist_threshold_overlap.text() )
         self.mig.prepare_segmentation_nuclei()
@@ -251,7 +255,8 @@ class NucleiWidget(QWidget):
             float(self.stardist_nuclei_overlap.text()),
             self.stardist_association_method.currentText(), 
             float(self.stardist_association_distance_limit_micron.text()),
-            float(self.stardist_threshold_overlap.text()), pbar )
+            float(self.stardist_threshold_overlap.text()), 
+            float(self.stardist_resize.text()), pbar )
         if self.mig.nucmask is None:
             ut.close_progress( self.viewer, pbar )
             return
@@ -299,6 +304,7 @@ class NucleiWidget(QWidget):
         self.cfg.addParameter( "NucleiSeg", "method", self.method_choice.currentText() )
         self.cfg.addParameter( "NucleiSeg", "Stardist_probability_threshold", self.stardist_probability_threshold.text() )
         self.cfg.addParameter( "NucleiSeg", "Stardist_nuclei_overlap", self.stardist_nuclei_overlap.text() )
+        self.cfg.addParameter( "NucleiSeg", "Stardist_resize", self.stardist_resize.text() )
         self.cfg.addParameter( "NucleiSeg", "Stardist_association_distance_limit_micron", 
             self.stardist_association_distance_limit_micron.text() )
         self.cfg.addParameter( "NucleiSeg", "Stardist_threshold_overlap", self.stardist_threshold_overlap.text() )
