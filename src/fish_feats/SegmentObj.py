@@ -603,7 +603,7 @@ def run_cellpose_nuclei(model, nucimg, norm, diameter, scaleXY, scaleZ, threshol
         anisotropy = scaleZ/scaleXY
     else:
         anisotropy = 1.0
-    mask, flow, style = model.eval(nucimg, invert=False, normalize=norm, diameter=diamet, channels=[0,0], channel_axis=0, z_axis=1, resample=resample, do_3D=in3D, stitch_threshold=stitch_threshold, anisotropy=anisotropy, flow_threshold=flow_threshold, cellprob_threshold=threshold)
+    mask, flow, style = model.eval(nucimg, normalize=norm, diameter=diamet, channels=[0,0], channel_axis=0, z_axis=1, resample=resample, do_3D=in3D, stitch_threshold=stitch_threshold, anisotropy=anisotropy, flow_threshold=flow_threshold, cellprob_threshold=threshold)
     if verbose:
         print("3D nuclei segmentation done")
     return mask
