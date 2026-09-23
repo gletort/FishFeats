@@ -220,7 +220,7 @@ def run_cellpose(img, scaleXY, diameter=7, verbose=True):
     from cellpose import models
     model = models.CellposeModel( gpu=True ) 
     diamet = diameter/scaleXY   ## increase it ?
-    mask, flow, style = model.eval(img, invert=False, diameter=diamet, do_3D=False, cellprob_threshold=0.05)
+    mask, flow, style = model.eval(img, diameter=diamet, do_3D=False, cellprob_threshold=0.0)
     ## convert cellpose result to label image (cellpose result are not touching border, make it as junctions)
     return fromcellpose_tojunctions(mask)
 
@@ -592,7 +592,7 @@ def finishNuclei( nuclab, minz=2, convexify=False, verbose=True ):
 
 def initialize_cellpose():
     from cellpose import models 
-    model = models.CellposeModel(gpu=True, model_type='nuclei') 
+    model = models.CellposeModel(gpu=True) 
     return model
 
 def run_cellpose_nuclei(model, nucimg, norm, diameter, scaleXY, scaleZ, threshold, flow_threshold, resample=True, in3D=True, stitch_threshold=0.25, verbose=True):
@@ -603,7 +603,7 @@ def run_cellpose_nuclei(model, nucimg, norm, diameter, scaleXY, scaleZ, threshol
         anisotropy = scaleZ/scaleXY
     else:
         anisotropy = 1.0
-    mask, flow, style = model.eval(nucimg, invert=False, normalize=norm, diameter=diamet, channels=[0,0], channel_axis=0, z_axis=1, resample=resample, do_3D=in3D, stitch_threshold=stitch_threshold, anisotropy=anisotropy, flow_threshold=flow_threshold, cellprob_threshold=threshold)
+    mask, flow, style = model.eval(nucimg, normalize=norm, diameter=diamet, channels=[0,0], channel_axis=0, z_axis=1, resample=resample, do_3D=in3D, stitch_threshold=stitch_threshold, anisotropy=anisotropy, flow_threshold=flow_threshold, cellprob_threshold=threshold)
     if verbose:
         print("3D nuclei segmentation done")
     return mask

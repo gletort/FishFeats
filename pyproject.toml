@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "fishfeats"
-version = "1.4.11"
+version = "1.4.12"
 description = "Napari plugin for RNA-Fish+cells analysis pipeline"
 license.file = "LICENSE"
 readme = "README.md"
@@ -28,8 +28,8 @@ dependencies = [
     "opencv_python_headless; python_version >= '3.11'",
     "big-fish>=0.6.2",
 	"appose",
-	"nninteractive",
-	"torch<=2.7",
+	"nninteractive<=2.5.1",
+	"torch<2.11",
     "numpy==1.26.4; python_version < '3.11'",
     "numpy; python_version >= '3.11'",
     "imaris_ims_file_reader",
@@ -40,7 +40,7 @@ dependencies = [
     "scikit-image",
     "lxml",
     "packaging",
-    "cellpose[distributed]>3",
+    "cellpose[distributed]<=4.2.1.1",
     "deprojpy",
 ]
 

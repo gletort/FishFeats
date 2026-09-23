@@ -737,11 +737,19 @@ class PointEditing(QWidget):
             if "NucleiContours" in self.viewer.layers:
                 col = self.viewer.layers["NucleiContours"].get_color( assignement )
             else:
-                col = "white"
+                col = [1.0, 1.0, 1.0, 1.0]
+
+        labels = self.layerrna.properties['label']
+        labels.flags.writeable=True
+        scores = self.layerrna.properties['score']
+        scores.flags.writeable=True
+        unassigned = self.layerrna.properties['unassigned']
+        unassigned.flags.writeable=True
+
         for ind in selection:
-            self.layerrna.properties['label'][ind] = assignement 
-            self.layerrna.properties['score'][ind] = 2 ## manually assigned = sure
-            self.layerrna.properties['unassigned'][ind] = (assignement <= 1) 
+            labels[ind] = assignement 
+            scores[ind] = 2 ## manually assigned = sure
+            unassigned[ind] = (assignement <= 1) 
             self.layerrna.face_color[ind] = col
         self.layerrna.selected_data = {}
         self.layerrna.refresh()
