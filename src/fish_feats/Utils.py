@@ -852,6 +852,19 @@ def has_dependency( depname ):
     except:
         return False
 
+def reactive_bindings(layer, mouse_drag, key_map):
+    """ Reactive the mouse and key event bindings on layer """
+    layer.mouse_drag_callbacks = mouse_drag
+    layer.keymap.update(key_map)
+
+def clear_bindings(layer):
+    """ Clear and returns the current event bindings on layer """
+    old_mouse_drag = layer.mouse_drag_callbacks.copy()
+    old_key_map = layer.keymap.copy()
+    layer.mouse_drag_callbacks = []
+    layer.keymap.clear()
+    return old_mouse_drag, old_key_map
+
 def add_point_layer( viewer, pts, colors, layer_name, mig, size=7, pts_properties=None ):
     """ Add a points layer to the viewer """
     if not version_napari_above("0.4.19"):
@@ -878,6 +891,16 @@ def add_point_layer( viewer, pts, colors, layer_name, mig, size=7, pts_propertie
             )
 
 ### Labels edition
+def get_skeleton( seg, viewer=None, verbose=0 ) :
+    """ convert labels movie to skeleton (thin boundaries) """
+    if viewer is not None:
+        show_progress( viewer, show=True )
+        skel = np.zeros(seg.shape, dtype="uint8")
+        expz = expand_labels( seg, distance=1 )
+        skel[(seg == 0) *(expz > 0)] = 1
+    if viewer is not None:
+        show_progress( viewer, show=False )
+    return skel
 
 def neighbor_labels(img, lab, olab):
     """ Check if the two labels are neighbors or not """

@@ -378,6 +378,7 @@ class FishFeats:
         choices['Misc:Quit plugin'] = self.byebye
         choices['Misc:Image scalings'  ] = self.checkScale
         choices['Misc:Touching labels'] = self.touching_labels
+        choices['Misc:Export skeleton'] = self.export_skeleton
         choices['Misc:Add grid'] = self.addGrid 
         choices['Misc:Crop image'] = self.crop_image 
         choices['Misc:Threshold channel'] = self.threshold_channel 
@@ -685,6 +686,19 @@ class FishFeats:
         return text
 
 ############################## Extra-tools
+
+    def export_skeleton(self):
+        """ Export the skeleton of the 2D cells """
+        ## get junctions img
+        if "Cells" not in self.viewer.layers:
+            if self.mig.pop is None or self.mig.pop.imgcell is None:
+                ut.show_info("Load segmentation before!")
+                return
+        skel = ut.get_skeleton( self.mig.pop.imgcell, self.viewer )
+        self.mig.save_image(skel, None, hasZ=False, endname="_skeleton.tif", imtype="uint8")
+        skellayer = self.viewer.add_image(skel, name="Skeleton", blending="additive", opacity=1, scale=(self.mig.scaleXY, self.mig.scaleXY))
+        skellayer.reset_contrast_limits()
+        skellayer.contrast_limits = (0, 1)
 
     ### Touching labels for Griottes
     def touching_labels(self):
