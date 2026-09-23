@@ -28,7 +28,7 @@ dependencies = [
     "opencv_python_headless; python_version >= '3.11'",
     "big-fish>=0.6.2",
 	"appose",
-	"nninteractive",
+	"nninteractive<=2.5.1",
 	"torch<2.11",
     "numpy==1.26.4; python_version < '3.11'",
     "numpy; python_version >= '3.11'",

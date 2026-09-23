@@ -592,7 +592,7 @@ def finishNuclei( nuclab, minz=2, convexify=False, verbose=True ):
 
 def initialize_cellpose():
     from cellpose import models 
-    model = models.CellposeModel(gpu=True, model_type='nuclei') 
+    model = models.CellposeModel(gpu=True) 
     return model
 
 def run_cellpose_nuclei(model, nucimg, norm, diameter, scaleXY, scaleZ, threshold, flow_threshold, resample=True, in3D=True, stitch_threshold=0.25, verbose=True):

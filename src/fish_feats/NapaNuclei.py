@@ -456,7 +456,6 @@ class EditNuclei():
             verbose=False,
             torch_n_threads=int(os.cpu_count()*0.75),  # Use available CPU cores
             do_autozoom=True,  # Enables AutoZoom for better patching
-            use_pinned_memory=True,  # Optimizes GPU memory transfers
         )
 
         # Load the trained model
