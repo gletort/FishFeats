@@ -220,7 +220,7 @@ def run_cellpose(img, scaleXY, diameter=7, verbose=True):
     from cellpose import models
     model = models.CellposeModel( gpu=True ) 
     diamet = diameter/scaleXY   ## increase it ?
-    mask, flow, style = model.eval(img, invert=False, diameter=diamet, do_3D=False, cellprob_threshold=0.05)
+    mask, flow, style = model.eval(img, diameter=diamet, do_3D=False, cellprob_threshold=0.0)
     ## convert cellpose result to label image (cellpose result are not touching border, make it as junctions)
     return fromcellpose_tojunctions(mask)
 
