@@ -40,7 +40,7 @@ dependencies = [
     "scikit-image",
     "lxml",
     "packaging",
-    "cellpose[distributed]>3",
+    "cellpose[distributed]<=4.2.1.1",
     "deprojpy",
 ]
 
