@@ -29,7 +29,7 @@ dependencies = [
     "big-fish>=0.6.2",
 	"appose",
 	"nninteractive",
-	"torch<=2.7",
+	"torch<2.11",
     "numpy==1.26.4; python_version < '3.11'",
     "numpy; python_version >= '3.11'",
     "imaris_ims_file_reader",
