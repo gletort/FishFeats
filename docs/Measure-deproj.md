@@ -7,7 +7,7 @@ For bend tissue, projection from 3D to 2D and then measuring cell properties, as
 
 If while doing the projection the mapping between the 3D and the 2D projection was saved, the height map, it is possible to get a better estimate of the cell 3D properties. 
 [`Deproj`](https://github.com/Image-Analysis-Hub/DeProj/tree/master) is a matlab framework developed to estimate correct cell properties, see [Herbert et al. 2021](https://doi.org/10.1186/s12915-021-01037-w). 
-[`Deprojpy`](https://github.com/zen-laboratory/DeProjPy) is a python implementation of this tool.
+[`Deprojpy`](https://github.com/zen-laboratory/DeProjPy) is a python implementation of this tool, extended with new capabilities.
 `FishFeats` relies on `deprojpy` to perform the deprojected calculation of cell properties.
 
 For this, you have to precise the file that contains the z-map information (the real 3D position of each projected pixel). 
