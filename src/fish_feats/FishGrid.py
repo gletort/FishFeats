@@ -51,6 +51,10 @@ class FishGrid(QWidget):
 
     def add_grid(self):
         """ Create/Load a new grid and add it """
+        try:
+            active = self.viewer.layers.selection.active.name
+        except:
+            active = None
         ut.remove_layer(self.viewer, "FishGrid")
         imshape = self.mig.image_2dshape()
         if imshape is None:
@@ -68,3 +72,6 @@ class FishGrid(QWidget):
                 rects.append(rect)
                 rects_names.append(chr(65+x)+"_"+str(y))
         self.viewer.add_shapes(rects, name="FishGrid", text=rects_names, face_color=[1,0,0,0], edge_color=[0.7,0.7,0.7,0.7], edge_width=3, scale=(self.mig.scaleXY, self.mig.scaleXY))
+        if active is not None:
+            ut.set_active_layer(self.viewer, active)
+        

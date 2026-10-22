@@ -889,6 +889,10 @@ def add_point_layer( viewer, pts, colors, layer_name, mig, size=7, pts_propertie
             out_of_slice_display = True, 
             blending="additive"
             )
+def set_active_layer(viewer, layname):
+    """ Set the current Napari active layer """
+    if layname in viewer.layers:
+        viewer.layers.selection.active = viewer.layers[layname]
 
 ### Labels edition
 def get_skeleton( seg, viewer=None, verbose=0 ) :

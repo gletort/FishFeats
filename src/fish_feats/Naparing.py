@@ -592,6 +592,7 @@ class FishFeats:
                 self.viewer.layers.remove(shapeName)
             else:
                 ut.get_bblayer(layer, shapeName, dim, self.viewer, self.mig)
+            ut.set_active_layer(self.viewer, "Junctions")
             return
     
         def relabel_layer():

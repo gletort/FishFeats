@@ -75,6 +75,7 @@ include-package-data = true
 # Explicitly list packages to include
 packages = [
     "fish_feats",
+    "fish_feats.resources",
 ]
 
 [tool.setuptools_scm]
