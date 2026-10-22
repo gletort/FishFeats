@@ -199,7 +199,7 @@ class GetCells( QWidget ):
         super().__init__()
         layout = QVBoxLayout()
 
-        methods = [ "Epyseg", "CellPoseSAM", "CellPose3", "Load segmented file", "Empty" ]
+        methods = [ "Epyseg", "CellPoseSAM", "CellPose3", "Load segmented file", "Empty", "From skeleton" ]
         defmeth = "Epyseg"
         celldiameter = 30
         self.chunksize = 1500
@@ -241,10 +241,17 @@ class GetCells( QWidget ):
         ## choose loading filename
         self.file_group, filename_layout = fwid.group_layout( "", "" )
         filename_line, self.filename_label = fwid.file_line( "Choose file", self.junction_filename, dial_msg="Choose segmentation file", filetype="*.tif", descr="Choose the file containing the segmentation of the cells (labels)" )
+        ## choose skeleton file
+        self.skelfile_group, skelfilename_layout = fwid.group_layout( "", "" )
+        skelfilename_line, self.filename_skeleton = fwid.file_line( "Choose skeleton file", "", dial_msg="Choose file of segmentation skeleton", filetype="*.tif", descr="Choose the file containing the skeleton of the segmentation of the cells" )
         #filename_line, choose_filename, self.filename_label = fwid.label_button( "Choose file", self.get_junction_filename, label=self.junction_filename, descr="Choose a file with segmented junctions", color=None )
         filename_layout.addLayout( filename_line)
         self.file_group.setLayout( filename_layout )
         layout.addWidget( self.file_group )
+        
+        skelfilename_layout.addLayout( skelfilename_line)
+        self.skelfile_group.setLayout( skelfilename_layout )
+        layout.addWidget( self.skelfile_group )
 
         ## button to segment the cells
         segment_btn = fwid.add_button( "Segment cells", self.segment_cells, descr="Segment the cell contours from the image", color=ut.get_color("go") )
@@ -259,6 +266,7 @@ class GetCells( QWidget ):
         """ Set the visibility of the parameters according to the method """
         self.diam_group.setVisible( self.methodsChoice.currentText() in ["CellPose", "CellPoseSAM", "CellPose3"] )
         self.file_group.setVisible( self.methodsChoice.currentText() == "Load segmented file" )
+        self.skelfile_group.setVisible( self.methodsChoice.currentText() == "From skeleton" )
 
     def get_junction_filename( self ):
         """ Open a file dialog to choose a file with segmented junctions """
@@ -282,6 +290,15 @@ class GetCells( QWidget ):
             if os.path.exists( filename ):
                 self.junction_filename = filename
             self.mig.load_segmentation( self.junction_filename )
+            self.ffeats.correction_junctions()
+            self.close()
+        elif method == "From skeleton":
+            print("From sjeleton")
+            filename = self.filename_skeleton.text()
+            if not os.path.exists(filename):
+                ut.show_warning("File "+filename+" not found")
+                return
+            self.mig.load_skeleton( filename )
             self.ffeats.correction_junctions()
             self.close()
         else:

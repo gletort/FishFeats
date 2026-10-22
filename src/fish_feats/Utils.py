@@ -902,6 +902,22 @@ def get_skeleton( seg, viewer=None, verbose=0 ) :
         show_progress( viewer, show=False )
     return skel
 
+def skeleton_to_labels( bin_img ):
+    """ Boundaries of the frame one pixel thick """
+    from skimage.morphology import skeletonize 
+    from skimage.measure import label
+    skel = skeletonize( bin_img/np.max(bin_img) )
+    skel = copy_border( skel, bin_img )
+    labels = label( np.invert(skel), connectivity=1 )
+    return labels
+
+def copy_border( skel, bin ):
+    """ Copy the pixel border onto skeleton image """
+    skel[[0, -1], :] = bin[[0, -1], :]  # top and bottom borders
+    skel[:, [0, -1]] = bin[:, [0, -1]]  # left and right borders
+    return skel
+
+
 def neighbor_labels(img, lab, olab):
     """ Check if the two labels are neighbors or not """
     

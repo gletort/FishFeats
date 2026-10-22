@@ -345,6 +345,20 @@ class MainImage:
             zcellsDict = ut.load_dictlist(zcellfilename, verbose=self.verbose)
             self.pop.updateCellsZPosFromDictList( zcellsDict )     
 
+    def load_skeleton( self, filename ):
+        """ Load the segmentation from a skeleton file """
+        mask, scaleXYm, scaleZm, names = ut.open_image(filename, verbose=self.verbose)
+        self.junmask = ut.skeleton_to_labels(mask)
+        if self.junstain is None:
+            if self.should_separate():
+                separated_junctionsfile = self.separated_junctions_filename(ifexist=True)
+                separated_nucleifile = self.separated_nuclei_filename(ifexist=True)
+                if (separated_junctionsfile != "") and (separated_nucleifile != ""):
+                    self.load_separated_staining( separated_junctionsfile, separated_nucleifile )
+                else:
+                    print("Should separate the junctions and nuclei staining first")
+            else:
+                self.junstain = self.image[self.junchan,]
 
     def load_segmentation( self, junfilename ):
         """ Load the segmentation and the sepatated staining if necesary"""
