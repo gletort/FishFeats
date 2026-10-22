@@ -620,8 +620,10 @@ class PointEditing(QWidget):
         intens = self.mig.measure_spots( self.channel, nchan )
         ## normalize the intensity by its max
         intens = intens/np.max(intens)
+        intensities = self.layerrna.properties['intensity']
+        intensities.flags.writeable = True
         for ind, inte in enumerate(intens):
-            self.layerrna.properties['intensity'][ind] = inte
+            intensities[ind] = inte
     
     def change_display_fromintensity(self):
         """ Show only points that have intensity in the given range """
@@ -1111,14 +1113,20 @@ class PointEditing(QWidget):
         unassigned = (labels==-1) + (labels==1)
         labels[unassigned] = 1
         fcolor = []
+        labels = self.layerrna.properties['label']
+        labels.flags.writeable=True
+        scores = self.layerrna.properties['score']
+        scores.flags.writeable=True
+        unass = self.layerrna.properties['unassigned']
+        unass.flags.writeable=True
         for ind, lab in enumerate(labels):
             if self.mig.has_cell():
                 fcolor.append( self.viewer.layers["CellContours"].get_color(lab) )
             else:
                 fcolor.append( self.viewer.layers["Nuclei"].get_color(lab) )
-            self.layerrna.properties['unassigned'][ind] = unassigned[ind]
-            self.layerrna.properties["label"][ind] = lab
-            self.layerrna.properties["score"][ind] = scores[ind]
+            unass[ind] = unassigned[ind]
+            labels[ind] = lab
+            scores[ind] = scores[ind]
         self.layerrna.face_color = fcolor
         self.layerrna.size = self.main.spot_disp_size
         self.layerrna.refresh()
